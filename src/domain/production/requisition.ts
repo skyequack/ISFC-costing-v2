@@ -33,8 +33,8 @@ export type ReqFlag =
   | { kind: 'truncated'; recipe: string; depth: number }
   | { kind: 'unknown-code'; recipe: string; code: string }
   | { kind: 'no-price'; recipe: string; code: string }
-  /** A line pointing at another card is read as "portions" (legacy). Costing reads it as a quantity of the batch unit. */
-  | { kind: 'sub-scale'; recipe: string; sub: string; legacyPortions: number; costingPortions: number };
+  /** Informational (D-47): legacy read the line qty as portions; the quantity of the batch unit is applied instead. */
+  | { kind: 'sub-scale'; recipe: string; sub: string; legacyPortions: number; appliedPortions: number };
 
 export interface ReqResult {
   acc: Record<string, ReqEntry>;
@@ -80,12 +80,21 @@ export function reqExpand(
     if (sub) {
       const subQ = num(sub.batchOut) || num(sub.subQty) || 0;
       const subOut = Math.max(1, num(sub.output) || 1);
+      /* D-47: a line pointing at a sub-recipe is a quantity of its batch unit (as costing reads it), so the
+         sub is expanded for qty/batch-size batches = qty x output/batchSize portions. Legacy passed q as portions. */
+      let subPortions = q;
       if (subQ) {
-        const costingPortions = q * (subOut / subQ);
-        if (Math.abs(costingPortions - q) > 1e-9 * Math.max(1, Math.abs(q)))
-          flag(res, { kind: 'sub-scale', recipe: r.code, sub: sub.code, legacyPortions: q, costingPortions });
+        subPortions = q * (subOut / subQ);
+        if (Math.abs(subPortions - q) > 1e-9 * Math.max(1, Math.abs(q)))
+          flag(res, {
+            kind: 'sub-scale',
+            recipe: r.code,
+            sub: sub.code,
+            legacyPortions: q,
+            appliedPortions: subPortions,
+          });
       }
-      reqExpand(sub, q, ctx, res, depth + 1);
+      reqExpand(sub, subPortions, ctx, res, depth + 1);
       return;
     }
     const it = ctx.items.get(l.code);

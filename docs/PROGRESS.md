@@ -1,5 +1,5 @@
 # PROGRESS — living checklist (update in the same commit as the work)
-Last updated: 2026-10-09. Current phase: **Phase 2 code complete, gate pending your sign-off** (domain gates green). Phase 1 leftovers need `.env` keys/Docker (see Open items).
+Last updated: 2026-10-09. Current phase: **Phase 2 complete (planning deferred to Phase 5 by decision); Phase 3 needs `.env` keys + Docker** (domain gates green). Phase 1 leftovers need `.env` keys/Docker (see Open items).
 
 ## Phase 0 — Discovery ✅
 - [x] Legacy fully mapped → `docs/legacy/*`, `DISCOVERY_FINDINGS.md`
@@ -22,10 +22,10 @@ Last updated: 2026-10-09. Current phase: **Phase 2 code complete, gate pending y
 - [x] `src/domain/costing` — line-for-line port (types, engine); **golden diff: all 321 cards, every field, `Object.is` equal — 0 mismatches**
 - [x] Synthetic priced cases (sp=100 invariants, worked example food=30, output>1, vat-only), yield matrix, edge cases (null price, unknown code, menu-as-line, blank lines, conversions incl. wrong unit/zero factor, error precedence, case-insensitive units), sub-recipes (no per-level buffer, subQty fallback, sub-of-sub, cycles incl. self/A→B→A, last-card-wins, items-win), fast-check properties (cyclic graphs terminate, scaling, reprice propagation)
 - [x] `src/domain/recipes/graph.ts` — `findCycle`/`assertAcyclic`/`assertAcyclicWith` (iterative, 20k-deep safe, case-insensitive), golden graph is acyclic
-- [x] `src/domain/production/requisition.ts` — `reqExpand` quantities **equal legacy for all 321 cards** (legacy function evaluated from the oracle); conversion-aware valuation; flags: unconvertible, truncated (depth>4), unknown-code, no-price, sub-scale; `reconcile()` report (D-28)
+- [x] `src/domain/production/requisition.ts` — `reqExpand` quantities **equal legacy for all cards without a sub-recipe line** (the one sub use is corrected by D-47) (legacy function evaluated from the oracle); conversion-aware valuation; flags: unconvertible, truncated (depth>4), unknown-code, no-price, sub-scale; `reconcile()` report (D-28)
 - [x] Coverage on `src/domain`: 100% lines/functions, 97.1% branches (gate ≥95%); remaining branches are unreachable legacy dead code
 - [x] D-42 (approved) `costWithIssues()` → legacy result unchanged (golden-verified) + `complete` + `issues[]` with path to the offending line; property-tested `complete <=> err===''`. UI "incomplete" badge arrives with the Phase 5 screens.
-- [ ] Planning (`planFindCard`, `planCost`, TESTING §1 "Planning") — not started; needs the PLAN_ALIAS data module (`src/data`), planned with the Phase 5 plan screen unless you want it now.
+- [ ] Planning (`planFindCard`, `planCost`, TESTING §1 "Planning": all 1001 menu cells vs legacy fuzzy matcher) — **decided: build with the Phase 5 plan screen** (needs `src/data` alias module and menu tables). Must be done before the Phase 5 gate.
 - [ ] Price-precision round-trip tests (import→DB→API→export) — need the data layer (Phase 3/6).
 - `/code-review` (high) run: 8 findings, all fixed (blank-row skip D-46, flag dedupe, CI now runs `test:coverage`, duplicate-code graph nodes merged, shared `unitBridge`, issues walk no longer re-costs sub-trees, test fixes).
 - Gate status: typecheck ✅ lint ✅ prettier ✅ 125 tests ✅ coverage 96.8% branches ✅ build ✅.
@@ -37,7 +37,7 @@ Last updated: 2026-10-09. Current phase: **Phase 2 code complete, gate pending y
 ## Phase 7 — Deploy & verify ☐
 
 ## Open items
-- **Finding (D-10/D-28):** legacy requisition reads a line that points at a sub-recipe as *portions* of that sub (qty 25 g ⇒ 25 portions), while costing reads it as 25 g of the batch. Golden has exactly one such use (GRM-MN-0001 → GRM-SR-0001): requisition draws ≈22.7× the costed amount (`sub-scale` flag, shown in reconciliation). Quantity semantics were kept as D-10 says; decide whether to fix (scale by output/batchOut) — would be a new DECISIONS row.
+- ~~Finding (D-10/D-28) sub-recipe portions~~ — resolved by D-47 (approved): requisition scales a sub line by output ÷ batch size; GRM-MN-0001 now reconciles with its card cost.
 - Git identity: no `user.name`/`user.email` configured, so the first commit is pending — give me the name/email to use (repo-local) or commit yourself.
 - Legacy wording kept verbatim but now inaccurate: Backup subtitle "Your data lives in this browser - back it up". Falls under D-41 wording changes — needs your OK to reword.
 - `menusVisible()` (Menu Plans nav only for SSEM-scoped users, D-06) is not wired yet; nav shows Menu Plans to everyone until brand data exists (Phase 3/5).

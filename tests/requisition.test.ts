@@ -35,10 +35,16 @@ const ctx: ReqContext = {
   conv: goldenContext().conv,
 };
 
-describe('reqExpand quantity semantics equal legacy (all 321 cards)', () => {
+describe('reqExpand quantity semantics equal legacy (all cards without a sub-recipe line; D-47 changes the rest)', () => {
   it('qty and from-maps identical; cost identical for every entry that needed no conversion', () => {
     let costChecked = 0;
+    const codes = new Set(goldenState.recipes.map((x) => x.code.toUpperCase()));
+    let skipped = 0;
     for (const r of goldenState.recipes) {
+      if (r.lines.some((l) => codes.has((l.code || '').toUpperCase()))) {
+        skipped++; // sub-recipe lines are intentionally corrected by D-47
+        continue;
+      }
       const legacy = legacyExpand(r, 7);
       const res = newReqResult();
       reqExpand(r, 7, ctx, res);
@@ -52,6 +58,7 @@ describe('reqExpand quantity semantics equal legacy (all 321 cards)', () => {
         if (k[0] !== '?') expect(res.acc[k]!.from).toEqual(legacy[k]!.from);
       }
     }
+    expect(skipped).toBe(1);
     expect(costChecked).toBeGreaterThan(1000);
   });
 });
@@ -154,14 +161,15 @@ describe('conversion-aware valuation (D-10)', () => {
     expect(ok.flags).toEqual([]);
   });
 
-  it('flags the sub-recipe portions/quantity scale mismatch of legacy semantics', () => {
+  it('D-47: a sub-recipe line is a quantity of the batch unit, not portions (flagged as informational)', () => {
     const sub = rec('SUB', [{ code: 'A', qty: 500, unit: 'Gram', y: 1 }], { type: 'sub', output: 1, batchOut: 500 });
     const top = rec('TOP', [{ code: 'SUB', qty: 100, unit: 'Gram', y: 1 }]);
     const res = newReqResult();
     reqExpand(top, 1, mk([item('A', 0.01, 'Gram')], [sub, top]), res);
-    expect(res.acc.A!.qty).toBe(50000); // legacy: 100 "portions" x 500 g
+    expect(res.acc.A!.qty).toBe(100); // 100 g of a 500 g batch = 0.2 batches x 500 g (legacy drew 100 x 500 g = 50000)
+    expect(res.acc.A!.cost).toBeCloseTo(1, 12);
     expect(res.flags).toEqual([
-      { kind: 'sub-scale', recipe: 'TOP', sub: 'SUB', legacyPortions: 100, costingPortions: 0.2 },
+      { kind: 'sub-scale', recipe: 'TOP', sub: 'SUB', legacyPortions: 100, appliedPortions: 0.2 },
     ]);
   });
 });
@@ -193,13 +201,14 @@ describe('reconciliation (D-28) on golden data', () => {
     }
   });
 
-  it('reports the differing cards: the one real sub-recipe use (GRM-MN-0001) is flagged', () => {
-    const differing = rows.filter((x) => !x.matches);
-    const sub = differing.find((x) => x.code === 'GRM-MN-0001');
-    expect(sub).toBeDefined();
-    expect(sub!.flags.some((f) => f.kind === 'sub-scale')).toBe(true);
-    // every mismatch must be explained by at least one flag or a y outside (0,10]
-    for (const row of differing) {
+  it('D-47: the one real sub-recipe use (GRM-MN-0001) now reconciles with the card cost', () => {
+    const row = rows.find((x) => x.code === 'GRM-MN-0001')!;
+    expect(row.flags.some((f) => f.kind === 'sub-scale')).toBe(true); // informational
+    expect(row.matches, `variance ${row.variance}`).toBe(true);
+  });
+
+  it('any remaining mismatch is explained by a flag or a y outside (0,10]', () => {
+    for (const row of rows.filter((x) => !x.matches)) {
       const r = goldenState.recipes.find((x) => x.code === row.code)!;
       const yOdd = r.lines.some((l) => l.y != null && !(l.y > 0 && l.y <= 10));
       expect(row.flags.length > 0 || yOdd, `${row.code} unexplained variance ${row.variance}`).toBe(true);

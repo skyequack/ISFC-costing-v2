@@ -51,3 +51,4 @@ Status key: ✅ approved by user · 🟡 default I will implement unless told ot
 | D-45 | Warning (not block) in the editor when a line has `y≠1` and `yp` set (double waste) — see D-41. | 🟡 proposed |
 
 | D-46 | Requisition expansion skips blank-code rows (legacy bucketed them under `?` as "(not in library)"), consistent with costing which already skips them. Golden has 0 blank rows, so no numbers change. Found in the Phase 2 code review. | 🟡 default (implemented; tell me if you want the legacy behaviour) |
+| D-47 | Amends D-10: in requisition expansion a line that points at a sub-recipe is read as a quantity of that sub-recipe's batch unit (as costing reads it), so the sub is expanded for qty × output ÷ batchSize portions (batchSize = batchOut, else subQty; if both are 0 the legacy value is kept). Legacy passed the line qty as portions (≈22.7× over-draw on GRM-MN-0001). The `sub-scale` flag is now informational. | ✅ approved by user 2026-10-09 |
