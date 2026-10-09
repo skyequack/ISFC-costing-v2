@@ -1,5 +1,5 @@
 # PROGRESS — living checklist (update in the same commit as the work)
-Last updated: 2026-10-09. Current phase: **Phase 1 in progress** — scaffold, schema, auth, permissions, scope, shell, palette and CI are in place; remaining items need `.env` keys, Docker and a git identity (see Open items). The costing engine (Phase 2) can start without keys.
+Last updated: 2026-10-09. Current phase: **Phase 2 code complete, gate pending your sign-off** (domain gates green). Phase 1 leftovers need `.env` keys/Docker (see Open items).
 
 ## Phase 0 — Discovery ✅
 - [x] Legacy fully mapped → `docs/legacy/*`, `DISCOVERY_FINDINGS.md`
@@ -18,7 +18,17 @@ Last updated: 2026-10-09. Current phase: **Phase 1 in progress** — scaffold, s
 - [ ] Repository base layer beyond the scope helper (arrives with first repositories in Phase 3)
 - [ ] Empty Vercel deploy; sign-in works (needs Clerk app + keys; also Clerk session token claim `{"role":"{{user.public_metadata.role}}"}`)
 - Gate status: typecheck ✅, lint ✅, prettier ✅, 52 unit tests ✅, `next build` ✅ (dummy env). Not yet verified: visual check of shell in browser, real sign-in, deploy.
-## Phase 2 — Costing & production domain ☐ (see docs/TESTING.md §1)
+## Phase 2 — Costing & production domain ◐ (see docs/TESTING.md §1)
+- [x] `src/domain/costing` — line-for-line port (types, engine); **golden diff: all 321 cards, every field, `Object.is` equal — 0 mismatches**
+- [x] Synthetic priced cases (sp=100 invariants, worked example food=30, output>1, vat-only), yield matrix, edge cases (null price, unknown code, menu-as-line, blank lines, conversions incl. wrong unit/zero factor, error precedence, case-insensitive units), sub-recipes (no per-level buffer, subQty fallback, sub-of-sub, cycles incl. self/A→B→A, last-card-wins, items-win), fast-check properties (cyclic graphs terminate, scaling, reprice propagation)
+- [x] `src/domain/recipes/graph.ts` — `findCycle`/`assertAcyclic`/`assertAcyclicWith` (iterative, 20k-deep safe, case-insensitive), golden graph is acyclic
+- [x] `src/domain/production/requisition.ts` — `reqExpand` quantities **equal legacy for all 321 cards** (legacy function evaluated from the oracle); conversion-aware valuation; flags: unconvertible, truncated (depth>4), unknown-code, no-price, sub-scale; `reconcile()` report (D-28)
+- [x] Coverage on `src/domain`: 100% lines/functions, 97.1% branches (gate ≥95%); remaining branches are unreachable legacy dead code
+- [x] D-42 (approved) `costWithIssues()` → legacy result unchanged (golden-verified) + `complete` + `issues[]` with path to the offending line; property-tested `complete <=> err===''`. UI "incomplete" badge arrives with the Phase 5 screens.
+- [ ] Planning (`planFindCard`, `planCost`, TESTING §1 "Planning") — not started; needs the PLAN_ALIAS data module (`src/data`), planned with the Phase 5 plan screen unless you want it now.
+- [ ] Price-precision round-trip tests (import→DB→API→export) — need the data layer (Phase 3/6).
+- Gate status: typecheck ✅ lint ✅ prettier ✅ 114 tests ✅ build ✅. `/code-review` of this phase not yet run.
+
 ## Phase 3 — Data layer, seed, vertical slice ☐
 ## Phase 4 — Authorization & integrity ☐
 ## Phase 5 — Full UI port ☐ (order in docs/UI_PORT.md §4)
@@ -26,6 +36,7 @@ Last updated: 2026-10-09. Current phase: **Phase 1 in progress** — scaffold, s
 ## Phase 7 — Deploy & verify ☐
 
 ## Open items
+- **Finding (D-10/D-28):** legacy requisition reads a line that points at a sub-recipe as *portions* of that sub (qty 25 g ⇒ 25 portions), while costing reads it as 25 g of the batch. Golden has exactly one such use (GRM-MN-0001 → GRM-SR-0001): requisition draws ≈22.7× the costed amount (`sub-scale` flag, shown in reconciliation). Quantity semantics were kept as D-10 says; decide whether to fix (scale by output/batchOut) — would be a new DECISIONS row.
 - Git identity: no `user.name`/`user.email` configured, so the first commit is pending — give me the name/email to use (repo-local) or commit yourself.
 - Legacy wording kept verbatim but now inaccurate: Backup subtitle "Your data lives in this browser - back it up". Falls under D-41 wording changes — needs your OK to reword.
 - `menusVisible()` (Menu Plans nav only for SSEM-scoped users, D-06) is not wired yet; nav shows Menu Plans to everyone until brand data exists (Phase 3/5).
@@ -35,7 +46,7 @@ Last updated: 2026-10-09. Current phase: **Phase 1 in progress** — scaffold, s
 - Brand `locations` editing UI (legacy had none): default seed-only; ask user if GM should edit sites.
 - Keys needed in `.env`: DATABASE_URL, DIRECT_URL, Clerk keys, INITIAL_GM_EMAILS.
 
-- D-42…D-45 (incomplete badge/`issues[]`, import variance flag, export audit, double-waste warning) are 🟡 proposed defaults — confirm or reject with the user at the start of Phase 2/4/5.
+- D-43…D-45 (import variance flag, export audit, double-waste warning) are 🟡 proposed defaults — confirm or reject with the user at the start of Phase 2/4/5.
 
 ## Decisions log pointers
 All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **before** coding.
