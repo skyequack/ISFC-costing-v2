@@ -225,7 +225,7 @@ describe.skipIf(!hasTestDb)('schema (db/migrations) on a real Neon branch', () =
 
   it('cost_settings is a singleton; recipe requires a brand; brand with recipes cannot be deleted; deleting a recipe cascades', () =>
     inRollback(c, async () => {
-      await c.query(`INSERT INTO cost_settings (price_date) VALUES ('2026-10-09')`);
+      await c.query(`INSERT INTO cost_settings (price_date) VALUES ('2026-10-09') ON CONFLICT (id) DO NOTHING`);
       await expectFails(c, `INSERT INTO cost_settings (id, price_date) VALUES (2, '2026-10-09')`, [], '23514');
       await expectFails(
         c,

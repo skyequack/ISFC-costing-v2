@@ -1,5 +1,5 @@
 # PROGRESS — living checklist (update in the same commit as the work)
-Last updated: 2026-10-09. **Phases 0–2 done. Database platform (Neon + `pg`, D-50/D-51) done. Next: Phase 3 (seed script + first ingredient/recipe slice).** Phase 1 has two items left that need the user (Clerk keys, Vercel project). Uncommitted at this moment: the Prisma→Neon refactor, the DB tests/CI job and the doc updates (last commit `762759b`).
+Last updated: 2026-10-09. **Phases 0–2 done. Database platform (Neon + `pg`) done. Phase 3 in progress: seed, verification suite, read repositories, catalog loader and ImageStore are done and green; HTTP routes, write repositories and the first UI slice are next.**
 
 ## Phase 0 — Discovery ✅
 - [x] Legacy fully mapped → `docs/legacy/*`, `DISCOVERY_FINDINGS.md`
@@ -41,9 +41,16 @@ Last updated: 2026-10-09. **Phases 0–2 done. Database platform (Neon + `pg`, D
 - [ ] On GitHub (when the repo is pushed): variable `NEON_PROJECT_ID`, secret `NEON_API_KEY` (docs/RUNBOOK.md §4a).
 - [ ] Production not migrated yet (by design — only after Phase 3 is proven on `dev`).
 
-## Phase 3 — Data layer, seed, vertical slice ☐ (next)
-- Repository layer on `Queryable` (ingredients, recipes, brands, settings, audit) with required `BrandScope`; seed script `db/seed` (idempotent, one transaction, `seed_run` checksum, abort if audit rows exist) → post-seed verification (schema.md); catalog loader (3 queries, cached, D-40).
-- Pictures (D-48/D-49) are part of the slice: `src/lib/images` (sniff + caps module and tests already done), `ImageStore` Postgres implementation, `RecipePhoto`/`BrandLogo` tables, seed loads the 9 brand logos, photo/logo routes + images test suite (docs/TESTING.md §3b).
+## Phase 3 — Data layer, seed, vertical slice ◐ (started 2026-10-09)
+- [x] **Seed** `src/lib/seed/seed.ts` + `npm run db:seed` (`scripts/seed.mjs`, unpooled URL, one transaction, `seed_run` checksum, no-op on re-run, aborts on a different checksum / non-empty tables / audit rows; `--confirm` required off the `dev` branch). Loaded into Neon `dev`: 1046 ingredients, 321 recipes, 7321 lines, 34 conversions, 14 brands, 9 brand logos, 8 menus, **148** rows, 1001 cells.
+- [x] **Post-seed verification suite** `tests/db/seed.test.ts` (docs/TESTING.md §2): counts, null prices 135, flags 161, code sets both ways, collisions, unresolved/MENU/self lines, menu cells + PLAN_ALIAS, bit-identical doubles for all prices/buffers/selling prices, `yp` NULL kept, **all 321 costs recomputed from the DB equal golden exactly**, logos byte-equal to `public/assets`, partial unique index, seed-twice no-op.
+- [x] Read repositories on `Queryable` with required `BrandScope`: `src/lib/db/repo/{brands,ingredients,recipes,settings,audit}.ts` (lists never select image bytes; out-of-scope id → 404; Shared ingredient = no `item_brand_scope` rows). Tested for scope filtering.
+- [x] Catalog loader `src/lib/db/catalog.ts` (3 sequential queries, unscoped, caller filters after costing) + `catalog-cache.ts` (`unstable_cache` tag `catalog` over plain rows; Maps rebuilt per request).
+- [x] `ImageStore` Postgres implementation `src/lib/images/store.ts` (put/get/meta/delete, tested round-trip with sha256).
+- [ ] Write repositories (recipe save with cycle check/lock gate, ingredient price + history, settings, brands) — arrive with their routes (Phase 4 authz tests apply).
+- [ ] Routes: `GET /api/recipes|ingredients|brands|settings|me`, photo/logo PUT/GET/DELETE; images route test suite (docs/TESTING.md §3b); first Server-Component slice rendering real data in the legacy shell.
+- Finding: docs said menu_row = 146; the oracle data has **148** rows (cells 1001 matched). Corrected in schema.md, TESTING.md, docs/legacy/04. Brand logos = 9 (the 10th asset is the app logo).
+- Tests: DB tests now run serially (`fileParallelism: false`) because they share one Neon branch. Gates 2026-10-09: typecheck ✅ lint ✅ prettier ✅ 179 tests ✅ (incl. 30 DB tests against Neon `dev`) build ✅.
 ## Phase 4 — Authorization & integrity ☐
 ## Phase 5 — Full UI port ☐
 - Picture controls: recipe editor Dish Photo, New-card dialog photo, **Add brand logo box**, Edit brand logo (docs/UI_PORT.md §6). (order in docs/UI_PORT.md §4)
