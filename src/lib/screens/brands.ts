@@ -1,4 +1,4 @@
-import type { BrandView } from '../page';
+import type { BrandView } from './ctx';
 import type { RecipeRow } from './rows';
 
 export interface BrandTile extends BrandView {

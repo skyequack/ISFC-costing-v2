@@ -126,6 +126,8 @@ describe('every non-gated handler is still wrapped (deny by default)', () => {
       'GET catalog/search',
       'GET menus',
       'GET brands/[id]/logo',
+      'POST recipes/references',
+      'POST workspace',
     ]);
     for (const o of open)
       expect(allowed.has(o), `${o} has no declared permission - add it to withAuth or allow-list it`).toBe(true);

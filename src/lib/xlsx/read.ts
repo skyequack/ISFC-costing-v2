@@ -60,7 +60,8 @@ function sheetRows(xml: string, shared: string[]): string[][] {
   const reRow = /<row\b[^>]*>([\s\S]*?)<\/row>/g;
   let rm: RegExpExecArray | null;
   while ((rm = reRow.exec(xml))) {
-    if (rows.length >= MAX_ROWS) throw new ZipError(`That sheet has more than ${MAX_ROWS} rows - split it and upload in parts.`);
+    if (rows.length >= MAX_ROWS)
+      throw new ZipError(`That sheet has more than ${MAX_ROWS} rows - split it and upload in parts.`);
     const arr: string[] = [];
     let max = -1;
     const reC = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
@@ -88,7 +89,8 @@ function sheetRows(xml: string, shared: string[]): string[][] {
   return rows.filter((r) => r.some((c) => String(c).trim() !== ''));
 }
 
-const relTarget = (t: string): string => (t.charAt(0) === '/' ? t.slice(1) : t.indexOf('xl/') === 0 ? t : 'xl/' + t.replace(/^\.\//, ''));
+const relTarget = (t: string): string =>
+  t.charAt(0) === '/' ? t.slice(1) : t.indexOf('xl/') === 0 ? t : 'xl/' + t.replace(/^\.\//, '');
 
 /** Every tab of a workbook (the kitchen keeps one recipe per tab). */
 export async function readXlsxSheets(bytes: Uint8Array, limits?: UnzipLimits): Promise<Sheet[]> {
@@ -97,7 +99,8 @@ export async function readXlsxSheets(bytes: Uint8Array, limits?: UnzipLimits): P
   const wb = textOf(z.get('xl/workbook.xml'));
   const rels = textOf(z.get('xl/_rels/workbook.xml.rels'));
   const relMap = new Map<string, string>();
-  for (const m of rels.matchAll(/<Relationship\b([^>]*?)\/?>/g)) relMap.set(attr(m[1]!, 'Id'), relTarget(attr(m[1]!, 'Target')));
+  for (const m of rels.matchAll(/<Relationship\b([^>]*?)\/?>/g))
+    relMap.set(attr(m[1]!, 'Id'), relTarget(attr(m[1]!, 'Target')));
   const out: Sheet[] = [];
   let i = 0;
   for (const m of wb.matchAll(/<sheet\b([^>]*?)\/?>/g)) {
@@ -121,7 +124,12 @@ export async function readXlsxSheets(bytes: Uint8Array, limits?: UnzipLimits): P
 export function parseCsv(text: string): string[][] {
   const txt = text.replace(/^﻿/, '');
   const firstLine = txt.split(/\r?\n/, 1)[0] ?? '';
-  const d = firstLine.split(';').length > firstLine.split(',').length ? ';' : firstLine.split('\t').length > firstLine.split(',').length ? '\t' : ',';
+  const d =
+    firstLine.split(';').length > firstLine.split(',').length
+      ? ';'
+      : firstLine.split('\t').length > firstLine.split(',').length
+        ? '\t'
+        : ',';
   const rows: string[][] = [];
   let row: string[] = [];
   let cur = '';
@@ -145,7 +153,8 @@ export function parseCsv(text: string): string[][] {
       cur = '';
       if (row.some((x) => x.trim() !== '')) rows.push(row);
       row = [];
-      if (rows.length > MAX_ROWS) throw new ZipError(`That file has more than ${MAX_ROWS} rows - split it and upload in parts.`);
+      if (rows.length > MAX_ROWS)
+        throw new ZipError(`That file has more than ${MAX_ROWS} rows - split it and upload in parts.`);
     } else cur += c;
   }
   row.push(cur);
@@ -157,7 +166,8 @@ export function parseCsv(text: string): string[][] {
 export async function readSheets(file: { name: string; bytes: Uint8Array }): Promise<Sheet[]> {
   const n = file.name.toLowerCase();
   if (/\.(xlsx|xlsm)$/.test(n)) return readXlsxSheets(file.bytes);
-  if (/\.xls$/.test(n)) throw new ZipError('Old .xls format is not supported. In Excel use Save As → .xlsx, then upload again.');
+  if (/\.xls$/.test(n))
+    throw new ZipError('Old .xls format is not supported. In Excel use Save As → .xlsx, then upload again.');
   return [{ name: file.name.replace(/\.[^.]+$/, ''), rows: parseCsv(new TextDecoder('utf-8').decode(file.bytes)) }];
 }
 

@@ -72,7 +72,9 @@ interface Existing {
 }
 
 function hashOf(input: Pick<ItemImportIn, 'rows' | 'brandId' | 'grant'>): string {
-  return createHash('sha256').update(JSON.stringify([input.rows, input.brandId, input.grant])).digest('hex');
+  return createHash('sha256')
+    .update(JSON.stringify([input.rows, input.brandId, input.grant]))
+    .digest('hex');
 }
 
 async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string, Existing>> {
@@ -85,34 +87,58 @@ async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string,
   return new Map(
     rows.map((r) => [
       r.code as string,
-      { id: r.id, code: r.code, name: r.name, uom: r.uom, price: r.price, category: r.category, subcategory: r.subcategory, flag: r.flag, brandIds: r.brand_ids as string[] },
+      {
+        id: r.id,
+        code: r.code,
+        name: r.name,
+        uom: r.uom,
+        price: r.price,
+        category: r.category,
+        subcategory: r.subcategory,
+        flag: r.flag,
+        brandIds: r.brand_ids as string[],
+      },
     ]),
   );
 }
 
-async function resolveBrand(tx: Queryable, user: SessionUser, scope: BrandScope, brandId: string): Promise<{ id: string; name: string } | null> {
+async function resolveBrand(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  brandId: string,
+): Promise<{ id: string; name: string } | null> {
   if (!brandId) return null;
-  if (user.role !== 'gm' && !scope.brandIds.includes(brandId)) throw new ApiError('forbidden', 'You have no access to that brand');
+  if (user.role !== 'gm' && !scope.brandIds.includes(brandId))
+    throw new ApiError('forbidden', 'You have no access to that brand');
   const b = (await tx.query('SELECT id, name FROM brand WHERE id = $1', [brandId])).rows[0];
   if (!b) throw new ApiError('bad_request', 'Unknown brand');
   return { id: b.id as string, name: b.name as string };
 }
 
 /** Build the plan (also used by commit, inside its transaction, so what is written is what was reviewed). */
-async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: ItemImportIn): Promise<ItemImportPlan & { existing: Map<string, Existing>; bid: string }> {
+async function plan(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: ItemImportIn,
+): Promise<ItemImportPlan & { existing: Map<string, Existing>; bid: string }> {
   if (!can(user.role, 'items.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   const seen = new Set<string>();
   for (const r of input.rows) {
-    if (seen.has(r.code)) throw new ApiError('bad_request', `The code ${r.code} appears twice in this part of the file`);
+    if (seen.has(r.code))
+      throw new ApiError('bad_request', `The code ${r.code} appears twice in this part of the file`);
     seen.add(r.code);
   }
   const brand = await resolveBrand(tx, user, scope, input.brandId);
-  const existing = await loadExisting(tx, input.rows.map((r) => r.code));
-  // cross-namespace: a new ingredient code must not collide with a recipe code (case-insensitive)
-  const clashes = await tx.query(
-    `SELECT code FROM recipe WHERE deleted_at IS NULL AND upper(code) = ANY($1::text[])`,
-    [input.rows.filter((r) => !existing.has(r.code)).map((r) => r.code.toUpperCase())],
+  const existing = await loadExisting(
+    tx,
+    input.rows.map((r) => r.code),
   );
+  // cross-namespace: a new ingredient code must not collide with a recipe code (case-insensitive)
+  const clashes = await tx.query(`SELECT code FROM recipe WHERE deleted_at IS NULL AND upper(code) = ANY($1::text[])`, [
+    input.rows.filter((r) => !existing.has(r.code)).map((r) => r.code.toUpperCase()),
+  ]);
   const recipeCodes = new Set(clashes.rows.map((r) => String(r.code).toUpperCase()));
   const lowerExisting = await tx.query(`SELECT code FROM ingredient WHERE upper(code) = ANY($1::text[])`, [
     input.rows.filter((r) => !existing.has(r.code)).map((r) => r.code.toUpperCase()),
@@ -126,47 +152,112 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
     const hasPrice = p.price !== null;
     if (!ex) {
       if (recipeCodes.has(p.code.toUpperCase()) || caseClash.has(p.code.toUpperCase())) {
-        rows.push({ code: p.code, name: p.name, action: 'blocked', old: null, price: p.price, hasPrice, pct: null, check: false, reason: 'the code already exists in another spelling or as a recipe card' });
+        rows.push({
+          code: p.code,
+          name: p.name,
+          action: 'blocked',
+          old: null,
+          price: p.price,
+          hasPrice,
+          pct: null,
+          check: false,
+          reason: 'the code already exists in another spelling or as a recipe card',
+        });
         counts.blocked++;
         continue;
       }
-      rows.push({ code: p.code, name: p.name, action: 'add', old: null, price: p.price, hasPrice, pct: null, check: false });
+      rows.push({
+        code: p.code,
+        name: p.name,
+        action: 'add',
+        old: null,
+        price: p.price,
+        hasPrice,
+        pct: null,
+        check: false,
+      });
       counts.add++;
       continue;
     }
     // an existing brand-scoped item the caller cannot see is off limits
     if (ex.brandIds.length && !ex.brandIds.some((b) => scope.brandIds.includes(b))) {
-      rows.push({ code: p.code, name: p.name, action: 'blocked', old: ex.price, price: p.price, hasPrice, pct: null, check: false, reason: 'not available to your brands' });
+      rows.push({
+        code: p.code,
+        name: p.name,
+        action: 'blocked',
+        old: ex.price,
+        price: p.price,
+        hasPrice,
+        pct: null,
+        check: false,
+        reason: 'not available to your brands',
+      });
       counts.blocked++;
       continue;
     }
     if (!hasPrice) counts.keepPrice++;
     const moved = hasPrice && (ex.price == null || Math.abs(ex.price - (p.price as number)) > 1e-9);
-    const other = (p.name && p.name !== ex.name) || p.uom !== ex.uom || (p.cat && p.cat !== ex.category) || (p.sub && p.sub !== ex.subcategory);
+    const other =
+      (p.name && p.name !== ex.name) ||
+      p.uom !== ex.uom ||
+      (p.cat && p.cat !== ex.category) ||
+      (p.sub && p.sub !== ex.subcategory);
     if (!moved && !other) {
-      rows.push({ code: p.code, name: ex.name, action: 'same', old: ex.price, price: p.price, hasPrice, pct: null, check: false });
+      rows.push({
+        code: p.code,
+        name: ex.name,
+        action: 'same',
+        old: ex.price,
+        price: p.price,
+        hasPrice,
+        pct: null,
+        check: false,
+      });
       counts.same++;
       continue;
     }
     const mv = moved ? priceMove(ex.price, p.price) : { pct: null, check: false };
-    rows.push({ code: p.code, name: p.name || ex.name, action: 'update', old: ex.price, price: p.price, hasPrice, pct: mv.pct, check: mv.check });
+    rows.push({
+      code: p.code,
+      name: p.name || ex.name,
+      action: 'update',
+      old: ex.price,
+      price: p.price,
+      hasPrice,
+      pct: mv.pct,
+      check: mv.check,
+    });
     counts.update++;
     if (mv.check) counts.priceCheck++;
   }
   return { rows, counts, hash: hashOf(input), brandName: brand?.name ?? 'Shared', existing, bid: brand?.id ?? '' };
 }
 
-export async function previewItemImport(tx: Queryable, user: SessionUser, scope: BrandScope, input: ItemImportIn): Promise<ItemImportPlan> {
+export async function previewItemImport(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: ItemImportIn,
+): Promise<ItemImportPlan> {
   const p = await plan(tx, user, scope, input);
   return { rows: p.rows, counts: p.counts, hash: p.hash, brandName: p.brandName };
 }
 
 /** Writes one part of a price list. Every price change appends history (source IMPORT); PRICE CHECK flags only on confirm (D-43). */
-export async function commitItemImport(tx: Queryable, user: SessionUser, scope: BrandScope, input: ItemImportIn): Promise<{ added: number; updated: number; granted: number; flagged: number }> {
+export async function commitItemImport(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: ItemImportIn,
+): Promise<{ added: number; updated: number; granted: number; flagged: number }> {
   await tx.query('SELECT pg_advisory_xact_lock($1)', [CODE_LOCK]);
   const p = await plan(tx, user, scope, input);
-  if (!input.hash || input.hash !== p.hash) throw new ApiError('conflict', 'The file changed since it was checked - check it again');
-  if (p.counts.blocked) throw new ApiError('unprocessable', `${p.counts.blocked} row(s) cannot be loaded - fix them and check again`, { blocked: p.rows.filter((r) => r.action === 'blocked').slice(0, 20) });
+  if (!input.hash || input.hash !== p.hash)
+    throw new ApiError('conflict', 'The file changed since it was checked - check it again');
+  if (p.counts.blocked)
+    throw new ApiError('unprocessable', `${p.counts.blocked} row(s) cannot be loaded - fix them and check again`, {
+      blocked: p.rows.filter((r) => r.action === 'blocked').slice(0, 20),
+    });
   const byCode = new Map(input.rows.map((r) => [r.code, r]));
   let added = 0,
     updated = 0,
@@ -204,7 +295,10 @@ export async function commitItemImport(tx: Queryable, user: SessionUser, scope: 
       updated++;
     }
     if (p.bid && input.grant && ex.brandIds.length && !ex.brandIds.includes(p.bid)) {
-      await tx.query('INSERT INTO item_brand_scope (ingredient_id, brand_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [ex.id, p.bid]);
+      await tx.query('INSERT INTO item_brand_scope (ingredient_id, brand_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [
+        ex.id,
+        p.bid,
+      ]);
       granted++;
     }
   }

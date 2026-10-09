@@ -110,7 +110,10 @@ async function inflateRaw(u8: Uint8Array, max: number): Promise<Uint8Array> {
 }
 
 /** Read the XML parts of a zip into memory (deflate and stored; anything else is ignored), bounded against zip bombs. */
-export async function unzip(u8: Uint8Array, limits: UnzipLimits = DEFAULT_UNZIP_LIMITS): Promise<Map<string, Uint8Array>> {
+export async function unzip(
+  u8: Uint8Array,
+  limits: UnzipLimits = DEFAULT_UNZIP_LIMITS,
+): Promise<Map<string, Uint8Array>> {
   const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
   let eo = -1;
   const stop = Math.max(0, u8.length - 66000);
@@ -137,7 +140,8 @@ export async function unzip(u8: Uint8Array, limits: UnzipLimits = DEFAULT_UNZIP_
     const lho = dv.getUint32(p + 42, true);
     const name = dec.decode(u8.subarray(p + 46, p + 46 + nl));
     total += usize;
-    if (total > limits.maxTotalBytes) throw new ZipError('That workbook expands to an unreasonable size and was refused.');
+    if (total > limits.maxTotalBytes)
+      throw new ZipError('That workbook expands to an unreasonable size and was refused.');
     const lnl = dv.getUint16(lho + 26, true);
     const lxl = dv.getUint16(lho + 28, true);
     const st = lho + 30 + lnl + lxl;

@@ -15,7 +15,6 @@ export function colName(i: number): string {
 }
 
 /** Control characters are illegal in XML 1.0; Excel refuses the whole file for one of them. */
-// eslint-disable-next-line no-control-regex
 const clean = (s: string) => s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
 /** Legacy rSheetXml (5273): inline strings, bold header row, numeric cells for plain numbers below the header. */

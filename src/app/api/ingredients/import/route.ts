@@ -16,7 +16,8 @@ export const POST = withAuth({ perm: 'items.edit' }, async (req, { user }) => {
   const mode = new URL(req.url).searchParams.get('mode');
   if (mode !== 'dry-run' && mode !== 'commit') throw new ApiError('bad_request', 'mode must be dry-run or commit');
   const body = await parseJson(req, itemImportIn, 1_500_000);
-  if (mode === 'dry-run') return Response.json(await inTx(user, (tx, scope) => previewItemImport(tx, user, scope, body)));
+  if (mode === 'dry-run')
+    return Response.json(await inTx(user, (tx, scope) => previewItemImport(tx, user, scope, body)));
   const out = await inTx(user, (tx, scope) => commitItemImport(tx, user, scope, body));
   bustCatalog();
   return Response.json(out);

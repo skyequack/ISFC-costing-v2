@@ -2,10 +2,24 @@
  * Raw-material price-list parsing — port of legacy ICOLS / IUOM / iCode / iJunk / iMapHeader / doImportItems' row loop
  * (4605-4730). Pure: rows in, normalised rows + findings out. The server re-validates everything (D-37).
  */
-export const rnorm = (s: unknown): string => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]/g, '');
+export const rnorm = (s: unknown): string =>
+  String(s == null ? '' : s)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 
 export const ICOLS: Record<string, string[]> = {
-  pack: ['packqty', 'packsize', 'packquantity', 'qtyperpack', 'unitsperpack', 'qtygram', 'gramperitem', 'gramsperitem', 'netweight', 'contents'],
+  pack: [
+    'packqty',
+    'packsize',
+    'packquantity',
+    'qtyperpack',
+    'unitsperpack',
+    'qtygram',
+    'gramperitem',
+    'gramsperitem',
+    'netweight',
+    'contents',
+  ],
   code: ['code', 'itemcode', 'materialcode', 'rawmaterialcode', 'sku', 'ingredientcode', 'productcode', 'articlecode'],
   name: ['itemname', 'description', 'name', 'ingredientname', 'material', 'particulars', 'itemdescription'],
   uom: ['uom', 'purchaseuom', 'unit', 'purchaseunit', 'baseuom', 'stockuom', 'measure', 'unitofmeasure'],
@@ -16,17 +30,49 @@ export const ICOLS: Record<string, string[]> = {
 
 /** Packaging is bought by the metre and the roll: a price per metre is the same arithmetic as Each (legacy IUOM). */
 export const IUOM: Record<string, 'Gram' | 'Ml' | 'Each' | 'Slice'> = {
-  kg: 'Gram', kgs: 'Gram', gramme: 'Gram', grammes: 'Gram', cc: 'Ml',
-  meter: 'Each', metre: 'Each', meters: 'Each', metres: 'Each', m: 'Each',
-  roll: 'Each', rolls: 'Each', bag: 'Each', box: 'Each', packet: 'Each', pack: 'Each',
-  gram: 'Gram', grams: 'Gram', g: 'Gram', gm: 'Gram', gms: 'Gram', ghm: 'Gram', gr: 'Gram',
-  ml: 'Ml', millilitre: 'Ml', milliliter: 'Ml',
-  each: 'Each', ea: 'Each', pc: 'Each', pcs: 'Each', piece: 'Each', pieces: 'Each', unit: 'Each',
-  slice: 'Slice', slices: 'Slice',
+  kg: 'Gram',
+  kgs: 'Gram',
+  gramme: 'Gram',
+  grammes: 'Gram',
+  cc: 'Ml',
+  meter: 'Each',
+  metre: 'Each',
+  meters: 'Each',
+  metres: 'Each',
+  m: 'Each',
+  roll: 'Each',
+  rolls: 'Each',
+  bag: 'Each',
+  box: 'Each',
+  packet: 'Each',
+  pack: 'Each',
+  gram: 'Gram',
+  grams: 'Gram',
+  g: 'Gram',
+  gm: 'Gram',
+  gms: 'Gram',
+  ghm: 'Gram',
+  gr: 'Gram',
+  ml: 'Ml',
+  millilitre: 'Ml',
+  milliliter: 'Ml',
+  each: 'Each',
+  ea: 'Each',
+  pc: 'Each',
+  pcs: 'Each',
+  piece: 'Each',
+  pieces: 'Each',
+  unit: 'Each',
+  slice: 'Slice',
+  slices: 'Slice',
 };
 
 /** A code is only ever compared in one shape (legacy iCode 4628). */
-export const iCode = (v: unknown): string => String(v == null ? '' : v).trim().replace(/\s+/g, ' ').toUpperCase();
+export const iCode = (v: unknown): string =>
+  String(v == null ? '' : v)
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toUpperCase();
 
 /** Excel wreckage pasted into a text cell ("Fis+A1:F663h & Seafood" was a real example). */
 export function iJunk(v: unknown): boolean {

@@ -8,8 +8,23 @@ import type { Sheet } from '../xlsx/read';
 
 /** D-17: `Waste %` (yp) and `Card Buffer` are new trailing columns; files without them leave those values untouched. */
 export const RTPL_HEAD = [
-  'Brand', 'Recipe Code', 'Recipe Name', 'Category', 'Type', 'Portions', 'Batch Output', 'Batch UOM', 'Sales Price',
-  'Item Code', 'Ingredient Name', 'Qty', 'Unit', 'Yield %', 'Method Step', 'Waste %', 'Card Buffer',
+  'Brand',
+  'Recipe Code',
+  'Recipe Name',
+  'Category',
+  'Type',
+  'Portions',
+  'Batch Output',
+  'Batch UOM',
+  'Sales Price',
+  'Item Code',
+  'Ingredient Name',
+  'Qty',
+  'Unit',
+  'Yield %',
+  'Method Step',
+  'Waste %',
+  'Card Buffer',
 ];
 
 export const RCOLS: Record<string, string[]> = {
@@ -18,12 +33,36 @@ export const RCOLS: Record<string, string[]> = {
   name: ['recipename', 'recipe', 'dish', 'dishname', 'menuitem', 'cardname'],
   cat: ['category', 'cat', 'section', 'group', 'menugroup', 'subcategory'],
   type: ['type', 'recipetype', 'kind', 'cardtype'],
-  out: ['portions', 'portion', 'servings', 'noofportions', 'yieldportions', 'covers', 'output', 'outputportions', 'outputportion', 'outputqty', 'portionsperbatch', 'servingsperbatch', 'noofservings', 'numberofportions'],
+  out: [
+    'portions',
+    'portion',
+    'servings',
+    'noofportions',
+    'yieldportions',
+    'covers',
+    'output',
+    'outputportions',
+    'outputportion',
+    'outputqty',
+    'portionsperbatch',
+    'servingsperbatch',
+    'noofservings',
+    'numberofportions',
+  ],
   bout: ['batchoutput', 'batchoutputqty', 'batchqty', 'batchyield', 'totalyield', 'batch'],
   buom: ['batchuom', 'batchunit', 'outputuom', 'outputunit', 'batchoutputuom'],
   price: ['salesprice', 'sellingprice', 'menuprice', 'price', 'sellprice'],
   icode: ['itemcode', 'ingredientcode', 'materialcode', 'rawmaterialcode', 'sku', 'ingcode', 'productcode'],
-  iname: ['ingredientname', 'itemname', 'ingredient', 'material', 'description', 'nameinrecipe', 'recipeitemname', 'itemdescription'],
+  iname: [
+    'ingredientname',
+    'itemname',
+    'ingredient',
+    'material',
+    'description',
+    'nameinrecipe',
+    'recipeitemname',
+    'itemdescription',
+  ],
   qty: ['qty', 'quantity', 'amount', 'recipeqty', 'usage', 'netqty'],
   unit: ['unit', 'recipeunit', 'uom', 'qtyunit', 'usageunit', 'measure'],
   yld: ['yield', 'yieldpct', 'yieldpercent', 'yld', 'usableyield', 'yieldfactor'],
@@ -34,16 +73,45 @@ export const RCOLS: Record<string, string[]> = {
 
 export type Unit = 'Gram' | 'Ml' | 'Each' | 'Slice';
 export const RUOM: Record<string, Unit> = {
-  gram: 'Gram', grams: 'Gram', g: 'Gram', gm: 'Gram', gms: 'Gram', ghm: 'Gram', gr: 'Gram', kg: 'Gram',
-  ml: 'Ml', millilitre: 'Ml', milliliter: 'Ml', l: 'Ml', litre: 'Ml', liter: 'Ml',
-  each: 'Each', ea: 'Each', pc: 'Each', pcs: 'Each', piece: 'Each', unit: 'Each',
-  slice: 'Slice', slices: 'Slice',
+  gram: 'Gram',
+  grams: 'Gram',
+  g: 'Gram',
+  gm: 'Gram',
+  gms: 'Gram',
+  ghm: 'Gram',
+  gr: 'Gram',
+  kg: 'Gram',
+  ml: 'Ml',
+  millilitre: 'Ml',
+  milliliter: 'Ml',
+  l: 'Ml',
+  litre: 'Ml',
+  liter: 'Ml',
+  each: 'Each',
+  ea: 'Each',
+  pc: 'Each',
+  pcs: 'Each',
+  piece: 'Each',
+  unit: 'Each',
+  slice: 'Slice',
+  slices: 'Slice',
 };
 
 /** Bulk units carry a factor ("2 kg" imported as 2 grams before this existed). */
 const RSCALE: Record<string, number> = {
-  kg: 1000, kgs: 1000, kilo: 1000, kilos: 1000, kilogram: 1000, kilograms: 1000,
-  l: 1000, ltr: 1000, ltrs: 1000, litre: 1000, litres: 1000, liter: 1000, liters: 1000,
+  kg: 1000,
+  kgs: 1000,
+  kilo: 1000,
+  kilos: 1000,
+  kilogram: 1000,
+  kilograms: 1000,
+  l: 1000,
+  ltr: 1000,
+  ltrs: 1000,
+  litre: 1000,
+  litres: 1000,
+  liter: 1000,
+  liters: 1000,
 };
 
 const RBLK: Record<string, string[]> = {
@@ -53,7 +121,19 @@ const RBLK: Record<string, string[]> = {
   price: ['sellingprice', 'salesprice', 'sellprice', 'menuprice', 'price'],
   netcost: ['netcost', 'netcosttotal', 'batchcost', 'recipecost', 'totalbatchcost', 'grosscost'],
   pcost: ['totalcost', 'costperportion', 'costperunit', 'dishcost', 'costpergram', 'costperpiece'],
-  out: ['outpot', 'output', 'outputqty', 'outputquantity', 'portions', 'portion', 'servings', 'noofportions', 'yield', 'yieldportions', 'covers'],
+  out: [
+    'outpot',
+    'output',
+    'outputqty',
+    'outputquantity',
+    'portions',
+    'portion',
+    'servings',
+    'noofportions',
+    'yield',
+    'yieldportions',
+    'covers',
+  ],
   dishwt: ['weightofdish', 'dishweight', 'portionweight', 'weightperportion', 'netweight', 'weight'],
 };
 const RBLKCOL: Record<string, string[]> = {
@@ -81,7 +161,9 @@ const looksLikeCode = (v: unknown): boolean => {
 };
 function firstNum(row: readonly unknown[], from: number): { v: number; i: number } | null {
   for (let i = from; i < row.length; i++) {
-    const t = cell(row[i]).replace(/,/g, '').replace(/[^\d.-]/g, '');
+    const t = cell(row[i])
+      .replace(/,/g, '')
+      .replace(/[^\d.-]/g, '');
     if (t !== '' && t !== '-' && isFinite(parseFloat(t))) return { v: parseFloat(t), i };
   }
   return null;
@@ -144,7 +226,11 @@ export interface FlatRow {
 }
 
 /** Legacy rBlockConvert (4982): a kitchen sheet (title, label/value stack, line table) -> flat rows. */
-export function blockConvert(rows: readonly (readonly unknown[])[], sheetName: string, hdrRow: number): { flat: FlatRow[]; meta: BlockMeta } {
+export function blockConvert(
+  rows: readonly (readonly unknown[])[],
+  sheetName: string,
+  hdrRow: number,
+): { flat: FlatRow[]; meta: BlockMeta } {
   const head = (rows[hdrRow] ?? []).map(rnorm);
   const col: Record<string, number> = {};
   head.forEach((h, i) => {
@@ -156,7 +242,21 @@ export function blockConvert(rows: readonly (readonly unknown[])[], sheetName: s
       }
     }
   });
-  const meta: BlockMeta = { sheet: sheetName, name: '', code: '', cat: '', price: '', out: '', outUom: '', netcost: null, pcost: null, dishwt: null, lines: 0, seen: 0, notes: [] };
+  const meta: BlockMeta = {
+    sheet: sheetName,
+    name: '',
+    code: '',
+    cat: '',
+    price: '',
+    out: '',
+    outUom: '',
+    netcost: null,
+    pcost: null,
+    dishwt: null,
+    lines: 0,
+    seen: 0,
+    notes: [],
+  };
 
   for (let i = 0; i < hdrRow; i++) {
     const row = rows[i] ?? [];
@@ -246,9 +346,23 @@ export function blockConvert(rows: readonly (readonly unknown[])[], sheetName: s
     }
     // PPG / Total in the file are deliberately not read: costing always uses the library price
     flat.push({
-      brand: '', code: meta.code, name: meta.name, cat: meta.cat, type, out: meta.out, bout: '',
+      brand: '',
+      code: meta.code,
+      name: meta.name,
+      cat: meta.cat,
+      type,
+      out: meta.out,
+      bout: '',
       buom: meta.outUom && RUOM[rnorm(meta.outUom)] ? RUOM[rnorm(meta.outUom)]! : '',
-      price: meta.price, icode: ic, iname: nm, qty, unit, yld: '', step: '', scaled: !!scale, block: true,
+      price: meta.price,
+      icode: ic,
+      iname: nm,
+      qty,
+      unit,
+      yld: '',
+      step: '',
+      scaled: !!scale,
+      block: true,
     });
     meta.lines++;
   }
@@ -355,7 +469,25 @@ export function parseRecipeSheets(sheets: Sheet[]): ParsedRecipes {
       continue;
     }
     blockFlat.push(...flat);
-    blockRows = blockRows.concat(flat.map((o) => [o.brand, o.code, o.name, o.cat, o.type, o.out, o.bout, o.buom, o.price, o.icode, o.iname, o.qty, o.unit, o.yld, o.step]));
+    blockRows = blockRows.concat(
+      flat.map((o) => [
+        o.brand,
+        o.code,
+        o.name,
+        o.cat,
+        o.type,
+        o.out,
+        o.bout,
+        o.buom,
+        o.price,
+        o.icode,
+        o.iname,
+        o.qty,
+        o.unit,
+        o.yld,
+        o.step,
+      ]),
+    );
     blocks.push(meta);
   }
   if (blockRows.length) rows = [RTPL_HEAD, ...blockRows, ...(rows && rows.length > 1 ? rows.slice(1) : [])];
@@ -389,7 +521,11 @@ export function parseRecipeSheets(sheets: Sheet[]): ParsedRecipes {
     const nameRaw = G(r, 'name');
     const brandRaw = G(r, 'brand');
     // rows of the template's demo cards repeat the demo code with no name: a code seen on an EXAMPLE row stays skipped
-    if (/^EXAMPLE/i.test(codeRaw) || /^EXAMPLE\b|delete this row/i.test(nameRaw) || (codeRaw && exampleCodes.has(codeRaw.toUpperCase()))) {
+    if (
+      /^EXAMPLE/i.test(codeRaw) ||
+      /^EXAMPLE\b|delete this row/i.test(nameRaw) ||
+      (codeRaw && exampleCodes.has(codeRaw.toUpperCase()))
+    ) {
       if (codeRaw) exampleCodes.add(codeRaw.toUpperCase());
       lastKey = '__EX__';
       continue;
@@ -404,7 +540,21 @@ export function parseRecipeSheets(sheets: Sheet[]): ParsedRecipes {
     lastKey = key;
     let g = byKey.get(key);
     if (!g) {
-      g = { brand: brandRaw, code: codeRaw.toUpperCase(), name: nameRaw, cat: '', type: '', out: null, bout: null, buom: '', price: null, buffer: null, lines: [], method: [], rows: [] };
+      g = {
+        brand: brandRaw,
+        code: codeRaw.toUpperCase(),
+        name: nameRaw,
+        cat: '',
+        type: '',
+        out: null,
+        bout: null,
+        buom: '',
+        price: null,
+        buffer: null,
+        lines: [],
+        method: [],
+        rows: [],
+      };
       byKey.set(key, g);
       order.push(g);
     }
@@ -494,11 +644,107 @@ export function recipeTplRows(brandCode: string, otherCode: string): string[][] 
   const q = `${o}-MN-EX01`;
   const pad = (r: string[]) => [...r, '', ''];
   return [
-    pad([b, s, 'EXAMPLE – delete this row – Lemon Herb Dressing', 'Sub-Recipe', 'Sub', '1', '500', 'Ml', '', 'DRS3-1615', 'Olive Oil', '300', 'Ml', '100', 'Whisk the oil and juice to an emulsion.']),
-    pad([b, s, '', '', '', '', '', '', '', 'DRS1-114', 'Salt', '5', 'Gram', '100', 'Season, then hold chilled up to 3 days.']),
-    pad([b, p, 'EXAMPLE – delete this row – Grilled Chicken Salad', 'Salads', 'Menu', '1', '380', 'Gram', '32', 'PLT1-37', 'Chicken Breast', '160', 'Gram', '75', 'Grill the marinated breast and rest it.']),
-    pad([b, p, '', '', '', '', '', '', '', 'PRD1-230', 'Lettuce', '120', 'Gram', '75', 'Build the leaves in a chilled bowl.']),
-    pad([b, p, '', '', '', '', '', '', '', s, 'Lemon Herb Dressing', '30', 'Ml', '100', 'Dress at the pass and serve immediately.']),
-    pad([o, q, 'EXAMPLE – delete this row – same sheet, different brand', 'Salads', 'Menu', '1', '300', 'Gram', '28', 'PLT1-37', 'Chicken Breast', '140', 'Gram', '75', 'Same item code, costed from the one price list.']),
+    pad([
+      b,
+      s,
+      'EXAMPLE – delete this row – Lemon Herb Dressing',
+      'Sub-Recipe',
+      'Sub',
+      '1',
+      '500',
+      'Ml',
+      '',
+      'DRS3-1615',
+      'Olive Oil',
+      '300',
+      'Ml',
+      '100',
+      'Whisk the oil and juice to an emulsion.',
+    ]),
+    pad([
+      b,
+      s,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'DRS1-114',
+      'Salt',
+      '5',
+      'Gram',
+      '100',
+      'Season, then hold chilled up to 3 days.',
+    ]),
+    pad([
+      b,
+      p,
+      'EXAMPLE – delete this row – Grilled Chicken Salad',
+      'Salads',
+      'Menu',
+      '1',
+      '380',
+      'Gram',
+      '32',
+      'PLT1-37',
+      'Chicken Breast',
+      '160',
+      'Gram',
+      '75',
+      'Grill the marinated breast and rest it.',
+    ]),
+    pad([
+      b,
+      p,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'PRD1-230',
+      'Lettuce',
+      '120',
+      'Gram',
+      '75',
+      'Build the leaves in a chilled bowl.',
+    ]),
+    pad([
+      b,
+      p,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      s,
+      'Lemon Herb Dressing',
+      '30',
+      'Ml',
+      '100',
+      'Dress at the pass and serve immediately.',
+    ]),
+    pad([
+      o,
+      q,
+      'EXAMPLE – delete this row – same sheet, different brand',
+      'Salads',
+      'Menu',
+      '1',
+      '300',
+      'Gram',
+      '28',
+      'PLT1-37',
+      'Chicken Breast',
+      '140',
+      'Gram',
+      '75',
+      'Same item code, costed from the one price list.',
+    ]),
   ];
 }

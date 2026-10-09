@@ -11,7 +11,11 @@ export interface PriceMove {
   check: boolean;
 }
 
-export function priceMove(oldPrice: number | null, newPrice: number | null, threshold = PRICE_VARIANCE_THRESHOLD): PriceMove {
+export function priceMove(
+  oldPrice: number | null,
+  newPrice: number | null,
+  threshold = PRICE_VARIANCE_THRESHOLD,
+): PriceMove {
   if (newPrice == null || oldPrice == null || oldPrice === 0) return { pct: null, check: false };
   const pct = (newPrice - oldPrice) / oldPrice;
   return { pct, check: Math.abs(pct) > threshold + 1e-12 };

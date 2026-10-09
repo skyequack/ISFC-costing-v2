@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { useRecipeIO } from '@/components/io/recipes-io';
 import { NewRecipeButton } from '@/components/recipes/NewRecipeButton';
 import { trashCount, useRecipeActions, type CardFacts } from '@/components/recipes/actions';
 import { Acts } from '@/components/shell/Shell';
@@ -47,6 +48,7 @@ const facts = (r: RecipeRow): CardFacts => ({
 export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProps) {
   const router = useRouter();
   const act = useRecipeActions(target);
+  const io = useRecipeIO();
   const [rq, setRq] = useState('');
   const [rbrand, setRbrand] = useState('');
   const [rstatus, setRstatus] = useState('');
@@ -112,11 +114,16 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
   return (
     <>
       <Acts>
-        <button className="btn o" onClick={() => window.dispatchEvent(new CustomEvent('isfc:export-recipes'))}>
+        <button
+          className="btn o"
+          onClick={() => {
+            window.location.href = '/api/export/recipes';
+          }}
+        >
           Export CSV
         </button>
         <Perm perm="recipe.create">
-          <button className="btn o" onClick={() => window.dispatchEvent(new CustomEvent('isfc:import-recipes'))}>
+          <button className="btn o" onClick={io.upload}>
             {'⬆'} Upload recipes
           </button>
         </Perm>

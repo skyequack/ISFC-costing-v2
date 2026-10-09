@@ -90,7 +90,15 @@ export interface CardPlan {
 
 export interface RecipeImportPlan {
   cards: CardPlan[];
-  counts: { add: number; update: number; locked: number; exists: number; nolines: number; blocked: number; lines: number };
+  counts: {
+    add: number;
+    update: number;
+    locked: number;
+    exists: number;
+    nolines: number;
+    blocked: number;
+    lines: number;
+  };
   perBrand: Record<string, { name: string; code: string; add: number; upd: number; lines: number }>;
   needGrant: number;
   hash: string;
@@ -101,7 +109,10 @@ interface Internal extends RecipeImportPlan {
   inputs: { card: ImportCardIn; plan: CardPlan; prevLines: { code: string; yp: number | null }[] }[];
 }
 
-const hashOf = (i: RecipeImportIn) => createHash('sha256').update(JSON.stringify([i.cards, i.defaultBrandId, i.takePrice, i.allowUpdate, i.grant])).digest('hex');
+const hashOf = (i: RecipeImportIn) =>
+  createHash('sha256')
+    .update(JSON.stringify([i.cards, i.defaultBrandId, i.takePrice, i.allowUpdate, i.grant]))
+    .digest('hex');
 
 /** Legacy rBrandId (5512): code, full name, Arabic name, or a prefix of either. */
 function brandIdFor(txt: string, brands: { id: string; code: string; name: string; nameAr: string | null }[]): string {
@@ -118,10 +129,17 @@ function brandIdFor(txt: string, brands: { id: string; code: string; name: strin
 
 async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input: RecipeImportIn): Promise<Internal> {
   if (!can(user.role, 'recipe.create')) throw new ApiError('forbidden', 'Your role cannot do that');
-  if (input.cards.reduce((a, c) => a + c.lines.length, 0) > MAX_IMPORT_LINES) throw new ApiError('too_large', `At most ${MAX_IMPORT_LINES} lines per part`);
-  if (user.role !== 'gm' && !scope.brandIds.includes(input.defaultBrandId)) throw new ApiError('forbidden', 'You have no access to that brand');
+  if (input.cards.reduce((a, c) => a + c.lines.length, 0) > MAX_IMPORT_LINES)
+    throw new ApiError('too_large', `At most ${MAX_IMPORT_LINES} lines per part`);
+  if (user.role !== 'gm' && !scope.brandIds.includes(input.defaultBrandId))
+    throw new ApiError('forbidden', 'You have no access to that brand');
 
-  const brands = (await tx.query('SELECT id, code, name, name_ar FROM brand')).rows.map((r) => ({ id: r.id as string, code: r.code as string, name: r.name as string, nameAr: r.name_ar as string | null }));
+  const brands = (await tx.query('SELECT id, code, name, name_ar FROM brand')).rows.map((r) => ({
+    id: r.id as string,
+    code: r.code as string,
+    name: r.name as string,
+    nameAr: r.name_ar as string | null,
+  }));
   const brandById = new Map(brands.map((b) => [b.id, b]));
   if (!brandById.has(input.defaultBrandId)) throw new ApiError('bad_request', 'Unknown brand');
 
@@ -131,7 +149,12 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
   const sc = await tx.query(
     `SELECT i.id, i.code, i.category, coalesce((SELECT array_agg(s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids FROM ingredient i`,
   );
-  for (const r of sc.rows) itemScope.set(r.code as string, { id: r.id as string, brandIds: r.brand_ids as string[], category: r.category as string });
+  for (const r of sc.rows)
+    itemScope.set(r.code as string, {
+      id: r.id as string,
+      brandIds: r.brand_ids as string[],
+      category: r.category as string,
+    });
 
   const recipeUpper = new Map<string, string>(); // UPPER code -> exact code
   for (const code of Object.keys(catalog.cards)) recipeUpper.set(code.toUpperCase(), code);
@@ -154,8 +177,23 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
     const brand = brandById.get(bid)!;
     const typeR: 'MENU' | 'SUB' = /^s/i.test(c.type) || /-SR-/i.test(code) ? 'SUB' : 'MENU';
     const plan: CardPlan = {
-      index: i, code, name: c.name, type: typeR, brandId: bid, brandName: brand.name, brandCode: brand.code, action: 'add', badBrand,
-      lines: [], unknown: [], conv: [], noPrice: 0, noPriceCodes: [], pkgLines: 0, libCost: 0, out: Math.max(1, c.out || 1),
+      index: i,
+      code,
+      name: c.name,
+      type: typeR,
+      brandId: bid,
+      brandName: brand.name,
+      brandCode: brand.code,
+      action: 'add',
+      badBrand,
+      lines: [],
+      unknown: [],
+      conv: [],
+      noPrice: 0,
+      noPriceCodes: [],
+      pkgLines: 0,
+      libCost: 0,
+      out: Math.max(1, c.out || 1),
     };
     cards.push(plan);
     let prevLines: { code: string; yp: number | null }[] = [];
@@ -190,7 +228,9 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
         if (canSeeBrand(scope, bid)) plan.movesFrom = brandById.get(target.brandId)?.name;
         else block(`it would move the card out of ${brandById.get(target.brandId)?.name ?? 'its brand'}`);
       }
-      const rows = await tx.query('SELECT code, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [target.id]);
+      const rows = await tx.query('SELECT code, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [
+        target.id,
+      ]);
       prevLines = rows.rows.map((r) => ({ code: r.code as string, yp: r.yp as number | null }));
     } else if (code && itemUpper.has(code)) block(`the code ${code} is already used by an ingredient`);
 
@@ -207,7 +247,8 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
           plan.unknown.push(l.code);
           continue;
         }
-        if (sco!.brandIds.length && !sco!.brandIds.includes(bid) && input.grant) grants.set(`${l.code}|${bid}`, { itemId: sco!.id, brandId: bid });
+        if (sco!.brandIds.length && !sco!.brandIds.includes(bid) && input.grant)
+          grants.set(`${l.code}|${bid}`, { itemId: sco!.id, brandId: bid });
       } else if (sub && sub.type === 'sub' && subMeta && canSeeBrand(scope, subMeta.brandId)) {
         /* visible sub-recipe */
       } else {
@@ -228,7 +269,8 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
         const lu = unit.toLowerCase();
         const pu = it.uom.toLowerCase();
         const conv = ctx.conv.get(l.code);
-        if (lu && pu && lu !== pu && !(conv && num(conv[1]))) plan.conv.push(`${l.code} – ${it.name} (${it.uom} → ${unit})`);
+        if (lu && pu && lu !== pu && !(conv && num(conv[1])))
+          plan.conv.push(`${l.code} – ${it.name} (${it.uom} → ${unit})`);
         if (rnorm(sco!.category) === 'nonfood') plan.pkgLines++;
         if (it.price == null || !num(it.price)) {
           plan.noPrice++;
@@ -237,8 +279,23 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
       }
     }
     plan.lines = lines;
-    if (plan.unknown.length) block(`unknown or unavailable item code(s): ${[...new Set(plan.unknown)].slice(0, 5).join(', ')}`);
-    plan.libCost = batch({ code: '', name: '', type: 'menu', output: 1, subQty: 0, subUom: 'Gram', batchOut: 0, batchUom: 'Gram', price: 0, lines }, ctx).total;
+    if (plan.unknown.length)
+      block(`unknown or unavailable item code(s): ${[...new Set(plan.unknown)].slice(0, 5).join(', ')}`);
+    plan.libCost = batch(
+      {
+        code: '',
+        name: '',
+        type: 'menu',
+        output: 1,
+        subQty: 0,
+        subUom: 'Gram',
+        batchOut: 0,
+        batchUom: 'Gram',
+        price: 0,
+        lines,
+      },
+      ctx,
+    ).total;
 
     if (plan.action !== 'blocked') {
       if (!c.lines.length) plan.action = 'nolines';
@@ -263,11 +320,17 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
        FROM recipe r LEFT JOIN recipe_line l ON l.recipe_id = r.id WHERE r.deleted_at IS NULL GROUP BY r.id, r.code`,
   );
   const nodes = new Map<string, { code: string; lines: { code: string }[] }>(
-    graph.rows.map((r) => [(r.code as string).toUpperCase(), { code: r.code as string, lines: (r.lines as string[]).map((c) => ({ code: c })) }]),
+    graph.rows.map((r) => [
+      (r.code as string).toUpperCase(),
+      { code: r.code as string, lines: (r.lines as string[]).map((c) => ({ code: c })) },
+    ]),
   );
   for (const { plan } of inputs) {
     if (plan.action !== 'add' && plan.action !== 'update') continue;
-    nodes.set((plan.code || `\u0000new${plan.index}`).toUpperCase(), { code: plan.code || `__new${plan.index}`, lines: plan.lines.map((l) => ({ code: l.code })) });
+    nodes.set((plan.code || `\u0000new${plan.index}`).toUpperCase(), {
+      code: plan.code || `__new${plan.index}`,
+      lines: plan.lines.map((l) => ({ code: l.code })),
+    });
   }
   const cycle = findCycle([...nodes.values()]);
   if (cycle) {
@@ -284,25 +347,46 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
   return { cards, counts, perBrand, needGrant: grants.size, hash: hashOf(input), grants, inputs };
 }
 
-export async function previewRecipeImport(tx: Queryable, user: SessionUser, scope: BrandScope, input: RecipeImportIn): Promise<RecipeImportPlan> {
+export async function previewRecipeImport(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: RecipeImportIn,
+): Promise<RecipeImportPlan> {
   const p = await build(tx, user, scope, input);
   return { cards: p.cards, counts: p.counts, perBrand: p.perBrand, needGrant: p.needGrant, hash: p.hash };
 }
 
 /** Applies one part of a recipe upload in the caller's transaction: all or nothing, locked cards skipped, nothing deleted. */
-export async function commitRecipeImport(tx: Queryable, user: SessionUser, scope: BrandScope, input: RecipeImportIn): Promise<{ added: number; updated: number; granted: number; brands: string[] }> {
+export async function commitRecipeImport(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: RecipeImportIn,
+): Promise<{ added: number; updated: number; granted: number; brands: string[] }> {
   await tx.query('SELECT pg_advisory_xact_lock($1)', [CODE_LOCK]);
   const p = await build(tx, user, scope, input);
-  if (!input.hash || input.hash !== p.hash) throw new ApiError('conflict', 'The file changed since it was checked - check it again');
+  if (!input.hash || input.hash !== p.hash)
+    throw new ApiError('conflict', 'The file changed since it was checked - check it again');
   if (p.counts.blocked)
-    throw new ApiError('unprocessable', `${p.counts.blocked} card(s) cannot be loaded - fix the file and check it again`, {
-      blocked: p.cards.filter((c) => c.action === 'blocked').slice(0, 20).map((c) => ({ code: c.code, name: c.name, reason: c.reason })),
-    });
+    throw new ApiError(
+      'unprocessable',
+      `${p.counts.blocked} card(s) cannot be loaded - fix the file and check it again`,
+      {
+        blocked: p.cards
+          .filter((c) => c.action === 'blocked')
+          .slice(0, 20)
+          .map((c) => ({ code: c.code, name: c.name, reason: c.reason })),
+      },
+    );
 
   let granted = 0;
   if (input.grant)
     for (const g of p.grants.values()) {
-      await tx.query('INSERT INTO item_brand_scope (ingredient_id, brand_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [g.itemId, g.brandId]);
+      await tx.query('INSERT INTO item_brand_scope (ingredient_id, brand_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [
+        g.itemId,
+        g.brandId,
+      ]);
       granted++;
     }
 
@@ -342,7 +426,19 @@ export async function commitRecipeImport(tx: Queryable, user: SessionUser, scope
       const ins = await tx.query(
         `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$8,$10,$11) RETURNING id`,
-        [code, plan.name || code, card.cat, plan.type, plan.brandId, out, plan.type === 'SUB' ? bout : 0, buom, bout, input.takePrice && sp != null ? sp : 0, card.buffer],
+        [
+          code,
+          plan.name || code,
+          card.cat,
+          plan.type,
+          plan.brandId,
+          out,
+          plan.type === 'SUB' ? bout : 0,
+          buom,
+          bout,
+          input.takePrice && sp != null ? sp : 0,
+          card.buffer,
+        ],
       );
       id = ins.rows[0]!.id as string;
       added++;
@@ -351,9 +447,20 @@ export async function commitRecipeImport(tx: Queryable, user: SessionUser, scope
     await tx.query(
       `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
        SELECT $1, o, c, q, u, y, yp FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[]) AS t(o,c,q,u,y,yp)`,
-      [id, L.map((_, i) => i), L.map((l) => l.code), L.map((l) => l.qty), L.map((l) => l.unit), L.map((l) => l.y), L.map((l) => l.yp)],
+      [
+        id,
+        L.map((_, i) => i),
+        L.map((l) => l.code),
+        L.map((l) => l.qty),
+        L.map((l) => l.unit),
+        L.map((l) => l.y),
+        L.map((l) => l.yp),
+      ],
     );
-    await tx.query(`INSERT INTO recipe_method_step (recipe_id, step_number, text) SELECT $1, n, t FROM unnest($2::int[], $3::text[]) AS x(n,t)`, [id, method.map((_, i) => i + 1), method]);
+    await tx.query(
+      `INSERT INTO recipe_method_step (recipe_id, step_number, text) SELECT $1, n, t FROM unnest($2::int[], $3::text[]) AS x(n,t)`,
+      [id, method.map((_, i) => i + 1), method],
+    );
   }
   const bl = [...brandsHit].join(' ');
   await appendAudit(

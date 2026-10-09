@@ -14,7 +14,7 @@ import { reconcile, type ReqContext, type ReqEntry, type ReqFlag } from '@/domai
 import { MENU_DAYS, PLAN_ALIAS, SECTIONS, sectionOf } from '@/data';
 import type { Catalog } from '../db/catalog';
 import { canSeeBrand } from '../db/scope';
-import type { PageCtx } from '../page';
+import type { PageCtx } from './ctx';
 import { loadMenus, loadPax, loadProduction, type MenuRecord } from '../services/planning';
 import type { Queryable } from '../db/client';
 

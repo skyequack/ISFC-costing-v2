@@ -7,8 +7,10 @@ import {
   lookupFor,
   mealRank,
   menuDemand,
+  menuPreview,
   planCost,
   planDay,
+  planWeek,
   planFamily,
   planTok,
   prepDemand,
@@ -92,6 +94,11 @@ describe('plan helpers', () => {
     expect(d.priced + d.unp).toBeGreaterThan(0);
   });
 
+  it('planWeek is the sum of the day totals', () => {
+    const m = menus[0]!;
+    expect(planWeek(m, L)).toBeCloseTo(m.days.reduce((a, d) => a + planDay(m, d, L).tot, 0), 9);
+  });
+
   it('weekday: Saturday-first week', () => {
     expect(weekdayOf('2026-10', '10', MENU_DAYS)).toBe('SATURDAY'); // 10 Oct 2026 is a Saturday
     expect(weekdayOf('2026-10', '11', MENU_DAYS)).toBe('SUNDAY');
@@ -110,5 +117,32 @@ describe('plan helpers', () => {
     expect(p.people).toBe(15);
     expect(p.menus).toHaveLength(2);
     for (const r of p.rows) expect(r.qty).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('menu plan defensive branches (menus with missing rows / days / cells)', () => {
+  const ctx = goldenContext();
+  const L = lookupFor(ctx, goldenState.recipes, PLAN_ALIAS);
+  const bare = { id: 'x', name: 'Bare - menu' } as unknown as PlanMenu;
+  it('tolerates a menu without rows or days', () => {
+    expect(planDay(bare, 'SATURDAY', L)).toEqual({ tot: 0, priced: 0, unp: 0 });
+    expect(planWeek(bare, L)).toBe(0);
+    expect(menuPreview(bare, 'SATURDAY', L)).toEqual({ hit: [], miss: [] });
+    const empty = { id: 'e', name: 'Empty', days: ['SATURDAY'], rows: [{ meal: 'LUNCH', cells: {} }] } as unknown as PlanMenu;
+    expect(planDay(empty, 'SATURDAY', L)).toEqual({ tot: 0, priced: 0, unp: 0 });
+    expect(menuPreview(empty, 'SATURDAY', L)).toEqual({ hit: [], miss: [] });
+  });
+  it('a card cell whose code is not a card, and an ITEM cell resolved through a newer card or reported as unpriced', () => {
+    const m = {
+      id: 'm', name: 'M', days: ['SATURDAY'],
+      rows: [
+        { meal: 'LUNCH', cells: { SATURDAY: { label: 'Grilled Beef Steak', kind: 'ITEM', code: 'NO-SUCH-ITEM' } } },
+        { meal: 'DINNER', cells: { SATURDAY: { label: 'zzz', kind: 'RECIPE', code: 'NOPE' } } },
+      ],
+    } as unknown as PlanMenu;
+    expect(menuPreview(m, 'SATURDAY', L).miss).toEqual(['zzz']);
+    expect(planCost({ label: 'Grilled Beef Steak', kind: 'ITEM', code: 'NO-SUCH-ITEM' }, L).src).toMatch(/new card|item missing/);
+    const priced = [...ctx.items.values()].find((i) => i.price == null)!;
+    expect(planCost({ label: 'qqq', kind: 'ITEM', code: priced.code }, L)).toEqual({ v: null, src: 'no price' });
   });
 });

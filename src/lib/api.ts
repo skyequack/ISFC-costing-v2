@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache';
 import type { SessionUser } from './auth/types';
-import { db, withTransaction, type Queryable } from './db/client';
+import { db, withDirectTransaction, withTransaction, type Queryable } from './db/client';
 import { CATALOG_TAG } from './db/catalog-cache';
 import { visibleBrandIds, type BrandScope } from './db/scope';
 
@@ -20,3 +20,8 @@ export function bustCatalog(): void {
 }
 
 export const noStore = { 'cache-control': 'private, no-store' } as const;
+
+/** Like inTx but on the direct connection (long / large operations). */
+export function inDirectTx<T>(user: SessionUser, fn: (tx: Queryable, scope: BrandScope) => Promise<T>): Promise<T> {
+  return withDirectTransaction(async (tx) => fn(tx, await visibleBrandIds(user, tx)));
+}

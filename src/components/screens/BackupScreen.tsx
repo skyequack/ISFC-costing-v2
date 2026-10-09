@@ -60,7 +60,9 @@ export function BackupScreen({ counts }: { counts: BackupCounts }) {
         <div className="card">
           <h3>Restore &amp; Reset</h3>
           <div className="bd">
-            <p style={s('font-size:13px;color:var(--mute);margin-bottom:14px')}>Restoring replaces everything currently in the system.</p>
+            <p style={s('font-size:13px;color:var(--mute);margin-bottom:14px')}>
+              Restoring replaces everything currently in the system.
+            </p>
             <div style={s('display:flex;flex-direction:column;gap:9px')}>
               <Perm perm="data.admin">
                 <label className="btn o" style={s('justify-content:center')}>
@@ -96,7 +98,11 @@ export function BackupScreen({ counts }: { counts: BackupCounts }) {
                 </button>
               </Perm>
             </div>
-            <div style={s('margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)')}>
+            <div
+              style={s(
+                'margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)',
+              )}
+            >
               {counts.items} ingredients {'·'} {counts.recipes} recipe cards {'·'} {counts.conv} conversions
               <br />
               {counts.photos} dish photo{counts.photos === 1 ? '' : 's'} using {counts.photoKb} KB

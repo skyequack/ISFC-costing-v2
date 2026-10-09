@@ -16,7 +16,7 @@ import { MENU_DAYS, PLAN_ALIAS } from '@/data';
 import type { Catalog } from '../db/catalog';
 import type { Queryable } from '../db/client';
 import { canSeeBrand } from '../db/scope';
-import type { PageCtx } from '../page';
+import type { PageCtx } from './ctx';
 import { loadMenus, loadPax, type MenuRecord } from '../services/planning';
 
 export interface PlanCellDto {

@@ -4,7 +4,8 @@
  */
 export function csvCell(v: unknown): string {
   let s = v == null ? '' : String(v);
-  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  // a lone '-' is the "not set" marker (production export site column), not a formula
+  if (typeof v === 'string' && s !== '-' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
