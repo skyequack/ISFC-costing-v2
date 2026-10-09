@@ -7,7 +7,7 @@
  * Note: the costing engine has no depth limit, so "depth truncation" can only arise in requisition
  * expansion; that is reported there as the `truncated` flag (production/requisition.ts).
  */
-import { cost, lineCost, num } from './engine';
+import { cost, num, unitBridge } from './engine';
 import type { CostContext, CostRecipe, CostResult } from './types';
 
 export type CostIssueKind =
@@ -42,27 +42,28 @@ function collect(top: CostRecipe, ctx: CostContext): CostIssue[] {
   const walk = (rec: CostRecipe, seen: Set<string> | undefined, path: string[]) => {
     for (const l of rec.lines || []) {
       if (!l.code) continue;
-      const c = lineCost(l, ctx, seen ? new Set(seen) : undefined);
-      if (c.needConv) {
-        const it = ctx.items.get(l.code);
-        const target = it ? it.uom : c.uom;
+      /* Classify without costing: resolve() would recompute the whole sub-tree at every level. */
+      const it = ctx.items.get(l.code);
+      const rc = it ? undefined : ctx.recipes.get(l.code);
+      const uom = it ? it.uom : rc && rc.type === 'sub' ? rc.subUom || 'Gram' : '';
+      if (unitBridge(l.code, l.unit, uom, ctx.conv).need) {
         add({
           kind: 'missing-conversion',
           recipe: top.code,
           path,
           code: l.code,
-          detail: { lineUnit: l.unit, itemUom: target },
+          detail: { lineUnit: l.unit, itemUom: uom },
         });
       }
-      if (c.kind === 'item') {
-        if (c.err) add({ kind: 'no-price', recipe: top.code, path, code: l.code });
-      } else if (c.kind === 'none') {
+      if (it) {
+        if (it.price == null) add({ kind: 'no-price', recipe: top.code, path, code: l.code });
+      } else if (!rc) {
         add({ kind: 'unknown-code', recipe: top.code, path, code: l.code });
-      } else if (c.kind === 'menu') {
+      } else if (rc.type !== 'sub') {
         add({ kind: 'not-a-sub-recipe', recipe: top.code, path, code: l.code });
       } else {
         /* sub: replay subUnitCost's seen handling on a fresh copy */
-        const sub = ctx.recipes.get(l.code)!;
+        const sub = rc;
         const s2 = seen ? new Set(seen) : new Set<string>();
         if (s2.has(sub.code)) {
           add({ kind: 'circular', recipe: top.code, path, code: sub.code });

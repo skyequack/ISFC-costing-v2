@@ -36,7 +36,8 @@ const ctx: ReqContext = {
 };
 
 describe('reqExpand quantity semantics equal legacy (all 321 cards)', () => {
-  it('qty and from-maps identical; cost identical when the line needs no conversion', () => {
+  it('qty and from-maps identical; cost identical for every entry that needed no conversion', () => {
+    let costChecked = 0;
     for (const r of goldenState.recipes) {
       const legacy = legacyExpand(r, 7);
       const res = newReqResult();
@@ -44,9 +45,14 @@ describe('reqExpand quantity semantics equal legacy (all 321 cards)', () => {
       expect(Object.keys(res.acc).sort(), r.code).toEqual(Object.keys(legacy).sort());
       for (const k of Object.keys(legacy)) {
         expect(res.acc[k]!.qty, `${r.code} ${k}`).toBe(legacy[k]!.qty);
+        if (k[0] !== '?' && res.acc[k]!.purchaseQty === res.acc[k]!.qty) {
+          costChecked++;
+          expect(res.acc[k]!.cost, `${r.code} ${k} cost`).toBe(legacy[k]!.cost);
+        }
         if (k[0] !== '?') expect(res.acc[k]!.from).toEqual(legacy[k]!.from);
       }
     }
+    expect(costChecked).toBeGreaterThan(1000);
   });
 });
 
@@ -103,6 +109,25 @@ describe('conversion-aware valuation (D-10)', () => {
     reqExpand(r, 1, mk([item('A', null, 'Gram')], [r]), res);
     expect(res.flags.map((f) => f.kind).sort()).toEqual(['no-price', 'unknown-code']);
     expect(res.acc['?ZZ']).toMatchObject({ name: '(not in library)', qty: 2, cost: 0 });
+  });
+
+  it('blank-code rows are skipped (D-46) and never flagged or bucketed', () => {
+    const r = rec('X', [
+      { code: '', qty: 5, unit: 'Gram', y: 1 },
+      { code: 'A', qty: 1, unit: 'Gram', y: 1 },
+    ]);
+    const res = newReqResult();
+    reqExpand(r, 1, mk([item('A', 1, 'Gram')], [r]), res);
+    expect(Object.keys(res.acc)).toEqual(['A']);
+    expect(res.flags).toEqual([]);
+  });
+
+  it('the same problem reached repeatedly is flagged once', () => {
+    const r = rec('X', [{ code: 'ZZ', qty: 1, unit: 'Gram', y: 1 }]);
+    const res = newReqResult();
+    for (let i = 0; i < 500; i++) reqExpand(r, 1, mk([], [r]), res);
+    expect(res.flags).toHaveLength(1);
+    expect(res.acc['?ZZ']!.qty).toBe(500);
   });
 
   it('y is unclamped (||1), unlike costing', () => {

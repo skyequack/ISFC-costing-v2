@@ -21,6 +21,11 @@ describe('recipe graph', () => {
     expect(findCycle([g('A', 'ITEM-1', ''), g('B', 'A')])).toBeNull();
   });
 
+  it('recipes sharing a code are one node: a cycle through the earlier duplicate is not hidden', () => {
+    expect(findCycle([g('A', 'B'), g('a', 'C'), g('B', 'A'), g('C')])).not.toBeNull();
+    expect(findCycle([g('B', 'A'), g('A', 'C'), g('a', 'B'), g('C')])).not.toBeNull();
+  });
+
   it('diamonds are not cycles', () => {
     expect(findCycle([g('T', 'L', 'R'), g('L', 'B'), g('R', 'B'), g('B')])).toBeNull();
   });

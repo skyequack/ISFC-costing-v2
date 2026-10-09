@@ -22,8 +22,18 @@ const key = (c: string) =>
 
 /** Returns the first cycle found as a list of codes (first == last), or null. Iterative DFS, safe for deep graphs. */
 export function findCycle(recipes: ReadonlyArray<GraphRecipe>): string[] | null {
-  const byKey = new Map<string, GraphRecipe>();
-  for (const r of recipes) byKey.set(key(r.code), r);
+  /* Recipes sharing a code (case-insensitively) are ONE node whose edges are the union of all their lines,
+     so a cycle through either duplicate is never hidden by the other. */
+  const byKey = new Map<string, { code: string; targets: Set<string> }>();
+  for (const r of recipes) {
+    const k = key(r.code);
+    const node = byKey.get(k) ?? { code: r.code, targets: new Set<string>() };
+    for (const l of r.lines ?? []) {
+      const t = key(l.code);
+      if (t) node.targets.add(t);
+    }
+    byKey.set(k, node);
+  }
   const state = new Map<string, 1 | 2>(); // 1 = on stack, 2 = done
 
   for (const start of byKey.keys()) {
@@ -31,7 +41,7 @@ export function findCycle(recipes: ReadonlyArray<GraphRecipe>): string[] | null 
     const stack: { k: string; edges: string[]; i: number }[] = [];
     const push = (k: string) => {
       state.set(k, 1);
-      const edges = [...new Set((byKey.get(k)?.lines ?? []).map((l) => key(l.code)).filter((c) => c && byKey.has(c)))];
+      const edges = [...byKey.get(k)!.targets].filter((c) => byKey.has(c));
       stack.push({ k, edges, i: 0 });
     };
     push(start);

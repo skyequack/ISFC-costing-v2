@@ -3,7 +3,16 @@
  * JS doubles, no rounding, no Decimal. Pure: no cache (cache at the data-loader level), no I/O.
  * Do not "improve" this file; any behaviour change needs a DECISIONS.md row first.
  */
-import type { BatchResult, CostContext, CostLine, CostRecipe, CostResult, LineCost, Resolved } from './types';
+import type {
+  ConvEntry,
+  BatchResult,
+  CostContext,
+  CostLine,
+  CostRecipe,
+  CostResult,
+  LineCost,
+  Resolved,
+} from './types';
 
 /** legacy num(): parseFloat, 0 when not finite. */
 export function num(v: unknown): number {
@@ -41,6 +50,30 @@ export function resolve(code: string, ctx: CostContext, seen?: Set<string>): Res
   return { name: 'CODE NOT FOUND', uom: '', price: 0, kind: 'none', err: 'unknown code' };
 }
 
+/**
+ * Unit bridge between a line's unit and the resolved purchase/batch unit (legacy lineCost 1397-1411).
+ * Units differ and a stored factor exists for exactly the line's unit -> divide by it; units differ
+ * otherwise -> the line needs a conversion (costs 0, flagged). Shared with requisition valuation and issues.
+ */
+export function unitBridge(
+  code: string,
+  lineUnit: string,
+  uom: string,
+  conv: ReadonlyMap<string, ConvEntry>,
+): { need: boolean; factor: number | null } {
+  const lu = (lineUnit || '').toLowerCase().trim(),
+    pu = (uom || '').toLowerCase().trim();
+  if (!(lu && pu && lu !== pu)) return { need: false, factor: null };
+  const f = conv.get(code);
+  const fu = f
+    ? String(f[0] || '')
+        .toLowerCase()
+        .trim()
+    : '';
+  if (f && num(f[1]) && fu === lu) return { need: false, factor: num(f[1]) };
+  return { need: true, factor: null };
+}
+
 export function lineCost(l: CostLine, ctx: CostContext, seen?: Set<string>): LineCost {
   const r = resolve(l.code, ctx, seen);
   /* A yield outside (0,10] is a data error: treat as 1. */
@@ -50,19 +83,11 @@ export function lineCost(l: CostLine, ctx: CostContext, seen?: Set<string>): Lin
   let q = qty,
     conv = false,
     needConv = false;
-  const lu = (l.unit || '').toLowerCase().trim(),
-    pu = (r.uom || '').toLowerCase().trim();
-  if (lu && pu && lu !== pu) {
-    const f = ctx.conv.get(l.code);
-    const fu = f
-      ? String(f[0] || '')
-          .toLowerCase()
-          .trim()
-      : '';
-    if (f && num(f[1]) && fu === lu) {
-      q = qty / num(f[1]);
-      conv = true;
-    } else needConv = true;
+  const br = unitBridge(l.code, l.unit, r.uom, ctx.conv);
+  if (br.need) needConv = true;
+  else if (br.factor !== null) {
+    q = qty / br.factor;
+    conv = true;
   }
   const gross = y ? q / y : q;
   /* No usable bridge: the line costs nothing and stays flagged. */

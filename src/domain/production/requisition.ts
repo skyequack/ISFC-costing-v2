@@ -5,7 +5,7 @@
  * '?code' bucket for unknown codes. NEW (D-10/D-28): valuation applies the same unit conversion as costing,
  * and unconvertible lines, depth truncation, and sub-recipe scale mismatches are FLAGGED, never silent.
  */
-import { cost, num, type ConvEntry, type CostItem, type CostRecipe, type CostSettings } from '../costing';
+import { cost, num, unitBridge, type ConvEntry, type CostItem, type CostRecipe, type CostSettings } from '../costing';
 import { buildContext } from '../costing/types';
 
 export interface ReqContext {
@@ -45,6 +45,19 @@ export function newReqResult(): ReqResult {
   return { acc: {}, flags: [] };
 }
 
+/* Flags are deduplicated per result: the same problem reached over many paths/portions is one flag. */
+const flagKeys = new WeakMap<ReqResult, Set<string>>();
+function flag(res: ReqResult, f: ReqFlag): void {
+  let keys = flagKeys.get(res);
+  if (!keys) flagKeys.set(res, (keys = new Set()));
+  const k = [f.kind, f.recipe, 'code' in f ? f.code : 'sub' in f ? f.sub : '', 'lineUnit' in f ? f.lineUnit : ''].join(
+    '|',
+  );
+  if (keys.has(k)) return;
+  keys.add(k);
+  res.flags.push(f);
+}
+
 export function reqExpand(
   r: CostRecipe | null | undefined,
   portions: number,
@@ -54,22 +67,23 @@ export function reqExpand(
 ): void {
   if (!r) return;
   if (depth > 4) {
-    res.flags.push({ kind: 'truncated', recipe: r.code, depth });
+    flag(res, { kind: 'truncated', recipe: r.code, depth });
     return;
   }
   const out = Math.max(1, num(r.output) || 1);
   (r.lines || []).forEach((l) => {
+    if (!l.code) return; // blank rows carry nothing (D-46); costing skips them too
     const y = num(l.y) || 1;
-    const q = ((num(l.qty) / out) * portions) / (y || 1);
+    const q = ((num(l.qty) / out) * portions) / y;
     const want = String(l.code || '').toUpperCase();
     const sub = ctx.recipes.find((x) => (x.code || '').toUpperCase() === want);
     if (sub) {
       const subQ = num(sub.batchOut) || num(sub.subQty) || 0;
       const subOut = Math.max(1, num(sub.output) || 1);
       if (subQ) {
-        const costingPortions = (((num(l.qty) / out) * portions) / (y || 1)) * (subOut / subQ);
+        const costingPortions = q * (subOut / subQ);
         if (Math.abs(costingPortions - q) > 1e-9 * Math.max(1, Math.abs(q)))
-          res.flags.push({ kind: 'sub-scale', recipe: r.code, sub: sub.code, legacyPortions: q, costingPortions });
+          flag(res, { kind: 'sub-scale', recipe: r.code, sub: sub.code, legacyPortions: q, costingPortions });
       }
       reqExpand(sub, q, ctx, res, depth + 1);
       return;
@@ -81,7 +95,7 @@ export function reqExpand(
         res.acc[k] ||
         (res.acc[k] = { code: l.code, name: '(not in library)', uom: '', qty: 0, purchaseQty: 0, cost: 0, from: {} });
       e.qty += q;
-      res.flags.push({ kind: 'unknown-code', recipe: r.code, code: l.code });
+      flag(res, { kind: 'unknown-code', recipe: r.code, code: l.code });
       return;
     }
     const k = it.code;
@@ -91,25 +105,14 @@ export function reqExpand(
     e.from[r.name] = (e.from[r.name] || 0) + q;
 
     /* conversion-aware valuation: identical rule to costing lineCost() */
-    let pq = q;
-    let ok = true;
-    const lu = (l.unit || '').toLowerCase().trim(),
-      pu = (it.uom || '').toLowerCase().trim();
-    if (lu && pu && lu !== pu) {
-      const f = ctx.conv.get(l.code);
-      const fu = f
-        ? String(f[0] || '')
-            .toLowerCase()
-            .trim()
-        : '';
-      if (f && num(f[1]) && fu === lu) pq = q / num(f[1]);
-      else ok = false;
-    }
+    const br = unitBridge(l.code, l.unit, it.uom, ctx.conv);
+    const ok = !br.need;
+    const pq = br.factor !== null ? q / br.factor : q;
     if (!ok) {
-      res.flags.push({ kind: 'unconvertible', recipe: r.code, code: l.code, lineUnit: l.unit, itemUom: it.uom });
+      flag(res, { kind: 'unconvertible', recipe: r.code, code: l.code, lineUnit: l.unit, itemUom: it.uom });
       return;
     }
-    if (it.price == null) res.flags.push({ kind: 'no-price', recipe: r.code, code: l.code });
+    if (it.price == null) flag(res, { kind: 'no-price', recipe: r.code, code: l.code });
     e.purchaseQty += pq;
     e.cost += pq * num(it.price);
   });

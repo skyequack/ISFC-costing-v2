@@ -275,36 +275,48 @@ describe('property tests', () => {
 
   it('repricing +10% of one ingredient moves each dependent card by exactly qty*price*(1+yp)/(y*out)*0.1', () => {
     const ctx0 = goldenContext();
-    const code = goldenState.items.find(
-      (i) => i.price && goldenState.recipes.some((r) => r.lines.some((l) => l.code === i.code)),
-    )!.code;
-    const bumped = goldenState.items.map((i) => (i.code === code ? { ...i, price: i.price! * 1.1 } : i));
-    const ctx1 = buildContext(bumped, goldenState.recipes, Object.entries(goldenState.conv), ctx0.settings);
-    // direct (non-nested) users only; unrelated cards unchanged
     const nested = new Set(goldenState.recipes.filter((r) => r.type === 'sub').map((r) => r.code));
-    for (const r of goldenState.recipes) {
-      const uses = r.lines.some((l) => l.code === code);
-      const usesSub = r.lines.some((l) => nested.has(l.code));
-      const d = cost(r, ctx1).food - cost(r, ctx0).food;
-      if (!uses && !usesSub) expect(d).toBe(0);
-      if (
-        uses &&
-        !usesSub &&
-        r.lines
-          .filter((l) => l.code === code)
-          .every((l) => String(l.unit).toLowerCase() === String(ctx0.items.get(code)!.uom).toLowerCase())
-      ) {
-        const buf = r.buffer != null ? r.buffer : ctx0.settings.buffer;
-        const out = Math.max(1, num(r.output) || 1);
-        let expected = 0;
-        for (const l of r.lines.filter((x) => x.code === code)) {
-          const yRaw = num(l.y),
-            y = yRaw > 0 && yRaw <= 10 ? yRaw : 1;
-          const p = l.yp != null ? num(l.yp) / 100 : buf;
-          expected += (num(l.qty) / y) * ctx0.items.get(code)!.price! * 0.1 * (1 + p);
+    // deterministic: the 5 priced ingredients used by the most cards
+    const uses = new Map<string, number>();
+    for (const r of goldenState.recipes)
+      for (const c of new Set(r.lines.map((l) => l.code)))
+        if (ctx0.items.get(c)?.price) uses.set(c, (uses.get(c) ?? 0) + 1);
+    const top = [...uses.entries()]
+      .sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))
+      .slice(0, 5)
+      .map(([c]) => c);
+    let exact = 0,
+      untouched = 0;
+    for (const code of top) {
+      const bumped = goldenState.items.map((i) => (i.code === code ? { ...i, price: i.price! * 1.1 } : i));
+      const ctx1 = buildContext(bumped, goldenState.recipes, Object.entries(goldenState.conv), ctx0.settings);
+      for (const r of goldenState.recipes) {
+        const direct = r.lines.some((l) => l.code === code);
+        const usesSub = r.lines.some((l) => nested.has(l.code));
+        const d = cost(r, ctx1).food - cost(r, ctx0).food;
+        if (!direct && !usesSub) {
+          untouched++;
+          expect(d).toBe(0);
         }
-        expect(d).toBeCloseTo(expected / out, 9);
+        const sameUnit = r.lines
+          .filter((l) => l.code === code)
+          .every((l) => String(l.unit).toLowerCase() === String(ctx0.items.get(code)!.uom).toLowerCase());
+        if (direct && !usesSub && sameUnit) {
+          exact++;
+          const buf = r.buffer != null ? r.buffer : ctx0.settings.buffer;
+          const out = Math.max(1, num(r.output) || 1);
+          let expected = 0;
+          for (const l of r.lines.filter((x) => x.code === code)) {
+            const yRaw = num(l.y),
+              y = yRaw > 0 && yRaw <= 10 ? yRaw : 1;
+            const p = l.yp != null ? num(l.yp) / 100 : buf;
+            expected += (num(l.qty) / y) * ctx0.items.get(code)!.price! * 0.1 * (1 + p);
+          }
+          expect(d).toBeCloseTo(expected / out, 9);
+        }
       }
     }
+    expect(exact).toBeGreaterThan(50); // guard against a vacuous pass
+    expect(untouched).toBeGreaterThan(500);
   });
 });

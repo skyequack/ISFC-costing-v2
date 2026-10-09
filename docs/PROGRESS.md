@@ -27,7 +27,8 @@ Last updated: 2026-10-09. Current phase: **Phase 2 code complete, gate pending y
 - [x] D-42 (approved) `costWithIssues()` → legacy result unchanged (golden-verified) + `complete` + `issues[]` with path to the offending line; property-tested `complete <=> err===''`. UI "incomplete" badge arrives with the Phase 5 screens.
 - [ ] Planning (`planFindCard`, `planCost`, TESTING §1 "Planning") — not started; needs the PLAN_ALIAS data module (`src/data`), planned with the Phase 5 plan screen unless you want it now.
 - [ ] Price-precision round-trip tests (import→DB→API→export) — need the data layer (Phase 3/6).
-- Gate status: typecheck ✅ lint ✅ prettier ✅ 114 tests ✅ build ✅. `/code-review` of this phase not yet run.
+- `/code-review` (high) run: 8 findings, all fixed (blank-row skip D-46, flag dedupe, CI now runs `test:coverage`, duplicate-code graph nodes merged, shared `unitBridge`, issues walk no longer re-costs sub-trees, test fixes).
+- Gate status: typecheck ✅ lint ✅ prettier ✅ 125 tests ✅ coverage 96.8% branches ✅ build ✅.
 
 ## Phase 3 — Data layer, seed, vertical slice ☐
 ## Phase 4 — Authorization & integrity ☐

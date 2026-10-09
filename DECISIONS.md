@@ -50,3 +50,4 @@ Status key: ✅ approved by user · 🟡 default I will implement unless told ot
 | D-44 | Cost exports (CSV/XLSX) write an audit entry `Exported data` (kind, row count) — new, small. | 🟡 proposed |
 | D-45 | Warning (not block) in the editor when a line has `y≠1` and `yp` set (double waste) — see D-41. | 🟡 proposed |
 
+| D-46 | Requisition expansion skips blank-code rows (legacy bucketed them under `?` as "(not in library)"), consistent with costing which already skips them. Golden has 0 blank rows, so no numbers change. Found in the Phase 2 code review. | 🟡 default (implemented; tell me if you want the legacy behaviour) |
