@@ -36,10 +36,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   }
 
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>{body}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        <ClerkProvider>{body}</ClerkProvider>
+      </body>
+    </html>
   );
 }
