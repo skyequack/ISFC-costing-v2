@@ -7,7 +7,10 @@ import { lockRecipes } from '@/lib/services/recipes';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const body = z.object({ approvedBy: z.string().trim().min(1).max(120), overrideReason: z.string().trim().min(1).max(500).optional() });
+const body = z.object({
+  approvedBy: z.string().trim().min(1).max(120),
+  overrideReason: z.string().trim().min(1).max(500).optional(),
+});
 
 export const POST = withAuth<{ id: string }>({ perm: 'recipe.lock' }, async (req, { user, params }) => {
   const b = await parseJson(req, body);

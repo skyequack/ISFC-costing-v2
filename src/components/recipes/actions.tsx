@@ -103,22 +103,23 @@ export function useRecipeActions(target: number) {
         body: (
           <>
             <p style={s('font-size:13.5px')}>
-              You are about to delete{' '}
-              {many ? <b>{cards.length} cards</b> : <b>{cards[0]!.name}.</b>}
+              You are about to delete {many ? <b>{cards.length} cards</b> : <b>{cards[0]!.name}.</b>}
               {many && ':'}
             </p>
             {many && (
               <ul style={s('margin:10px 0 0 20px;font-size:13px;max-height:170px;overflow:auto')}>
                 {cards.map((r) => (
                   <li key={r.id} style={s('margin-bottom:3px')}>
-                    <b>{r.code || 'no code'}</b> {'–'} {r.name} {r.type === 'sub' && <span className="pill p-sub">sub</span>}
+                    <b>{r.code || 'no code'}</b> {'–'} {r.name}{' '}
+                    {r.type === 'sub' && <span className="pill p-sub">sub</span>}
                   </li>
                 ))}
               </ul>
             )}
             {refs.lines > 0 && (
               <div className="note r" style={s('margin-top:14px')}>
-                <b>Warning.</b> {refs.lines} ingredient line{refs.lines === 1 ? '' : 's'} on {refs.cards.length} other card
+                <b>Warning.</b> {refs.lines} ingredient line{refs.lines === 1 ? '' : 's'} on {refs.cards.length} other
+                card
                 {refs.cards.length === 1 ? '' : 's'} still use{refs.lines === 1 ? 's' : ''}{' '}
                 {refs.codes.map((c, i) => (
                   <span key={c}>
@@ -165,7 +166,11 @@ export function useRecipeActions(target: number) {
         if (!who) return toast(single ? 'Enter who is approving this' : 'Enter who is approving these');
         st.set({ busy: true });
         try {
-          if (single) await api('POST', `/api/recipes/${single.id}/lock`, { approvedBy: who, overrideReason: f.needReason ? f.reason.trim() || undefined : undefined });
+          if (single)
+            await api('POST', `/api/recipes/${single.id}/lock`, {
+              approvedBy: who,
+              overrideReason: f.needReason ? f.reason.trim() || undefined : undefined,
+            });
           else await api('POST', '/api/recipes/bulk', { action: 'lock', ids: list.map((c) => c.id), approvedBy: who });
           modal.close();
           toast(single ? `${single.code} locked by ${who}` : `${list.length} cards locked`);

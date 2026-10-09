@@ -24,15 +24,17 @@ export async function applyMenuDay(
   if (!(await menusVisible(tx, scope))) throw new ApiError('not_found', 'Not found');
   const ssem = (await ssemBrandId(tx))!;
   const brand = (await tx.query('SELECT locations FROM brand WHERE id = $1', [ssem])).rows[0]!;
-  if (input.location !== '' && !(brand.locations as string[]).includes(input.location))
+  /* D-20: '*' = every site added together (written to the unassigned bucket, as legacy wrote it when no site was picked) */
+  const allSites = input.location === '*';
+  const writeLoc = allSites ? '' : input.location;
+  if (!allSites && input.location !== '' && !(brand.locations as string[]).includes(input.location))
     throw new ApiError('bad_request', `Unknown site ${input.location}`);
 
   const menus = await loadMenus(tx);
-  const paxRows = await tx.query('SELECT menu_id, people FROM menu_pax WHERE month = $1 AND day = $2 AND location = $3', [
-    input.month,
-    input.day,
-    input.location,
-  ]);
+  const paxRows = await tx.query(
+    `SELECT menu_id, sum(people)::int AS people FROM menu_pax WHERE month = $1 AND day = $2 AND ($4 OR location = $3) GROUP BY menu_id`,
+    [input.month, input.day, input.location, allSites],
+  );
   const pax = new Map<string, number>(paxRows.rows.map((r) => [r.menu_id as string, r.people as number]));
 
   const catalog = await loadCatalog(tx);
@@ -51,7 +53,7 @@ export async function applyMenuDay(
     `INSERT INTO production_entry (month, day, location, recipe_code, portions)
      SELECT $1, $2, $3, c, p FROM unnest($4::text[], $5::int[]) AS t(c, p)
      ON CONFLICT (month, day, location, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
-    [input.month, input.day, input.location, entries.map((e) => e.r.code), entries.map((e) => Math.round(e.q))],
+    [input.month, input.day, writeLoc, entries.map((e) => e.r.code), entries.map((e) => Math.round(e.q))],
   );
   const people = menus.reduce((a, m) => a + (pax.get(m.id) ?? 0), 0);
   const nMenus = menus.filter((m) => pax.get(m.id)).length;
@@ -60,7 +62,7 @@ export async function applyMenuDay(
     tx,
     user,
     'Turned the menus into production',
-    `${wd} · ${input.month}-${input.day}${input.location ? ` · ${input.location}` : ''}: ${people} people across ${nMenus} menus became ${entries.length} dishes to cook` +
+    `${wd} · ${input.month}-${input.day}${writeLoc ? ` · ${writeLoc}` : ''}: ${people} people across ${nMenus} menus became ${entries.length} dishes to cook` +
       (missing.length ? `. No recipe card for: ${missing.slice(0, 10).join(', ')}` : ''),
   );
   return { dishes: entries.length, people };

@@ -8,7 +8,15 @@ import { pct } from '@/lib/format';
 import type { BrandTile } from '@/lib/screens/brands';
 
 /** Legacy vBrands (2564): one tile per brand; clicking sets the workspace (cookie) and opens the recipe list. */
-export function BrandsScreen({ tiles, workspaceId, target }: { tiles: BrandTile[]; workspaceId: string; target: number }) {
+export function BrandsScreen({
+  tiles,
+  workspaceId,
+  target,
+}: {
+  tiles: BrandTile[];
+  workspaceId: string;
+  target: number;
+}) {
   const router = useRouter();
   const toast = useToast();
 
@@ -95,4 +103,3 @@ export function BrandsScreen({ tiles, workspaceId, target }: { tiles: BrandTile[
     </>
   );
 }
-

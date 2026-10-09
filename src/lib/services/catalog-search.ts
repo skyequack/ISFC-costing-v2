@@ -53,7 +53,13 @@ export async function searchPicker(
       LIMIT $4`,
     [brandId, needle, like, limit > 0 ? Math.max(limit - subs.length, 0) : 100000],
   );
-  const items: PickOption[] = itemRows.rows.map((r) => ({ code: r.code, name: r.name, uom: r.uom, price: r.price, sub: false }));
+  const items: PickOption[] = itemRows.rows.map((r) => ({
+    code: r.code,
+    name: r.name,
+    uom: r.uom,
+    price: r.price,
+    sub: false,
+  }));
   const itemTotal = itemRows.rows[0] ? Number(itemRows.rows[0].total) : 0;
   const all = limit > 0 ? [...subs, ...items].slice(0, limit) : [...subs, ...items];
   return { all, total: subs.length + (itemTotal || (await countItems(db, brandId, needle, like))) };

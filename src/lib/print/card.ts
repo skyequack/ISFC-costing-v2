@@ -63,7 +63,17 @@ export interface PrintCard {
   lines: PrintLine[];
   method: string[];
   c: PrintCost;
-  settings: { currency: string; pkg: number; del: number; lab: number; ops: number; buffer: number; target: number; vat: number; priceDate: string };
+  settings: {
+    currency: string;
+    pkg: number;
+    del: number;
+    lab: number;
+    ops: number;
+    buffer: number;
+    target: number;
+    vat: number;
+    priceDate: string;
+  };
   printedOn: string;
 }
 
@@ -73,7 +83,8 @@ export function buildCardHTML(r: PrintCard): string {
   const c = r.c;
   const st = r.settings;
   const cu = esc(st.currency || '');
-  const d = (k: string, v: string | number, cls?: string) => `<tr class="${cls || ''}"><td class="l">${k}</td><td class="v">${v}</td></tr>`;
+  const d = (k: string, v: string | number, cls?: string) =>
+    `<tr class="${cls || ''}"><td class="l">${k}</td><td class="v">${v}</td></tr>`;
   const lines = r.lines.filter((l) => l.code);
   const dp = c.bUom === 'Each' ? 0 : 1;
   // D-21: effective variable buffer rate (what the card actually adds), falling back to the global rate on a zero-cost card

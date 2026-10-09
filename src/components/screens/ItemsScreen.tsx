@@ -85,8 +85,8 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
     const body = () => {
       const f = st.get();
       const p = f.price.trim();
-      if (!f.code.trim()) return toast('Code is required'), null;
-      if (p !== '' && !isFinite(Number(p))) return toast('Price must be a number'), null;
+      if (!f.code.trim()) return (toast('Code is required'), null);
+      if (p !== '' && !isFinite(Number(p))) return (toast('Price must be a number'), null);
       return {
         code: f.code.trim(),
         name: f.name.trim(),
@@ -168,7 +168,8 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
       </Acts>
       {!can('items.edit') && (
         <div className="rolebar">
-          <b>Read only.</b> Purchase prices can only be changed by Cost Control or management. You can still search and export.
+          <b>Read only.</b> Purchase prices can only be changed by Cost Control or management. You can still search and
+          export.
         </div>
       )}
       <div className="row" style={s('grid-template-columns:1fr 210px 210px;margin-bottom:16px;max-width:940px')}>
@@ -246,7 +247,9 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
                 <td className="c" style={s('font-size:11.5px;color:var(--mute)')}>
                   {i.uom}
                 </td>
-                <td className="n mono">{i.price == null ? <span className="pill p-bad">missing</span> : cur(i.price, 6)}</td>
+                <td className="n mono">
+                  {i.price == null ? <span className="pill p-bad">missing</span> : cur(i.price, 6)}
+                </td>
                 <td>
                   {!i.brandIds.length ? (
                     <span className="pill p-gr">Shared</span>
@@ -301,7 +304,13 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
     <>
       <div className="field">
         <label className="fl">Code</label>
-        <input type="text" className="cell mono" value={f.code} readOnly={!nw} onChange={(e) => st.set({ code: e.target.value })} />
+        <input
+          type="text"
+          className="cell mono"
+          value={f.code}
+          readOnly={!nw}
+          onChange={(e) => st.set({ code: e.target.value })}
+        />
       </div>
       <div className="field">
         <label className="fl">Item Name</label>
@@ -318,7 +327,13 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
         </div>
         <div className="field">
           <label className="fl">Price per unit</label>
-          <input type="number" step="any" className="cell" value={f.price} onChange={(e) => st.set({ price: e.target.value })} />
+          <input
+            type="number"
+            step="any"
+            className="cell"
+            value={f.price}
+            onChange={(e) => st.set({ price: e.target.value })}
+          />
         </div>
       </div>
       <div className="row r2">
@@ -356,7 +371,9 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
               <input
                 type="checkbox"
                 checked={f.brandIds.includes(b.id)}
-                onChange={(e) => st.set({ brandIds: e.target.checked ? [...f.brandIds, b.id] : f.brandIds.filter((x) => x !== b.id) })}
+                onChange={(e) =>
+                  st.set({ brandIds: e.target.checked ? [...f.brandIds, b.id] : f.brandIds.filter((x) => x !== b.id) })
+                }
               />
               {b.name}
             </label>
@@ -365,7 +382,12 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
       </div>
       <div className="field">
         <label className="fl">Review flag</label>
-        <input type="text" value={f.flag} placeholder="leave empty if fine" onChange={(e) => st.set({ flag: e.target.value })} />
+        <input
+          type="text"
+          value={f.flag}
+          placeholder="leave empty if fine"
+          onChange={(e) => st.set({ flag: e.target.value })}
+        />
       </div>
     </>
   );

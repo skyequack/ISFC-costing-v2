@@ -2,7 +2,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
-import { createCardMatcher, lookupFor, mealRank, menuDemand, planCost, planDay, planFamily, planTok, prepDemand, weekdayOf, type PlanMenu } from '@/domain/menu-plans';
+import {
+  createCardMatcher,
+  lookupFor,
+  mealRank,
+  menuDemand,
+  planCost,
+  planDay,
+  planFamily,
+  planTok,
+  prepDemand,
+  weekdayOf,
+  type PlanMenu,
+} from '@/domain/menu-plans';
 import { PLAN_ALIAS, MENU_DAYS } from '@/data';
 import { goldenContext, goldenState } from './helpers/golden';
 
@@ -30,7 +42,10 @@ const toMenus = (): PlanMenu[] =>
     rows: m.rows.map((r) => ({
       meal: r.m,
       cells: Object.fromEntries(
-        Object.entries(r.d).map(([d, c]) => [d, { label: c.n, kind: c.k === 'card' ? 'RECIPE' : c.k === 'item' ? 'ITEM' : 'NONE', code: c.c ?? null }]),
+        Object.entries(r.d).map(([d, c]) => [
+          d,
+          { label: c.n, kind: c.k === 'card' ? 'RECIPE' : c.k === 'item' ? 'ITEM' : 'NONE', code: c.c ?? null },
+        ]),
       ),
     })),
   })) as PlanMenu[];
@@ -84,7 +99,10 @@ describe('plan helpers', () => {
   });
 
   it('menuDemand adds headcounts per dish; prepDemand accumulates raw material', () => {
-    const pax = new Map([[menus[0]!.id, 10], [menus[1]!.id, 5]]);
+    const pax = new Map([
+      [menus[0]!.id, 10],
+      [menus[1]!.id, 5],
+    ]);
     const d = menuDemand(menus, pax, 'SATURDAY', L);
     for (const e of Object.values(d.tot)) expect(e.q).toBeGreaterThan(0);
     const req = { items: ctx.items, recipes: goldenState.recipes, conv: ctx.conv };

@@ -17,7 +17,7 @@ vi.mock('@/lib/db/client', async (orig) => {
   return {
     ...actual,
     db: { query: (t: string, v?: unknown[]) => h.client.query(t, v) },
-    withTransaction: async <T,>(fn: (tx: unknown) => Promise<T>): Promise<T> => {
+    withTransaction: async <T>(fn: (tx: unknown) => Promise<T>): Promise<T> => {
       await h.client.query('SAVEPOINT rt');
       try {
         const r = await fn(h.client);
@@ -36,7 +36,29 @@ vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), unstable_cache: (fn: unkn
 
 const be32 = (n: number) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
 const png = (w: number, h2: number, extra = 0) =>
-  new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...be32(13), 0x49, 0x48, 0x44, 0x52, ...be32(w), ...be32(h2), 8, 6, 0, 0, 0, ...new Array(extra).fill(7)]);
+  new Uint8Array([
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a,
+    ...be32(13),
+    0x49,
+    0x48,
+    0x44,
+    0x52,
+    ...be32(w),
+    ...be32(h2),
+    8,
+    6,
+    0,
+    0,
+    0,
+    ...new Array(extra).fill(7),
+  ]);
 
 const ctx = (id = 'x') => ({ params: Promise.resolve({ id }) });
 const put = (url: string, body: Uint8Array | string, type = 'image/png') =>
@@ -57,9 +79,13 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
   });
 
   async function mkUser(role: Role, brandIds: string[]): Promise<SessionUser> {
-    const { rows } = await c.query(`INSERT INTO app_user (clerk_user_id, name) VALUES ($1,$2) RETURNING id`, [`clerk-${role}-${Math.random()}`, `T ${role}`]);
+    const { rows } = await c.query(`INSERT INTO app_user (clerk_user_id, name) VALUES ($1,$2) RETURNING id`, [
+      `clerk-${role}-${Math.random()}`,
+      `T ${role}`,
+    ]);
     const id = rows[0]!.id as string;
-    for (const b of brandIds) await c.query('INSERT INTO user_brand_access (user_id, brand_id) VALUES ($1,$2)', [id, b]);
+    for (const b of brandIds)
+      await c.query('INSERT INTO user_brand_access (user_id, brand_id) VALUES ($1,$2)', [id, b]);
     return { id, clerkUserId: `c-${id}`, email: null, name: `T ${role}`, role };
   }
   const as = (u: SessionUser) => (h.session = { status: 'ok', user: u });
@@ -74,7 +100,14 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     as(gm);
     const { POST } = await import('@/app/api/recipes/route');
     const create = async (brandId: string) =>
-      ((await (await POST(new Request('http://x/api/recipes', { method: 'POST', body: JSON.stringify({ brandId }) }), ctx() as never)).json()) as { id: string }).id;
+      (
+        (await (
+          await POST(
+            new Request('http://x/api/recipes', { method: 'POST', body: JSON.stringify({ brandId }) }),
+            ctx() as never,
+          )
+        ).json()) as { id: string }
+      ).id;
     const recipeA = await create(brandA);
     return { brandA, brandB, gm, chefA, ccB, viewerA, recipeA };
   }
@@ -98,12 +131,17 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     expect(g.headers.get('cache-control')).toMatch(/private.*immutable/);
     expect(new Uint8Array(await g.arrayBuffer())).toEqual(bytes);
     const etag = g.headers.get('etag')!;
-    const g304 = await GET(new Request(`http://x/api/recipes/${recipeA}/photo`, { headers: { 'if-none-match': etag } }), ctx(recipeA));
+    const g304 = await GET(
+      new Request(`http://x/api/recipes/${recipeA}/photo`, { headers: { 'if-none-match': etag } }),
+      ctx(recipeA),
+    );
     expect(g304.status).toBe(304);
 
     const r2 = await PUT(put(`http://x/api/recipes/${recipeA}/photo`, png(310, 200, 41)), ctx(recipeA));
     expect(((await r2.json()) as { url: string }).url).not.toBe(j1.url);
-    const a = await c.query(`SELECT detail FROM audit_log WHERE action = 'Added a dish photo' AND user_id = $1`, [chefA.id]);
+    const a = await c.query(`SELECT detail FROM audit_log WHERE action = 'Added a dish photo' AND user_id = $1`, [
+      chefA.id,
+    ]);
     expect(a.rows[0]!.detail).toMatch(/300×200/);
   });
 
@@ -118,7 +156,14 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     expect((await PUT(put(url, png(10, 10)), ctx(recipeA))).status).toBe(404);
     expect((await DELETE(new Request(url, { method: 'DELETE' }), ctx(recipeA))).status).toBe(404);
     as(chefA);
-    expect((await PUT(put(url, new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>'), 'image/png'), ctx(recipeA))).status).toBe(400);
+    expect(
+      (
+        await PUT(
+          put(url, new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>'), 'image/png'),
+          ctx(recipeA),
+        )
+      ).status,
+    ).toBe(400);
     expect((await PUT(put(url, new TextEncoder().encode('<html>not an image</html>')), ctx(recipeA))).status).toBe(400);
     expect((await PUT(put(url, new Uint8Array(0)), ctx(recipeA))).status).toBe(400);
     expect((await PUT(put(url, png(5000, 10)), ctx(recipeA))).status).toBe(413);
@@ -126,11 +171,21 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     // locked card: every photo write is refused
     as(gm);
     const lock = await import('@/app/api/recipes/[id]/lock/route');
-    expect((await lock.POST(new Request('http://x', { method: 'POST', body: JSON.stringify({ approvedBy: 'Boss' }) }), ctx(recipeA))).status).toBe(200);
+    expect(
+      (
+        await lock.POST(
+          new Request('http://x', { method: 'POST', body: JSON.stringify({ approvedBy: 'Boss' }) }),
+          ctx(recipeA),
+        )
+      ).status,
+    ).toBe(200);
     as(chefA);
     expect((await PUT(put(url, png(10, 10)), ctx(recipeA))).status).toBe(422);
     expect((await DELETE(new Request(url, { method: 'DELETE' }), ctx(recipeA))).status).toBe(422);
-    const rows = await c.query(`SELECT count(*)::int AS n FROM audit_log WHERE action = 'Added a dish photo' AND user_id = $1`, [chefA.id]);
+    const rows = await c.query(
+      `SELECT count(*)::int AS n FROM audit_log WHERE action = 'Added a dish photo' AND user_id = $1`,
+      [chefA.id],
+    );
     expect(rows.rows[0]!.n).toBe(0); // refused writes left no audit row
   });
 
@@ -141,7 +196,10 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     as(chefA);
     expect((await logo.PUT(put('http://x', png(10, 10)), ctx(brandA))).status).toBe(403);
     as(gm);
-    const created = await brands.POST(new Request('http://x/api/brands', { method: 'POST', body: JSON.stringify({ name: 'Two Step', code: 'TS' }) }), ctx() as never);
+    const created = await brands.POST(
+      new Request('http://x/api/brands', { method: 'POST', body: JSON.stringify({ name: 'Two Step', code: 'TS' }) }),
+      ctx() as never,
+    );
     expect(created.status).toBe(201);
     const bid = ((await created.json()) as { id: string }).id;
     const bad = await logo.PUT(put('http://x', new TextEncoder().encode('nope')), ctx(bid));
@@ -159,7 +217,9 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     expect((await logo.GET(new Request('http://x'), ctx(brandA))).status).toBe(404);
     expect((await logo.GET(new Request('http://x'), ctx(brandB))).status).toBe(404); // no logo yet
     // seeded logos are byte-equal to the shipped assets
-    const seeded = await c.query(`SELECT b.name, l.data, l.sha256 FROM brand_logo l JOIN brand b ON b.id = l.brand_id WHERE b.legacy_id = 'b1'`);
+    const seeded = await c.query(
+      `SELECT b.name, l.data, l.sha256 FROM brand_logo l JOIN brand b ON b.id = l.brand_id WHERE b.legacy_id = 'b1'`,
+    );
     if (seeded.rows[0]) {
       const file = readFileSync(path.resolve(__dirname, '../../public/assets/gourmet-logo.png'));
       expect(createHash('sha256').update(seeded.rows[0].data).digest('hex')).toBe(seeded.rows[0].sha256);
@@ -172,15 +232,25 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     const { POST: bulk } = await import('@/app/api/recipes/bulk/route');
     const { POST: create, GET: list } = await import('@/app/api/recipes/route');
     as(gm);
-    const recipeB = ((await (await create(new Request('http://x', { method: 'POST', body: JSON.stringify({ brandId: brandB }) }), ctx() as never)).json()) as { id: string }).id;
-    const call = (body: unknown) => bulk(new Request('http://x', { method: 'POST', body: JSON.stringify(body) }), ctx() as never);
+    const recipeB = (
+      (await (
+        await create(
+          new Request('http://x', { method: 'POST', body: JSON.stringify({ brandId: brandB }) }),
+          ctx() as never,
+        )
+      ).json()) as { id: string }
+    ).id;
+    const call = (body: unknown) =>
+      bulk(new Request('http://x', { method: 'POST', body: JSON.stringify(body) }), ctx() as never);
     // cc of brand A deleting [A, B] -> 404, and A must still exist
     const ccA = await mkUser('cc', [brandA]);
     as(ccA);
     expect((await call({ action: 'delete', ids: [recipeA, recipeB] })).status).toBe(404);
     expect((await c.query('SELECT deleted_at FROM recipe WHERE id = $1', [recipeA])).rows[0]!.deleted_at).toBeNull();
     expect((await call({ action: 'delete', ids: [recipeA] })).status).toBe(200);
-    expect((await c.query('SELECT deleted_at FROM recipe WHERE id = $1', [recipeA])).rows[0]!.deleted_at).not.toBeNull();
+    expect(
+      (await c.query('SELECT deleted_at FROM recipe WHERE id = $1', [recipeA])).rows[0]!.deleted_at,
+    ).not.toBeNull();
     // chef cannot delete / unlock via bulk
     as(chefA);
     expect((await call({ action: 'delete', ids: [recipeB] })).status).toBeGreaterThanOrEqual(403);
@@ -213,11 +283,16 @@ describe.skipIf(!hasTestDb)('routes against Neon (rolled back)', { timeout: 120_
     as(cc);
     expect((await arch.POST(new Request('http://x', { method: 'POST' }), ctx() as never)).status).toBe(403);
     as(gm);
-    await c.query(`INSERT INTO audit_log (created_at, user_name_snapshot, role_snapshot, action, detail) VALUES (now() - interval '2 days', 'Old', 'gm', 'Old thing', 'zzold')`);
+    await c.query(
+      `INSERT INTO audit_log (created_at, user_name_snapshot, role_snapshot, action, detail) VALUES (now() - interval '2 days', 'Old', 'gm', 'Old thing', 'zzold')`,
+    );
     const before = Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n);
     expect((await arch.POST(new Request('http://x', { method: 'POST' }), ctx() as never)).status).toBe(200);
     const get = async (q: string) =>
-      (await (await audit.GET(new Request(`http://x/api/audit?${q}`), ctx() as never)).json()) as { rows: { action: string; detail: string }[]; archivedHidden: number };
+      (await (await audit.GET(new Request(`http://x/api/audit?${q}`), ctx() as never)).json()) as {
+        rows: { action: string; detail: string }[];
+        archivedHidden: number;
+      };
     const hidden = await get('q=zzold');
     expect(hidden.rows).toHaveLength(0);
     expect(hidden.archivedHidden).toBeGreaterThan(0);

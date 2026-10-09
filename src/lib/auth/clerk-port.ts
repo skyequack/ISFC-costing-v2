@@ -45,7 +45,9 @@ export function clerkPort(): ClerkPort {
       await (await clerkClient()).users.deleteUser(id);
     },
     async invite(email, role) {
-      await (await clerkClient()).invitations.createInvitation({
+      await (
+        await clerkClient()
+      ).invitations.createInvitation({
         emailAddress: email,
         publicMetadata: { role },
         ignoreExisting: true,

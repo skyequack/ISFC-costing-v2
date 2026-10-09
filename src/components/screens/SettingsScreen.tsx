@@ -35,7 +35,15 @@ interface LogoPick {
 }
 
 /** Legacy vSettings (4085) + brand management (D-48 add-with-logo, D-52 sites editor). */
-export function SettingsScreen({ settings, brands, impact }: { settings: SettingsDto; brands: SettingsBrand[]; impact: (RecipeRow & { brandName: string })[] }) {
+export function SettingsScreen({
+  settings,
+  brands,
+  impact,
+}: {
+  settings: SettingsDto;
+  brands: SettingsBrand[];
+  impact: (RecipeRow & { brandName: string })[];
+}) {
   const router = useRouter();
   const toast = useToast();
   const modal = useModal();
@@ -46,7 +54,10 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
 
   async function patch(p: Record<string, unknown>) {
     try {
-      const r = await api<{ settings: SettingsDto; cards: number }>('PATCH', '/api/settings', { version: st.version, ...p });
+      const r = await api<{ settings: SettingsDto; cards: number }>('PATCH', '/api/settings', {
+        version: st.version,
+        ...p,
+      });
       setSt(r.settings);
       router.refresh();
     } catch (e) {
@@ -65,7 +76,14 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
       <label className="fl">{l}</label>
       <div style={s('display:flex;align-items:center;gap:8px')}>
         <Perm perm="settings.edit">
-          <CommitInput className="cell" type="number" step="0.01" style={s('text-align:right')} value={(st[k] * 100).toFixed(2)} onCommit={(v) => setPct(k, v)} />
+          <CommitInput
+            className="cell"
+            type="number"
+            step="0.01"
+            style={s('text-align:right')}
+            value={(st[k] * 100).toFixed(2)}
+            onCommit={(v) => setPct(k, v)}
+          />
         </Perm>
         <span style={s('color:var(--mute)')}>%</span>
       </div>
@@ -82,8 +100,8 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
     <>
       {!can('settings.edit') && (
         <div className="rolebar">
-          <b>Read only.</b> Only a General Manager can change the cost structure or pricing policy. These figures drive every card in
-          the system.
+          <b>Read only.</b> Only a General Manager can change the cost structure or pricing policy. These figures drive
+          every card in the system.
         </div>
       )}
       <div className="row r2" style={s('max-width:900px;align-items:start')}>
@@ -95,8 +113,8 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
             {pf('lab', 'Labor cost', '% of sales price')}
             {pf('ops', 'OPS cost', '% of sales price')}
             <div className={`note ${fixed >= 0.5 ? 'r' : ''}`} style={s('margin:6px 0 0')}>
-              Fixed charges total <b>{pct(fixed)}</b> of every sale before a single ingredient. Food cost must stay under{' '}
-              {pct(1 - fixed)} just to break even.
+              Fixed charges total <b>{pct(fixed)}</b> of every sale before a single ingredient. Food cost must stay
+              under {pct(1 - fixed)} just to break even.
             </div>
           </div>
         </div>
@@ -109,7 +127,11 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
             <div className="field">
               <label className="fl">Currency code</label>
               <Perm perm="settings.edit">
-                <CommitInput className="cell" value={st.currency} onCommit={(v) => void patch({ currency: v.trim() })} />
+                <CommitInput
+                  className="cell"
+                  value={st.currency}
+                  onCommit={(v) => void patch({ currency: v.trim() })}
+                />
               </Perm>
             </div>
             <div className="field">
@@ -118,7 +140,11 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
                 <CommitInput
                   className="cell"
                   value={st.priceDate}
-                  onCommit={(v) => (/^\d{4}-\d{2}-\d{2}$/.test(v.trim()) ? void patch({ priceDate: v.trim() }) : toast('Use the form YYYY-MM-DD'))}
+                  onCommit={(v) =>
+                    /^\d{4}-\d{2}-\d{2}$/.test(v.trim())
+                      ? void patch({ priceDate: v.trim() })
+                      : toast('Use the form YYYY-MM-DD')
+                  }
                 />
               </Perm>
             </div>
@@ -155,7 +181,11 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
                     <td>
                       {b.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={b.logoUrl} alt="" style={s('height:30px;max-width:74px;object-fit:contain;display:block')} />
+                        <img
+                          src={b.logoUrl}
+                          alt=""
+                          style={s('height:30px;max-width:74px;object-fit:contain;display:block')}
+                        />
                       ) : (
                         <span style={s('color:var(--mute);font-size:11px')}>none</span>
                       )}
@@ -206,8 +236,8 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
         <h3>Approval &amp; Access</h3>
         <div className="bd">
           <p style={s('font-size:13px;color:var(--mute);margin-bottom:12px')}>
-            Who may approve a card, reopen an approved one, change a price or delete anything is decided by access level, not by a
-            shared PIN. Each person signs in as themselves and every action is logged.
+            Who may approve a card, reopen an approved one, change a price or delete anything is decided by access
+            level, not by a shared PIN. Each person signs in as themselves and every action is logged.
           </p>
           <div className="tw" style={s('box-shadow:none;margin-bottom:14px')}>
             <table>
@@ -234,8 +264,10 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
                   .sort((x, y) => ROLES[y].rank - ROLES[x].rank)
                   .map((k) => {
                     const R = ROLES[k];
-                    const has = (p: string) => (R.perms as readonly string[]).includes('*') || (R.perms as readonly string[]).includes(p);
-                    const tick = (b: boolean) => (b ? <span className="pill p-ok">yes</span> : <span className="pill p-gr">no</span>);
+                    const has = (p: string) =>
+                      (R.perms as readonly string[]).includes('*') || (R.perms as readonly string[]).includes(p);
+                    const tick = (b: boolean) =>
+                      b ? <span className="pill p-ok">yes</span> : <span className="pill p-gr">no</span>;
                     return (
                       <tr key={k}>
                         <td>
@@ -285,7 +317,11 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
                   <tr key={r.id}>
                     <td>{r.name}</td>
                     <td>
-                      {r.brandName ? <span className="pill p-sub">{r.brandName}</span> : <span style={s('color:var(--mute)')}>{'—'}</span>}
+                      {r.brandName ? (
+                        <span className="pill p-sub">{r.brandName}</span>
+                      ) : (
+                        <span style={s('color:var(--mute)')}>{'—'}</span>
+                      )}
                     </td>
                     <td className="n">{cur(r.c.food)}</td>
                     <td className="n">{cur(r.c.totalCost)}</td>
@@ -310,7 +346,10 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
   async function addBrand() {
     const f = addPick.current.get();
     const name = f.name.trim();
-    let code = f.code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    let code = f.code
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
     if (!name) return toast('Type a brand name');
     if (!code) code = (name.replace(/[^A-Za-z]/g, '').toUpperCase() + 'XXX').slice(0, 3);
     addPick.current.set({ busy: true });
@@ -334,7 +373,8 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
   }
 
   function delBrand(b: SettingsBrand) {
-    if (b.cards) return toast(`${b.cards} card${b.cards === 1 ? ' is' : 's are'} in ${b.name} – move or delete them first`);
+    if (b.cards)
+      return toast(`${b.cards} card${b.cards === 1 ? ' is' : 's are'} in ${b.name} – move or delete them first`);
     api('DELETE', `/api/brands/${b.id}`)
       .then(() => {
         toast('Brand removed');
@@ -358,7 +398,10 @@ export function SettingsScreen({ settings, brands, impact }: { settings: Setting
     async function save() {
       const f = form.get();
       const name = f.name.trim();
-      const code = f.code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const code = f.code
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '');
       if (!name || !code) return toast('Name and prefix are both required');
       form.set({ busy: true });
       try {
@@ -440,7 +483,8 @@ function LogoBox({ pick, onPick, help }: { pick: LogoPick; onPick: (p: LogoPick)
         </button>
         {help && (
           <div style={s('font-size:10.5px;color:var(--mute);margin-top:7px')}>
-            PNG with a transparent background works best. Resized to 320 px wide and stored inside this file, so keep it small.
+            PNG with a transparent background works best. Resized to 320 px wide and stored inside this file, so keep it
+            small.
           </div>
         )}
       </div>
@@ -449,7 +493,13 @@ function LogoBox({ pick, onPick, help }: { pick: LogoPick; onPick: (p: LogoPick)
 }
 
 /** Legacy add-brand row (name + prefix + Add) with the D-48(b) logo box. */
-function AddBrand({ st, onAdd }: { st: Store<{ name: string; code: string; logo: LogoPick; busy: boolean }>; onAdd: () => void }) {
+function AddBrand({
+  st,
+  onAdd,
+}: {
+  st: Store<{ name: string; code: string; logo: LogoPick; busy: boolean }>;
+  onAdd: () => void;
+}) {
   const f = useStore(st);
   return (
     <>
@@ -487,7 +537,17 @@ function EditBrandBody({
   st,
   cards,
 }: {
-  st: Store<{ code: string; name: string; color: string; logo: LogoPick; hadLogo: boolean; sites: string[]; renames: { from: string; to: string }[]; newSite: string; busy: boolean }>;
+  st: Store<{
+    code: string;
+    name: string;
+    color: string;
+    logo: LogoPick;
+    hadLogo: boolean;
+    sites: string[];
+    renames: { from: string; to: string }[];
+    newSite: string;
+    busy: boolean;
+  }>;
   cards: number;
 }) {
   const f = useStore(st);
@@ -499,7 +559,8 @@ function EditBrandBody({
     const t = to.trim();
     if (!t || t === f.sites[i]) return;
     if (t.includes('|')) return toast('A site name cannot contain |');
-    if (f.sites.some((x, j) => j !== i && x.toLowerCase() === t.toLowerCase())) return toast('That site already exists');
+    if (f.sites.some((x, j) => j !== i && x.toLowerCase() === t.toLowerCase()))
+      return toast('That site already exists');
     const from = f.sites[i]!;
     const origFrom = f.renames.find((r) => r.to === from)?.from ?? (orig.includes(from) ? from : null);
     const renames = f.renames.filter((r) => r.to !== from);
@@ -519,15 +580,33 @@ function EditBrandBody({
       <div className="row" style={s('grid-template-columns:110px 1fr 96px')}>
         <div className="field">
           <label className="fl">Prefix</label>
-          <input type="text" className="cell mono" maxLength={4} value={f.code} style={s('text-transform:uppercase')} onChange={(e) => st.set({ code: e.target.value })} />
+          <input
+            type="text"
+            className="cell mono"
+            maxLength={4}
+            value={f.code}
+            style={s('text-transform:uppercase')}
+            onChange={(e) => st.set({ code: e.target.value })}
+          />
         </div>
         <div className="field">
           <label className="fl">Brand name</label>
-          <input type="text" className="cell" value={f.name} autoFocus onChange={(e) => st.set({ name: e.target.value })} />
+          <input
+            type="text"
+            className="cell"
+            value={f.name}
+            autoFocus
+            onChange={(e) => st.set({ name: e.target.value })}
+          />
         </div>
         <div className="field">
           <label className="fl">Colour</label>
-          <input type="color" value={f.color} style={s('width:100%;height:36px;padding:2px;cursor:pointer')} onChange={(e) => st.set({ color: e.target.value })} />
+          <input
+            type="color"
+            value={f.color}
+            style={s('width:100%;height:36px;padding:2px;cursor:pointer')}
+            onChange={(e) => st.set({ color: e.target.value })}
+          />
         </div>
       </div>
       <div className="field">
@@ -540,16 +619,35 @@ function EditBrandBody({
           <div style={s('display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px')}>
             {f.sites.length === 0 && <span style={s('font-size:12px;color:var(--mute)')}>No sites</span>}
             {f.sites.map((x, i) => (
-              <span key={x} className="pill p-sub" style={s('display:inline-flex;align-items:center;gap:6px;padding:3px 8px')}>
-                <CommitInput value={x} onCommit={(v) => rename(i, v)} style={s('width:90px;padding:2px 4px;font-size:11.5px')} />
-                <button type="button" title="Remove site" style={s('color:var(--bad);font-weight:700')} onClick={() => st.set({ sites: f.sites.filter((_, j) => j !== i) })}>
+              <span
+                key={x}
+                className="pill p-sub"
+                style={s('display:inline-flex;align-items:center;gap:6px;padding:3px 8px')}
+              >
+                <CommitInput
+                  value={x}
+                  onCommit={(v) => rename(i, v)}
+                  style={s('width:90px;padding:2px 4px;font-size:11.5px')}
+                />
+                <button
+                  type="button"
+                  title="Remove site"
+                  style={s('color:var(--bad);font-weight:700')}
+                  onClick={() => st.set({ sites: f.sites.filter((_, j) => j !== i) })}
+                >
                   {'×'}
                 </button>
               </span>
             ))}
           </div>
           <div style={s('display:flex;gap:7px')}>
-            <input type="text" placeholder="New site" value={f.newSite} onChange={(e) => st.set({ newSite: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && addSite()} />
+            <input
+              type="text"
+              placeholder="New site"
+              value={f.newSite}
+              onChange={(e) => st.set({ newSite: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && addSite()}
+            />
             <button className="btn sm o" onClick={addSite}>
               Add
             </button>
@@ -557,7 +655,8 @@ function EditBrandBody({
         </div>
       )}
       <div className="note" style={s('margin:0')}>
-        {cards} card(s) belong to this brand. The logo and colour appear on every one of their recipe cards, on screen and in print.
+        {cards} card(s) belong to this brand. The logo and colour appear on every one of their recipe cards, on screen
+        and in print.
       </div>
     </>
   );

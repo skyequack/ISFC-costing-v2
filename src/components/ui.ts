@@ -16,7 +16,9 @@ export function s(css: string): CSSProperties {
     const k = decl.slice(0, i).trim();
     const v = decl.slice(i + 1).trim();
     if (!k) continue;
-    const key = k.startsWith('--') ? k : k.replace(/^-(\w)/, (_, c: string) => c.toUpperCase()).replace(/-(\w)/g, (_, c: string) => c.toUpperCase());
+    const key = k.startsWith('--')
+      ? k
+      : k.replace(/^-(\w)/, (_, c: string) => c.toUpperCase()).replace(/-(\w)/g, (_, c: string) => c.toUpperCase());
     out[key] = v;
   }
   cache.set(css, out as CSSProperties);

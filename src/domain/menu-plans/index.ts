@@ -61,7 +61,12 @@ export function createCardMatcher(
   return (name) => {
     const hit = cache.get(name);
     if (hit !== undefined) return hit;
-    const al = alias[String(name || '').trim().toUpperCase()];
+    const al =
+      alias[
+        String(name || '')
+          .trim()
+          .toUpperCase()
+      ];
     if (al && upper.has(al.toUpperCase())) {
       cache.set(name, al);
       return al;
@@ -101,7 +106,11 @@ export interface PlanLookup {
   findCard: (name: string) => string | null;
 }
 
-export function lookupFor(ctx: CostContext, recipes: ReadonlyArray<CostRecipe>, alias: Readonly<Record<string, string>>): PlanLookup {
+export function lookupFor(
+  ctx: CostContext,
+  recipes: ReadonlyArray<CostRecipe>,
+  alias: Readonly<Record<string, string>>,
+): PlanLookup {
   const cardByUpper = new Map<string, CostRecipe>();
   for (const r of recipes) cardByUpper.set((r.code || '').toUpperCase(), r);
   return { ctx, cardByUpper, findCard: createCardMatcher(recipes, alias) };

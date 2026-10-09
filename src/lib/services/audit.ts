@@ -33,17 +33,23 @@ export async function listAudit(
   p: z.output<typeof auditQuery>,
 ): Promise<{ rows: AuditRow[]; total: number; archivedHidden: number }> {
   if (!can(user.role, 'audit.view')) throw new ApiError('forbidden', 'Your role cannot do that');
-  const marker = (await db.query(`SELECT max(created_at) AS t FROM audit_log WHERE action = $1`, [CLEARED])).rows[0]?.t as Date | null;
+  const marker = (await db.query(`SELECT max(created_at) AS t FROM audit_log WHERE action = $1`, [CLEARED])).rows[0]
+    ?.t as Date | null;
   const like = '%' + p.q.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%';
   const visibleFrom = p.archived === '1' ? null : marker;
   const where = `($1::timestamptz IS NULL OR created_at >= $1) AND ($2 = '%%' OR lower(user_name_snapshot || ' ' || action || ' ' || detail) LIKE $2)`;
-  const total = Number((await db.query(`SELECT count(*) AS n FROM audit_log WHERE ${where}`, [visibleFrom, like])).rows[0]!.n);
+  const total = Number(
+    (await db.query(`SELECT count(*) AS n FROM audit_log WHERE ${where}`, [visibleFrom, like])).rows[0]!.n,
+  );
   const { rows } = await db.query(
     `SELECT id, created_at, user_name_snapshot, role_snapshot, action, detail FROM audit_log WHERE ${where}
       ORDER BY created_at DESC, id DESC LIMIT $3 OFFSET $4`,
     [visibleFrom, like, p.limit, p.offset],
   );
-  const hidden = marker && p.archived !== '1' ? Number((await db.query('SELECT count(*) AS n FROM audit_log WHERE created_at < $1', [marker])).rows[0]!.n) : 0;
+  const hidden =
+    marker && p.archived !== '1'
+      ? Number((await db.query('SELECT count(*) AS n FROM audit_log WHERE created_at < $1', [marker])).rows[0]!.n)
+      : 0;
   return {
     total,
     archivedHidden: hidden,
@@ -61,7 +67,12 @@ export async function listAudit(
 /** Legacy "Clear activity log" as an append-only marker (D-31). Needs data.admin. */
 export async function archiveAudit(tx: Queryable, user: SessionUser): Promise<void> {
   if (!can(user.role, 'data.admin')) throw new ApiError('forbidden', 'Only the General Manager can do that');
-  await appendAudit(tx, user, CLEARED, 'Older entries are hidden from the Activity Log by default; nothing was deleted');
+  await appendAudit(
+    tx,
+    user,
+    CLEARED,
+    'Older entries are hidden from the Activity Log by default; nothing was deleted',
+  );
 }
 
 /** D-44: exports write one `Exported data` entry (kind + row count) by the acting user. */

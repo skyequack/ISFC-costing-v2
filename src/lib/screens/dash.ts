@@ -20,14 +20,28 @@ export interface DashData {
   noPrice: number;
   top: RecipeRow[];
   totalMenus: number;
-  byBrand: { name: string; n: number; afood: number; afc: number | null; over: number; anet: number | null; anp: number | null }[];
+  byBrand: {
+    name: string;
+    n: number;
+    afood: number;
+    afc: number | null;
+    over: number;
+    anet: number | null;
+    anp: number | null;
+  }[];
   subRows: (RecipeRow & { used: number })[];
 }
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 
 /** Legacy vDash (2614) numbers, brand-scoped (D-07) with the excluded-count note (D-30). */
-export function dashData(rows: RecipeRow[], items: IngredientDto[], brands: BrandView[], catalog: Catalog, target: number): DashData {
+export function dashData(
+  rows: RecipeRow[],
+  items: IngredientDto[],
+  brands: BrandView[],
+  catalog: Catalog,
+  target: number,
+): DashData {
   const menus = rows.filter((r) => r.type === 'menu');
   const subs = rows.filter((r) => r.type === 'sub');
   const priced = menus.filter((r) => r.c.sp > 0);
@@ -58,7 +72,11 @@ export function dashData(rows: RecipeRow[], items: IngredientDto[], brands: Bran
   for (const rec of catalog.context.recipes.values()) {
     if (!visible.has(rec.code)) continue;
     const seen = new Set<string>();
-    for (const l of rec.lines) if (l.code && !seen.has(l.code)) (seen.add(l.code), used.set(l.code, (used.get(l.code) ?? 0) + 1));
+    for (const l of rec.lines) {
+      if (!l.code || seen.has(l.code)) continue;
+      seen.add(l.code);
+      used.set(l.code, (used.get(l.code) ?? 0) + 1);
+    }
   }
 
   return {

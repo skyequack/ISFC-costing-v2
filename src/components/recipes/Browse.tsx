@@ -52,7 +52,12 @@ function BrowseBody({
     clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       try {
-        st.set({ res: await api('GET', `/api/catalog/search?brandId=${encodeURIComponent(brandId)}&q=${encodeURIComponent(f.q.trim())}&limit=60`) });
+        st.set({
+          res: await api(
+            'GET',
+            `/api/catalog/search?brandId=${encodeURIComponent(brandId)}&q=${encodeURIComponent(f.q.trim())}&limit=60`,
+          ),
+        });
       } catch {
         st.set({ res: { all: [], total: 0 } });
       }
@@ -101,7 +106,10 @@ function BrowseBody({
                 <tbody>
                   {res.all.map((o) => (
                     <tr key={o.code}>
-                      <td className="mono" style={s(`color:${o.sub ? 'var(--grn-dk)' : 'var(--org-dk)'};font-weight:700`)}>
+                      <td
+                        className="mono"
+                        style={s(`color:${o.sub ? 'var(--grn-dk)' : 'var(--org-dk)'};font-weight:700`)}
+                      >
                         {o.code}
                       </td>
                       <td style={s('font-size:12.5px')}>

@@ -19,7 +19,8 @@ export const POST = withAuth({}, async (req, { user }) => {
   const b = await parseJson(req, body);
   if (b.brandId) await withScope(user, async (_q, scope) => assertBrandVisible(scope, b.brandId));
   const jar = await cookies();
-  if (b.brandId) jar.set(WORKSPACE_COOKIE, b.brandId, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 180 });
+  if (b.brandId)
+    jar.set(WORKSPACE_COOKIE, b.brandId, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 180 });
   else jar.delete(WORKSPACE_COOKIE);
   return Response.json({ ok: true });
 });

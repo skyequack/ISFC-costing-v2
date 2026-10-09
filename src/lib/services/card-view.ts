@@ -21,7 +21,23 @@ export interface CardView {
   sumQty: number;
 }
 
-export function toCostRecipe(r: Pick<RecipeDto, 'id' | 'code' | 'name' | 'type' | 'output' | 'subQty' | 'subUom' | 'batchOut' | 'batchUom' | 'sellingPrice' | 'buffer' | 'lines'>): CostRecipe {
+export function toCostRecipe(
+  r: Pick<
+    RecipeDto,
+    | 'id'
+    | 'code'
+    | 'name'
+    | 'type'
+    | 'output'
+    | 'subQty'
+    | 'subUom'
+    | 'batchOut'
+    | 'batchUom'
+    | 'sellingPrice'
+    | 'buffer'
+    | 'lines'
+  >,
+): CostRecipe {
   return {
     id: r.id,
     code: r.code,
@@ -43,9 +59,20 @@ export function buildCardView(catalog: Catalog, rec: CostRecipe): CardView {
   return {
     cost: costWithIssues(rec, ctx),
     lines: rec.lines.map((l) => {
-      if (!l.code) return { name: '', uom: '', price: 0, kind: 'none', err: '', needConv: false, qty: num(l.qty), y: 1, cost: 0 };
+      if (!l.code)
+        return { name: '', uom: '', price: 0, kind: 'none', err: '', needConv: false, qty: num(l.qty), y: 1, cost: 0 };
       const c = lineCost(l, ctx);
-      return { name: c.name, uom: c.uom, price: c.price, kind: c.kind, err: c.err, needConv: c.needConv, qty: c.qty, y: c.y, cost: c.cost };
+      return {
+        name: c.name,
+        uom: c.uom,
+        price: c.price,
+        kind: c.kind,
+        err: c.err,
+        needConv: c.needConv,
+        qty: c.qty,
+        y: c.y,
+        cost: c.cost,
+      };
     }),
     sumQty: rec.lines.reduce((a, l) => a + num(l.qty), 0),
   };

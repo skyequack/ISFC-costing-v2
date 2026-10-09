@@ -80,7 +80,8 @@ export function ConvScreen({ items, used }: { items: ConvItem[]; used: Record<st
       if (!(entered > 0)) return toast('Enter how many units, as a number above zero');
       const factor = f.dir === 'p2r' ? entered : 1 / entered;
       if (!isFinite(factor) || factor <= 0) return toast('That number does not give a usable factor');
-      if (f.unit.toLowerCase().trim() === it.uom.toLowerCase().trim()) return toast(`${f.unit} is already how this item is priced – no conversion needed`);
+      if (f.unit.toLowerCase().trim() === it.uom.toLowerCase().trim())
+        return toast(`${f.unit} is already how this item is priced – no conversion needed`);
       try {
         await api('PUT', `/api/conversions/${it.id}`, { recipeUnit: f.unit, factor });
         modal.close();
@@ -117,8 +118,8 @@ export function ConvScreen({ items, used }: { items: ConvItem[]; used: Record<st
           </p>
           {n ? (
             <div className="note r" style={s('margin-top:12px')}>
-              {n} recipe card{n === 1 ? '' : 's'} reference{n === 1 ? 's' : ''} this item. Any line written in a unit other than {it.uom} will
-              show <b>needs conversion</b> and cost nothing until a bridge exists again.
+              {n} recipe card{n === 1 ? '' : 's'} reference{n === 1 ? 's' : ''} this item. Any line written in a unit
+              other than {it.uom} will show <b>needs conversion</b> and cost nothing until a bridge exists again.
             </div>
           ) : (
             <div className="note" style={s('margin-top:12px')}>
@@ -162,16 +163,17 @@ export function ConvScreen({ items, used }: { items: ConvItem[]; used: Record<st
         </Perm>
       </Acts>
       <div className="note">
-        A card written in grams cannot cost an item priced per Each until the bridge below exists. Anything missing shows as{' '}
-        <b>needs conversion</b> on the recipe line {'–'} and so does a bridge recorded for the wrong unit, because a factor meant for
-        grams cannot be applied to millilitres.
+        A card written in grams cannot cost an item priced per Each until the bridge below exists. Anything missing
+        shows as <b>needs conversion</b> on the recipe line {'–'} and so does a bridge recorded for the wrong unit,
+        because a factor meant for grams cannot be applied to millilitres.
       </div>
       {broken > 0 && (
         <div className="note r">
           <b>
             {broken} conversion{broken === 1 ? '' : 's'} cannot be used.
           </b>{' '}
-          Recipe lines relying on {broken === 1 ? 'it' : 'them'} will show <b>needs conversion</b> until {broken === 1 ? 'it is' : 'they are'} corrected.
+          Recipe lines relying on {broken === 1 ? 'it' : 'them'} will show <b>needs conversion</b> until{' '}
+          {broken === 1 ? 'it is' : 'they are'} corrected.
         </div>
       )}
       <div className="tw">
@@ -280,12 +282,13 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
   const tag = '   ← usually the easy one';
 
   let preview: React.ReactNode;
-  if (!f.code.trim() || !entered || entered <= 0) preview = 'Fill in the code and the number to see what this will do to a recipe line.';
+  if (!f.code.trim() || !entered || entered <= 0)
+    preview = 'Fill in the code and the number to see what this will do to a recipe line.';
   else if (it && f.unit.toLowerCase().trim() === pu.toLowerCase().trim())
     preview = (
       <>
-        <b style={s('color:var(--bad)')}>{f.unit} is already how this item is priced.</b> No conversion is needed {'–'} recipe lines in {f.unit} will cost
-        correctly without one.
+        <b style={s('color:var(--bad)')}>{f.unit} is already how this item is priced.</b> No conversion is needed {'–'}{' '}
+        recipe lines in {f.unit} will cost correctly without one.
       </>
     );
   else {
@@ -296,13 +299,22 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
       <>
         <div>
           Stored as: 1 {puTxt} = <b>{cur(factor, factor < 1 ? 6 : 2)}</b> {f.unit}
-          {f.dir === 'r2p' && <span style={s('color:var(--mute)')}> (the reciprocal of the {cur(entered, 2)} you typed)</span>}
+          {f.dir === 'r2p' && (
+            <span style={s('color:var(--mute)')}> (the reciprocal of the {cur(entered, 2)} you typed)</span>
+          )}
         </div>
         {unitCost != null ? (
           <>
             <div style={s('margin-top:7px')}>
-              A line of <b>{sample} {f.unit}</b> will draw {cur(sample / factor, 4)} {puTxt} and cost <b>{cur(unitCost * sample, 4)}</b>{' '}
-              <span style={s('color:var(--mute)')}>({cur(unitCost, 6)} per {f.unit})</span>.
+              A line of{' '}
+              <b>
+                {sample} {f.unit}
+              </b>{' '}
+              will draw {cur(sample / factor, 4)} {puTxt} and cost <b>{cur(unitCost * sample, 4)}</b>{' '}
+              <span style={s('color:var(--mute)')}>
+                ({cur(unitCost, 6)} per {f.unit})
+              </span>
+              .
             </div>
             {fine(f.unit) && !fine(pu) && factor < 1 && (
               <div style={s('margin-top:7px;color:var(--bad);font-weight:600')}>
@@ -316,7 +328,9 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
             )}
           </>
         ) : (
-          <div style={s('margin-top:7px;color:var(--mute)')}>This item has no purchase price yet, so the cost cannot be previewed.</div>
+          <div style={s('margin-top:7px;color:var(--mute)')}>
+            This item has no purchase price yet, so the cost cannot be previewed.
+          </div>
         )}
       </>
     );
@@ -326,7 +340,14 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
     <>
       <div className="field">
         <label className="fl">Item Code</label>
-        <input type="text" className="cell mono" value={f.code} readOnly={locked} autoFocus={!locked} onChange={(e) => st.set({ code: e.target.value })} />
+        <input
+          type="text"
+          className="cell mono"
+          value={f.code}
+          readOnly={locked}
+          autoFocus={!locked}
+          onChange={(e) => st.set({ code: e.target.value })}
+        />
       </div>
       <div id="c_item" style={s('font-size:12.5px;margin:-6px 0 14px;min-height:18px')}>
         {f.code.trim() ? (
@@ -355,14 +376,26 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
       <div className="field">
         <label className="fl">State the relationship</label>
         <label style={s('display:flex;gap:9px;align-items:flex-start;margin-bottom:7px;cursor:pointer')}>
-          <input type="radio" name="c_dir" checked={f.dir === 'p2r'} onChange={() => st.set({ dir: 'p2r' })} style={s('margin-top:3px')} />
+          <input
+            type="radio"
+            name="c_dir"
+            checked={f.dir === 'p2r'}
+            onChange={() => st.set({ dir: 'p2r' })}
+            style={s('margin-top:3px')}
+          />
           <span style={s('font-size:13px')}>
             1 {puTxt} = ? {f.unit}
             {easyIsA ? tag : ''}
           </span>
         </label>
         <label style={s('display:flex;gap:9px;align-items:flex-start;cursor:pointer')}>
-          <input type="radio" name="c_dir" checked={f.dir === 'r2p'} onChange={() => st.set({ dir: 'r2p' })} style={s('margin-top:3px')} />
+          <input
+            type="radio"
+            name="c_dir"
+            checked={f.dir === 'r2p'}
+            onChange={() => st.set({ dir: 'r2p' })}
+            style={s('margin-top:3px')}
+          />
           <span style={s('font-size:13px')}>
             1 {f.unit} = ? {puTxt}
             {easyIsB ? tag : ''}
@@ -370,8 +403,18 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
         </label>
       </div>
       <div className="field">
-        <label className="fl">{f.dir === 'p2r' ? `How many ${f.unit} in one ${puTxt}?` : `How many ${puTxt} in one ${f.unit}?`}</label>
-        <input type="number" step="any" min="0" className="cell" value={f.entered} autoFocus={locked} onChange={(e) => st.set({ entered: e.target.value })} />
+        <label className="fl">
+          {f.dir === 'p2r' ? `How many ${f.unit} in one ${puTxt}?` : `How many ${puTxt} in one ${f.unit}?`}
+        </label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          className="cell"
+          value={f.entered}
+          autoFocus={locked}
+          onChange={(e) => st.set({ entered: e.target.value })}
+        />
       </div>
       <div className="note" style={s('margin:0')}>
         {preview}

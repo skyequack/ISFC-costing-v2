@@ -67,14 +67,21 @@ export function openBreakdown(
     body: (
       <>
         <div className="note" style={s('margin:0 0 12px')}>
-          Every price below comes from the Ingredient Library, matched on the item code. Nothing is typed into this card.
+          Every price below comes from the Ingredient Library, matched on the item code. Nothing is typed into this
+          card.
         </div>
         {unknown.length > 0 && (
           <div className="note r" style={s('margin:0 0 10px')}>
             <b>
               {unknown.length} code{unknown.length === 1 ? '' : 's'} not in the library
             </b>{' '}
-            {'–'} counted as zero: <span className="mono">{unknown.slice(0, 8).map((x) => x.l.code).join(', ')}</span>
+            {'–'} counted as zero:{' '}
+            <span className="mono">
+              {unknown
+                .slice(0, 8)
+                .map((x) => x.l.code)
+                .join(', ')}
+            </span>
           </div>
         )}
         {noPrice.length > 0 && (
@@ -83,7 +90,12 @@ export function openBreakdown(
               {noPrice.length} ingredient{noPrice.length === 1 ? '' : 's'} with no purchase price
             </b>{' '}
             {'–'} counted as zero, so this cost is understated:{' '}
-            <span className="mono">{noPrice.slice(0, 8).map((x) => x.l.code).join(', ')}</span>
+            <span className="mono">
+              {noPrice
+                .slice(0, 8)
+                .map((x) => x.l.code)
+                .join(', ')}
+            </span>
           </div>
         )}
         {needConv.length > 0 && (
@@ -92,7 +104,12 @@ export function openBreakdown(
               {needConv.length} line{needConv.length === 1 ? '' : 's'} need a unit conversion
             </b>{' '}
             {'–'} add one on the Unit Conversions screen or they cost nothing:{' '}
-            <span className="mono">{needConv.slice(0, 8).map((x) => x.l.code).join(', ')}</span>
+            <span className="mono">
+              {needConv
+                .slice(0, 8)
+                .map((x) => x.l.code)
+                .join(', ')}
+            </span>
           </div>
         )}
         <div className="tw" style={s('max-height:230px;overflow:auto;margin-bottom:14px')}>
@@ -120,7 +137,16 @@ export function openBreakdown(
             </thead>
             <tbody>
               {rows.map(({ l, v }, i) => {
-                const flag = v.kind === 'none' ? 'not in the library' : v.needConv ? 'needs a conversion' : !v.price ? 'no price in the library' : v.kind === 'sub' ? 'sub-recipe' : '';
+                const flag =
+                  v.kind === 'none'
+                    ? 'not in the library'
+                    : v.needConv
+                      ? 'needs a conversion'
+                      : !v.price
+                        ? 'no price in the library'
+                        : v.kind === 'sub'
+                          ? 'sub-recipe'
+                          : '';
                 return (
                   <tr key={i}>
                     <td className="mono" style={s('color:var(--org-dk);font-weight:700')}>
@@ -128,7 +154,11 @@ export function openBreakdown(
                     </td>
                     <td>
                       {v.name}
-                      {flag && <div style={{ fontSize: 11, color: flag === 'sub-recipe' ? 'var(--mute)' : 'var(--bad)' }}>{flag}</div>}
+                      {flag && (
+                        <div style={{ fontSize: 11, color: flag === 'sub-recipe' ? 'var(--mute)' : 'var(--bad)' }}>
+                          {flag}
+                        </div>
+                      )}
                     </td>
                     <td className="n">{cur(v.qty, v.qty >= 10 ? 0 : 2)}</td>
                     <td className="c" style={s('color:var(--mute);font-size:12px')}>
@@ -149,8 +179,17 @@ export function openBreakdown(
         </div>
         <table style={s('width:100%;font-size:13px;border-collapse:collapse')}>
           <tbody>
-            {line('Batch cost from the raw material list', cur(c.batch), `${rows.length} line${rows.length === 1 ? '' : 's'}`, true)}
-            {line('Output', `${c.out} portion${c.out === 1 ? '' : 's'}`, c.bOut ? `batch makes ${cur(c.bOut, 1)} ${c.bUom}` : '')}
+            {line(
+              'Batch cost from the raw material list',
+              cur(c.batch),
+              `${rows.length} line${rows.length === 1 ? '' : 's'}`,
+              true,
+            )}
+            {line(
+              'Output',
+              `${c.out} portion${c.out === 1 ? '' : 's'}`,
+              c.bOut ? `batch makes ${cur(c.bOut, 1)} ${c.bUom}` : '',
+            )}
             {line('Cost per portion', cur(c.orig), 'batch cost ÷ output', true)}
             {pctRow('Yield', rate, c.food - c.orig)}
             {line('Food cost per portion', cur(c.food), '', true)}
@@ -168,8 +207,17 @@ export function openBreakdown(
                   <td colSpan={2} style={s('padding:8px 0 2px;border-top:1px solid var(--line)')}></td>
                 </tr>
                 {line('Selling price', cur(c.sp))}
-                {line('Net profit', <span style={{ color: c.net < 0 ? 'var(--bad)' : 'var(--grn-dk)' }}>{cur(c.net)}</span>, '', true)}
-                {line('Food cost %', <span className={`pill ${fcClass(c.fcPct, st.target)}`}>{pct(c.fcPct)}</span>, `target ${pct(st.target)}`)}
+                {line(
+                  'Net profit',
+                  <span style={{ color: c.net < 0 ? 'var(--bad)' : 'var(--grn-dk)' }}>{cur(c.net)}</span>,
+                  '',
+                  true,
+                )}
+                {line(
+                  'Food cost %',
+                  <span className={`pill ${fcClass(c.fcPct, st.target)}`}>{pct(c.fcPct)}</span>,
+                  `target ${pct(st.target)}`,
+                )}
                 {line('Net profit %', pct(c.npPct))}
                 {line('Price incl. VAT', cur(c.vatPrice), `${pct(st.vat)} on ${cur(c.sp)}`)}
               </>
@@ -181,13 +229,20 @@ export function openBreakdown(
               )
             )}
             {line(`Suggested price at ${pct(st.target)}`, cur(c.suggest), 'food cost ÷ target food cost %')}
-            {isSub && line('Unit cost', `${cur(c.unitCost, 6)} / ${d.recipe.subUom || c.bUom || 'Gram'}`, 'what one unit costs wherever this sub-recipe is used', true)}
+            {isSub &&
+              line(
+                'Unit cost',
+                `${cur(c.unitCost, 6)} / ${d.recipe.subUom || c.bUom || 'Gram'}`,
+                'what one unit costs wherever this sub-recipe is used',
+                true,
+              )}
           </tbody>
         </table>
         {pkgLines.length > 0 && (
           <div className="note" style={s('margin:12px 0 0')}>
-            {pkgLines.length} packaging line{pkgLines.length === 1 ? ' is' : 's are'} inside the ingredients, and Packaging is also
-            charged at {pct(st.pkg)} of the selling price above. Counting it in both places doubles it.
+            {pkgLines.length} packaging line{pkgLines.length === 1 ? ' is' : 's are'} inside the ingredients, and
+            Packaging is also charged at {pct(st.pkg)} of the selling price above. Counting it in both places doubles
+            it.
           </div>
         )}
       </>
@@ -210,4 +265,3 @@ export function openBreakdown(
     ),
   });
 }
-

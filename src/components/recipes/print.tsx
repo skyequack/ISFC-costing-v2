@@ -33,7 +33,17 @@ export function toPrintCard(d: RecipeDetail, brand: PrintBrand | null): PrintCar
     lines: r.lines
       .map((l, i) => ({ l, v: d.view.lines[i]! }))
       .filter((x) => x.l.code)
-      .map(({ l, v }) => ({ code: l.code, name: v.name, uom: v.uom, qty: l.qty, unit: l.unit, y: l.y, price: v.price, cost: v.cost, kind: v.kind })),
+      .map(({ l, v }) => ({
+        code: l.code,
+        name: v.name,
+        uom: v.uom,
+        qty: l.qty,
+        unit: l.unit,
+        y: l.y,
+        price: v.price,
+        cost: v.cost,
+        kind: v.kind,
+      })),
     method: r.method,
     c: d.view.cost,
     settings: d.settings,
@@ -48,7 +58,11 @@ function pageCss(): string {
   const out: string[] = [];
   for (const ss of Array.from(document.styleSheets)) {
     try {
-      out.push(Array.from(ss.cssRules).map((r) => r.cssText).join('\n'));
+      out.push(
+        Array.from(ss.cssRules)
+          .map((r) => r.cssText)
+          .join('\n'),
+      );
     } catch {
       /* cross-origin sheet: skipped */
     }
@@ -124,7 +138,11 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
       const closePreview = () => printStore.set({ preview: null, html: printStore.get().html });
       const downloadCard = async () => {
         const doc = cardDocument(await inlineImages(html), code, name);
-        download(`${code || 'recipe'}-${(name || 'card').replace(/[^\w-]+/g, '-')}.html`, doc, 'text/html;charset=utf-8');
+        download(
+          `${code || 'recipe'}-${(name || 'card').replace(/[^\w-]+/g, '-')}.html`,
+          doc,
+          'text/html;charset=utf-8',
+        );
         toast('Card downloaded - open it, then print or save as PDF');
       };
       const printTab = async () => {
@@ -167,7 +185,10 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
         }, 60000);
       };
       const preview = () => {
-        printStore.set({ html, preview: { title: `${code} · ${name}`, tab: printTab, download: downloadCard, done: closePreview } });
+        printStore.set({
+          html,
+          preview: { title: `${code} · ${name}`, tab: printTab, download: downloadCard, done: closePreview },
+        });
         window.scrollTo(0, 0);
         toast('Use your browser’s own Print or Share to save this as PDF');
       };
@@ -176,21 +197,31 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
           title: 'Nothing printed?',
           body: (
             <>
-              <p style={s('font-size:13.5px;margin-bottom:12px')}>{why} Every option below produces the identical card.</p>
+              <p style={s('font-size:13.5px;margin-bottom:12px')}>
+                {why} Every option below produces the identical card.
+              </p>
               <div style={s('display:flex;flex-direction:column;gap:9px')}>
                 <button className="btn" style={s('justify-content:center')} onClick={() => (modal.close(), preview())}>
                   Show the card on screen
                 </button>
-                <button className="btn o" style={s('justify-content:center')} onClick={() => (modal.close(), printTab())}>
+                <button
+                  className="btn o"
+                  style={s('justify-content:center')}
+                  onClick={() => (modal.close(), printTab())}
+                >
                   Open the card in a new tab
                 </button>
-                <button className="btn o" style={s('justify-content:center')} onClick={() => (modal.close(), downloadCard())}>
+                <button
+                  className="btn o"
+                  style={s('justify-content:center')}
+                  onClick={() => (modal.close(), downloadCard())}
+                >
                   Download the card as a file
                 </button>
               </div>
               <div className="note" style={s('margin-top:14px')}>
-                <b>Most reliable:</b> open the system in its own browser tab rather than inside another window, then Print works
-                normally.
+                <b>Most reliable:</b> open the system in its own browser tab rather than inside another window, then
+                Print works normally.
               </div>
             </>
           ),
@@ -228,8 +259,8 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
               <b>{name}</b> {'–'} one A4 page.
             </p>
             <div className="note" style={s('margin:0 0 14px')}>
-              <b>To save a PDF:</b> click <b>Print now</b>, then in the dialog set <b>Destination</b> (or <b>Printer</b>) to{' '}
-              <b>Save as PDF</b> and press Save.
+              <b>To save a PDF:</b> click <b>Print now</b>, then in the dialog set <b>Destination</b> (or <b>Printer</b>
+              ) to <b>Save as PDF</b> and press Save.
             </div>
             {inFrame() && (
               <div className="rolebar" style={s('margin:0 0 14px')}>
@@ -247,13 +278,17 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
               <button className="btn o" style={s('justify-content:center')} onClick={() => (modal.close(), printTab())}>
                 Open the card in a new tab
               </button>
-              <button className="btn o" style={s('justify-content:center')} onClick={() => (modal.close(), downloadCard())}>
+              <button
+                className="btn o"
+                style={s('justify-content:center')}
+                onClick={() => (modal.close(), downloadCard())}
+              >
                 Download the card as a file
               </button>
             </div>
             <div style={s('font-size:11.5px;color:var(--mute);margin-top:14px')}>
-              If <b>Print now</b> does nothing, this window is not allowed to open a print dialog. The other three all give you the
-              identical card.
+              If <b>Print now</b> does nothing, this window is not allowed to open a print dialog. The other three all
+              give you the identical card.
             </div>
           </>
         ),

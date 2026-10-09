@@ -10,7 +10,10 @@ export const dynamic = 'force-dynamic';
 export const GET = withAuth({}, async (_req, { user }) => {
   const brands = await withScope(user, (q, scope) => listBrands(q, scope));
   return Response.json({
-    brands: brands.map((b) => ({ ...b, logoUrl: b.logoSha ? `/api/brands/${b.id}/logo?v=${b.logoSha.slice(0, 8)}` : null })),
+    brands: brands.map((b) => ({
+      ...b,
+      logoUrl: b.logoSha ? `/api/brands/${b.id}/logo?v=${b.logoSha.slice(0, 8)}` : null,
+    })),
   });
 });
 

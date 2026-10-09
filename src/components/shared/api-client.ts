@@ -35,8 +35,16 @@ export async function api<T = unknown>(method: string, url: string, body?: unkno
 export const errText = (e: unknown): string => (e instanceof Error ? e.message : 'Something went wrong');
 
 /** PUT raw image bytes (D-49: no base64, no multipart). Returns the DTO url + metadata. */
-export async function uploadImage(url: string, blob: Blob): Promise<{ url: string; sha256: string; size: number; width: number; height: number }> {
-  const res = await fetch(url, { method: 'PUT', headers: { 'content-type': blob.type || 'application/octet-stream' }, body: blob, cache: 'no-store' });
+export async function uploadImage(
+  url: string,
+  blob: Blob,
+): Promise<{ url: string; sha256: string; size: number; width: number; height: number }> {
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'content-type': blob.type || 'application/octet-stream' },
+    body: blob,
+    cache: 'no-store',
+  });
   const data = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
   if (!res.ok) throw new ClientApiError(res.status, data?.error?.message ?? `Upload failed (${res.status})`);
   return data as never;

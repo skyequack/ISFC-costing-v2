@@ -79,7 +79,12 @@ async function ensureAppUser(tx: Queryable, u: ClerkUserLite): Promise<string> {
   return rows[0]!.id as string;
 }
 
-export async function inviteUser(tx: Queryable, port: ClerkPort, actor: SessionUser, input: z.output<typeof inviteIn>): Promise<void> {
+export async function inviteUser(
+  tx: Queryable,
+  port: ClerkPort,
+  actor: SessionUser,
+  input: z.output<typeof inviteIn>,
+): Promise<void> {
   needUsers(actor);
   await port.invite(input.email, input.role);
   await appendAudit(tx, actor, 'Invited user', `${input.email} · ${ROLES[input.role].label}`);
@@ -102,7 +107,9 @@ export async function updateUser(
       throw new ApiError('conflict', 'There must always be at least one active General Manager');
   }
   if (input.brandIds?.length) {
-    const ok = await tx.query('SELECT count(*)::int AS n FROM brand WHERE id = ANY($1::text[])', [[...new Set(input.brandIds)]]);
+    const ok = await tx.query('SELECT count(*)::int AS n FROM brand WHERE id = ANY($1::text[])', [
+      [...new Set(input.brandIds)],
+    ]);
     if (ok.rows[0]!.n !== new Set(input.brandIds).size) throw new ApiError('bad_request', 'Unknown brand');
   }
   const previousRole = target.role;
@@ -114,10 +121,18 @@ export async function updateUser(
     if (input.brandIds) {
       await tx.query('DELETE FROM user_brand_access WHERE user_id = $1', [appId]);
       if (input.brandIds.length)
-        await tx.query('INSERT INTO user_brand_access (user_id, brand_id) SELECT $1, unnest($2::text[])', [appId, [...new Set(input.brandIds)]]);
+        await tx.query('INSERT INTO user_brand_access (user_id, brand_id) SELECT $1, unnest($2::text[])', [
+          appId,
+          [...new Set(input.brandIds)],
+        ]);
     }
     const label = ROLES[input.role ?? target.role ?? 'viewer'].label;
-    await appendAudit(tx, actor, 'Updated user', `${input.name ?? target.name} · ${label}${input.brandIds ? ` · ${input.brandIds.length} brand(s)` : ''}`);
+    await appendAudit(
+      tx,
+      actor,
+      'Updated user',
+      `${input.name ?? target.name} · ${label}${input.brandIds ? ` · ${input.brandIds.length} brand(s)` : ''}`,
+    );
   } catch (e) {
     if (roleChange && previousRole) await port.setRole(target.id, previousRole).catch(() => undefined); // compensate
     throw e;
@@ -130,7 +145,13 @@ async function guardRemoval(port: ClerkPort, actor: SessionUser, target: ClerkUs
     throw new ApiError('conflict', 'There must always be at least one active General Manager');
 }
 
-export async function setUserBanned(tx: Queryable, port: ClerkPort, actor: SessionUser, clerkUserId: string, banned: boolean): Promise<void> {
+export async function setUserBanned(
+  tx: Queryable,
+  port: ClerkPort,
+  actor: SessionUser,
+  clerkUserId: string,
+  banned: boolean,
+): Promise<void> {
   needUsers(actor);
   await tx.query('SELECT pg_advisory_xact_lock($1)', [USERS_LOCK]);
   const target = await port.get(clerkUserId);
@@ -148,7 +169,12 @@ export async function setUserBanned(tx: Queryable, port: ClerkPort, actor: Sessi
 }
 
 /** Soft-delete: the app row is kept (inactive) so audit snapshots keep their meaning; then the Clerk account goes. */
-export async function deleteUser(tx: Queryable, port: ClerkPort, actor: SessionUser, clerkUserId: string): Promise<void> {
+export async function deleteUser(
+  tx: Queryable,
+  port: ClerkPort,
+  actor: SessionUser,
+  clerkUserId: string,
+): Promise<void> {
   needUsers(actor);
   await tx.query('SELECT pg_advisory_xact_lock($1)', [USERS_LOCK]);
   const target = await port.get(clerkUserId);

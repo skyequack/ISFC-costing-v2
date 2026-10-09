@@ -106,7 +106,10 @@ export async function createRecipe(
     [code, input.name || 'New Recipe', input.category ?? '', input.type, input.brandId],
   );
   const id = rows[0]!.id as string;
-  await tx.query(`INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp) VALUES ($1,0,'',0,'Gram',1,NULL)`, [id]);
+  await tx.query(
+    `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp) VALUES ($1,0,'',0,'Gram',1,NULL)`,
+    [id],
+  );
   await tx.query(`INSERT INTO recipe_method_step (recipe_id, step_number, text) VALUES ($1,1,'')`, [id]);
   await appendAudit(tx, user, 'Created card', `${code} – ${input.name || 'New Recipe'}`);
   return id;
@@ -134,7 +137,12 @@ async function assertLineCodesAllowed(tx: Queryable, scope: BrandScope, codes: s
     });
 }
 
-async function graphWith(tx: Queryable, candidate: GraphRecipe, previousCode: string, rename?: { from: string; to: string }) {
+async function graphWith(
+  tx: Queryable,
+  candidate: GraphRecipe,
+  previousCode: string,
+  rename?: { from: string; to: string },
+) {
   const { rows } = await tx.query(
     `SELECT r.code, coalesce(array_agg(l.code) FILTER (WHERE l.code IS NOT NULL AND l.code <> ''), '{}') AS lines
        FROM recipe r LEFT JOIN recipe_line l ON l.recipe_id = r.id
@@ -171,9 +179,12 @@ export async function saveRecipe(
   input: RecipeSaveIn,
 ): Promise<SaveResult> {
   const head = await lockHead(tx, scope, id);
-  if (head.status === 'LOCKED') throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
+  if (head.status === 'LOCKED')
+    throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
   if (head.version !== input.version)
-    throw new ApiError('conflict', 'This card was changed by someone else – reload it', { currentVersion: head.version });
+    throw new ApiError('conflict', 'This card was changed by someone else – reload it', {
+      currentVersion: head.version,
+    });
 
   const oldLines = (
     await tx.query('SELECT code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [id])
@@ -207,7 +218,8 @@ export async function saveRecipe(
   // legacy setBrand / setF('type') / regenCode: an auto-numbered code is re-allocated when the brand or type changes
   let wantedCode = input.code;
   const brandOrTypeChanged =
-    (input.brandId !== undefined && input.brandId !== head.brandId) || (input.type !== undefined && input.type !== head.type);
+    (input.brandId !== undefined && input.brandId !== head.brandId) ||
+    (input.type !== undefined && input.type !== head.type);
   if (wantedCode === undefined && (input.regenCode || (brandOrTypeChanged && isAutoCode(head.code)))) {
     await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
     wantedCode = await nextCode(tx, input.brandId ?? head.brandId, input.type ?? head.type);
@@ -246,20 +258,35 @@ export async function saveRecipe(
   if (linesChanged || codeChanged) {
     const finalLines = linesChanged ? linesIn! : oldLines;
     try {
-      await graphWith(tx, { code: newCode, lines: finalLines.map((l) => ({ code: l.code })) }, head.code, codeChanged ? { from: head.code, to: newCode } : undefined);
+      await graphWith(
+        tx,
+        { code: newCode, lines: finalLines.map((l) => ({ code: l.code })) },
+        head.code,
+        codeChanged ? { from: head.code, to: newCode } : undefined,
+      );
     } catch (e) {
-      if (e instanceof CycleError) throw new ApiError('conflict', `That would create a circular recipe: ${e.path.join(' → ')}`, { path: e.path });
+      if (e instanceof CycleError)
+        throw new ApiError('conflict', `That would create a circular recipe: ${e.path.join(' → ')}`, { path: e.path });
       throw e;
     }
   }
 
   if (codeChanged) {
     // D-33: rename cascades to every reference, in this transaction
-    const a = await tx.query('UPDATE recipe_line SET code = $2 WHERE code = $1 AND recipe_id <> $3', [head.code, newCode, id]);
-    const b = await tx.query(`UPDATE menu_cell SET code = $2 WHERE kind = 'RECIPE' AND code = $1`, [head.code, newCode]);
+    const a = await tx.query('UPDATE recipe_line SET code = $2 WHERE code = $1 AND recipe_id <> $3', [
+      head.code,
+      newCode,
+      id,
+    ]);
+    const b = await tx.query(`UPDATE menu_cell SET code = $2 WHERE kind = 'RECIPE' AND code = $1`, [
+      head.code,
+      newCode,
+    ]);
     let c = 0;
     try {
-      c = (await tx.query('UPDATE production_entry SET recipe_code = $2 WHERE recipe_code = $1', [head.code, newCode])).rowCount ?? 0;
+      c =
+        (await tx.query('UPDATE production_entry SET recipe_code = $2 WHERE recipe_code = $1', [head.code, newCode]))
+          .rowCount ?? 0;
     } catch {
       throw new ApiError('conflict', `Production figures already exist under ${newCode}`);
     }
@@ -282,7 +309,15 @@ export async function saveRecipe(
       await tx.query(
         `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
          SELECT $1, o, c, q, u, y, yp FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[]) AS t(o,c,q,u,y,yp)`,
-        [id, L.map((_, i) => i), L.map((l) => l.code), L.map((l) => l.qty), L.map((l) => l.unit), L.map((l) => l.y), L.map((l) => l.yp)],
+        [
+          id,
+          L.map((_, i) => i),
+          L.map((l) => l.code),
+          L.map((l) => l.qty),
+          L.map((l) => l.unit),
+          L.map((l) => l.y),
+          L.map((l) => l.yp),
+        ],
       );
   }
   if (methodChanged) {
@@ -298,19 +333,37 @@ export async function saveRecipe(
   // audit: legacy actions kept, plus D-15 'Edited card' (collapsed per user/card/10 min so autosave is not noise)
   const label = `${newCode}`;
   if (priceChanged)
-    await appendAudit(tx, user, 'Changed sales price', `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`);
+    await appendAudit(
+      tx,
+      user,
+      'Changed sales price',
+      `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
+    );
   if (linesChanged) {
     const ypChanged = linesIn!.some((l, i) => oldLines[i] && l.code === oldLines[i]!.code && l.yp !== oldLines[i]!.yp);
-    if (ypChanged) await appendAudit(tx, user, 'Changed a line yield', `Yield changed on a line of ${label}. Other lines keep theirs.`);
+    if (ypChanged)
+      await appendAudit(
+        tx,
+        user,
+        'Changed a line yield',
+        `Yield changed on a line of ${label}. Other lines keep theirs.`,
+      );
   }
-  if (codeChanged) await appendAudit(tx, user, 'Renamed card code', `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`);
+  if (codeChanged)
+    await appendAudit(
+      tx,
+      user,
+      'Renamed card code',
+      `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`,
+    );
   const other = fields.filter((f) => f !== 'sellingPrice' && f !== 'code');
   if (other.length) {
     const recent = await tx.query(
       `SELECT 1 FROM audit_log WHERE user_id = $1 AND action = 'Edited card' AND detail LIKE $2 AND created_at > now() - interval '10 minutes' LIMIT 1`,
       [user.id, `${label} %`],
     );
-    if (!recent.rows[0]) await appendAudit(tx, user, 'Edited card', `${label} – ${input.name ?? head.name} (${other.join(', ')})`);
+    if (!recent.rows[0])
+      await appendAudit(tx, user, 'Edited card', `${label} – ${input.name ?? head.name} (${other.join(', ')})`);
   }
   return { changed: true, fields };
 }
@@ -321,34 +374,63 @@ async function loadHeadsByIds(tx: Queryable, scope: BrandScope, ids: string[]): 
   return out;
 }
 
-export async function deleteRecipes(tx: Queryable, user: SessionUser, scope: BrandScope, ids: string[]): Promise<string[]> {
+export async function deleteRecipes(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  ids: string[],
+): Promise<string[]> {
   need(user, 'recipe.delete');
   const heads = await loadHeadsByIds(tx, scope, ids);
-  if (heads.some((h) => h.status === 'LOCKED')) need(user, 'recipe.unlock', 'The selection includes approved cards – your role cannot delete those');
-  await tx.query('UPDATE recipe SET deleted_at = now(), deleted_by = $2, version = version + 1 WHERE id = ANY($1::text[])', [
-    heads.map((h) => h.id),
-    user.name,
-  ]);
-  await appendAudit(tx, user, heads.length > 1 ? 'Deleted cards' : 'Deleted card', heads.map((h) => h.code || h.name).join(', '));
+  if (heads.some((h) => h.status === 'LOCKED'))
+    need(user, 'recipe.unlock', 'The selection includes approved cards – your role cannot delete those');
+  await tx.query(
+    'UPDATE recipe SET deleted_at = now(), deleted_by = $2, version = version + 1 WHERE id = ANY($1::text[])',
+    [heads.map((h) => h.id), user.name],
+  );
+  await appendAudit(
+    tx,
+    user,
+    heads.length > 1 ? 'Deleted cards' : 'Deleted card',
+    heads.map((h) => h.code || h.name).join(', '),
+  );
   return heads.map((h) => h.id);
 }
 
-export async function restoreRecipes(tx: Queryable, user: SessionUser, scope: BrandScope, ids: string[]): Promise<string[]> {
+export async function restoreRecipes(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  ids: string[],
+): Promise<string[]> {
   need(user, 'recipe.delete');
   const restored: { id: string; code: string; name: string }[] = [];
   for (const id of [...new Set(ids)].sort()) {
-    const { rows } = await tx.query('SELECT id, code, name, brand_id FROM recipe WHERE id = $1 AND deleted_at IS NOT NULL FOR UPDATE', [id]);
+    const { rows } = await tx.query(
+      'SELECT id, code, name, brand_id FROM recipe WHERE id = $1 AND deleted_at IS NOT NULL FOR UPDATE',
+      [id],
+    );
     const r = rows[0];
     if (!r || !canSeeBrand(scope, r.brand_id)) throw new ApiError('not_found', 'Not found');
     await assertCodeFree(tx, r.code as string, id); // another card may have taken the code meanwhile
     await tx.query('UPDATE recipe SET deleted_at = NULL, deleted_by = NULL, version = version + 1 WHERE id = $1', [id]);
     restored.push({ id, code: r.code, name: r.name });
   }
-  await appendAudit(tx, user, restored.length > 1 ? 'Restored cards' : 'Restored card', restored.map((r) => r.code).join(', '));
+  await appendAudit(
+    tx,
+    user,
+    restored.length > 1 ? 'Restored cards' : 'Restored card',
+    restored.map((r) => r.code).join(', '),
+  );
   return restored.map((r) => r.id);
 }
 
-export async function duplicateRecipe(tx: Queryable, user: SessionUser, scope: BrandScope, id: string): Promise<string> {
+export async function duplicateRecipe(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+): Promise<string> {
   need(user, 'recipe.create');
   const src = await getRecipe(tx, scope, id); // 404 when out of scope
   await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
@@ -357,7 +439,20 @@ export async function duplicateRecipe(tx: Queryable, user: SessionUser, scope: B
   const { rows } = await tx.query(
     `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
-    [code, `${src.name} (copy)`, src.category, src.type, src.brandId, src.output, src.subQty, src.subUom, src.batchOut, src.batchUom, src.sellingPrice, src.buffer],
+    [
+      code,
+      `${src.name} (copy)`,
+      src.category,
+      src.type,
+      src.brandId,
+      src.output,
+      src.subQty,
+      src.subUom,
+      src.batchOut,
+      src.batchUom,
+      src.sellingPrice,
+      src.buffer,
+    ],
   );
   const nid = rows[0]!.id as string;
   await tx.query(
@@ -381,18 +476,30 @@ export async function duplicateRecipe(tx: Queryable, user: SessionUser, scope: B
 const LOCK_BLOCKERS = new Set(['no-price', 'missing-conversion']);
 
 /** D-29: lock gate. Returns the cost-at-lock snapshot (D-26). */
-async function lockOne(tx: Queryable, user: SessionUser, head: Head, who: string, overrideReason?: string): Promise<void> {
+async function lockOne(
+  tx: Queryable,
+  user: SessionUser,
+  head: Head,
+  who: string,
+  overrideReason?: string,
+): Promise<void> {
   const catalog = await loadCatalog(tx);
-  const lines = (await tx.query('SELECT code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [head.id])).rows as RecipeDto['lines'];
+  const lines = (
+    await tx.query('SELECT code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [head.id])
+  ).rows as RecipeDto['lines'];
   const rec = toCostRecipe({ ...head, lines } as unknown as RecipeDto);
   const c = costWithIssues(rec, catalog.context);
   const blockers = c.issues.filter((i) => LOCK_BLOCKERS.has(i.kind));
   if (blockers.length) {
     if (!overrideReason || user.role !== 'gm')
-      throw new ApiError('unprocessable', `${head.code} has ${blockers.length} line problem(s) (missing price or unit conversion) and cannot be locked`, {
-        issues: blockers.slice(0, 20),
-        overridable: user.role === 'gm',
-      });
+      throw new ApiError(
+        'unprocessable',
+        `${head.code} has ${blockers.length} line problem(s) (missing price or unit conversion) and cannot be locked`,
+        {
+          issues: blockers.slice(0, 20),
+          overridable: user.role === 'gm',
+        },
+      );
   }
   const st = catalog.settings;
   const snapshot = {
@@ -401,7 +508,16 @@ async function lockOne(tx: Queryable, user: SessionUser, head: Head, who: string
     sellingPrice: c.sp,
     fcPct: c.fcPct,
     complete: c.complete,
-    settings: { currency: st.currency, pkg: st.pkg, del: st.del, lab: st.lab, ops: st.ops, buffer: st.buffer, target: st.target, vat: st.vat },
+    settings: {
+      currency: st.currency,
+      pkg: st.pkg,
+      del: st.del,
+      lab: st.lab,
+      ops: st.ops,
+      buffer: st.buffer,
+      target: st.target,
+      vat: st.vat,
+    },
     priceDate: st.priceDate,
     ...(blockers.length && overrideReason ? { overrideReason } : {}),
   };
@@ -411,7 +527,11 @@ async function lockOne(tx: Queryable, user: SessionUser, head: Head, who: string
     [head.id, who, user.id, JSON.stringify(snapshot)],
   );
   if (res.rowCount === 0) throw new ApiError('conflict', 'That card was just locked by someone else');
-  await tx.query(`INSERT INTO recipe_history_entry (recipe_id, action, who, user_id) VALUES ($1,'LOCK',$2,$3)`, [head.id, who, user.id]);
+  await tx.query(`INSERT INTO recipe_history_entry (recipe_id, action, who, user_id) VALUES ($1,'LOCK',$2,$3)`, [
+    head.id,
+    who,
+    user.id,
+  ]);
 }
 
 export async function lockRecipes(
@@ -431,7 +551,12 @@ export async function lockRecipes(
   for (const h of todo) await lockOne(tx, user, h, who, overrideReason);
   if (todo.length === 1) {
     const h = todo[0]!;
-    await appendAudit(tx, user, 'Locked card', `${h.code} – ${h.name} (approved by ${who})${overrideReason ? ` [override: ${overrideReason}]` : ''}`);
+    await appendAudit(
+      tx,
+      user,
+      'Locked card',
+      `${h.code} – ${h.name} (approved by ${who})${overrideReason ? ` [override: ${overrideReason}]` : ''}`,
+    );
   } else await appendAudit(tx, user, 'Locked cards', `${todo.length} cards (approved by ${who})`);
 }
 
@@ -445,13 +570,22 @@ export async function unlockRecipes(tx: Queryable, user: SessionUser, scope: Bra
     [todo.map((h) => h.id)],
   );
   for (const h of todo)
-    await tx.query(`INSERT INTO recipe_history_entry (recipe_id, action, who, user_id) VALUES ($1,'UNLOCK',$2,$3)`, [h.id, user.name, user.id]);
+    await tx.query(`INSERT INTO recipe_history_entry (recipe_id, action, who, user_id) VALUES ($1,'UNLOCK',$2,$3)`, [
+      h.id,
+      user.name,
+      user.id,
+    ]);
   if (todo.length === 1) await appendAudit(tx, user, 'Unlocked card', `${todo[0]!.code} – ${todo[0]!.name}`);
   else await appendAudit(tx, user, 'Unlocked cards', `${todo.length} cards`);
 }
 
 /** Guard used by the photo routes: card in scope, DRAFT (422 when locked). Returns the head and holds the row lock. */
-export async function assertEditableCard(tx: Queryable, user: SessionUser, scope: BrandScope, id: string): Promise<{ id: string; code: string; name: string }> {
+export async function assertEditableCard(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+): Promise<{ id: string; code: string; name: string }> {
   need(user, 'recipe.edit');
   const h = await lockHead(tx, scope, id);
   if (h.status === 'LOCKED') throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
@@ -464,10 +598,10 @@ export async function recipeReferences(
   scope: BrandScope,
   ids: string[],
 ): Promise<{ lines: number; cards: string[]; codes: string[] }> {
-  const own = await db.query('SELECT code FROM recipe WHERE id = ANY($1::text[]) AND deleted_at IS NULL AND brand_id = ANY($2::text[])', [
-    ids,
-    [...scope.brandIds],
-  ]);
+  const own = await db.query(
+    'SELECT code FROM recipe WHERE id = ANY($1::text[]) AND deleted_at IS NULL AND brand_id = ANY($2::text[])',
+    [ids, [...scope.brandIds]],
+  );
   const codes = own.rows.map((r) => String(r.code)).filter(Boolean);
   if (!codes.length) return { lines: 0, cards: [], codes: [] };
   const { rows } = await db.query(

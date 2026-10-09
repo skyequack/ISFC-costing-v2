@@ -18,7 +18,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   let body: ReactNode;
   if (s.status === 'ok') {
     const ctx = await pageCtx();
-    const counts = await db.query('SELECT brand_id, count(*)::int AS n FROM recipe WHERE deleted_at IS NULL AND brand_id = ANY($1::text[]) GROUP BY brand_id', [[...ctx.scope.brandIds]]);
+    const counts = await db.query(
+      'SELECT brand_id, count(*)::int AS n FROM recipe WHERE deleted_at IS NULL AND brand_id = ANY($1::text[]) GROUP BY brand_id',
+      [[...ctx.scope.brandIds]],
+    );
     const nOf = new Map<string, number>(counts.rows.map((r) => [r.brand_id as string, Number(r.n)]));
     const clientBrands = ctx.brands.map((x) => ({
       id: x.id,

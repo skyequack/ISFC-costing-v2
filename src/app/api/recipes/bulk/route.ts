@@ -8,7 +8,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const body = z.discriminatedUnion('action', [
-  z.object({ action: z.literal('lock'), ids: z.array(z.string().min(1)).min(1).max(500), approvedBy: z.string().trim().min(1).max(120) }),
+  z.object({
+    action: z.literal('lock'),
+    ids: z.array(z.string().min(1)).min(1).max(500),
+    approvedBy: z.string().trim().min(1).max(120),
+  }),
   z.object({ action: z.literal('unlock'), ids: z.array(z.string().min(1)).min(1).max(500) }),
   z.object({ action: z.literal('delete'), ids: z.array(z.string().min(1)).min(1).max(500) }),
 ]);

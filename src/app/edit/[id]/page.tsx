@@ -19,7 +19,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <EditScreen
       detail={detail}
-      brand={b ? { id: b.id, name: b.name, nameAr: b.nameAr, color: b.color || '#BB5E1E', ink: b.inkColor, logoUrl: b.logoUrl } : null}
+      brand={
+        b
+          ? {
+              id: b.id,
+              name: b.name,
+              nameAr: b.nameAr,
+              color: b.color || '#BB5E1E',
+              ink: b.inkColor,
+              logoUrl: b.logoUrl,
+            }
+          : null
+      }
       brands={ctx.brands.map((x) => ({ id: x.id, name: x.name, code: x.code }))}
     />
   );

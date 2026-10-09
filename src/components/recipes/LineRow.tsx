@@ -53,7 +53,12 @@ export function LineRow(props: {
     if (q.trim().length < 1) return setOpts(null);
     timer.current = setTimeout(async () => {
       try {
-        setOpts(await api('GET', `/api/catalog/search?brandId=${encodeURIComponent(brandId)}&q=${encodeURIComponent(q.trim())}&limit=30`));
+        setOpts(
+          await api(
+            'GET',
+            `/api/catalog/search?brandId=${encodeURIComponent(brandId)}&q=${encodeURIComponent(q.trim())}&limit=30`,
+          ),
+        );
         setHl(-1);
       } catch {
         setOpts(null);
@@ -86,7 +91,9 @@ export function LineRow(props: {
       const hit =
         all.find((o) => o.code === v) ??
         all.find((o) => o.code.toLowerCase() === lc) ??
-        (all.filter((o) => !o.sub && o.name.toLowerCase() === lc).length === 1 ? all.find((o) => !o.sub && o.name.toLowerCase() === lc) : undefined) ??
+        (all.filter((o) => !o.sub && o.name.toLowerCase() === lc).length === 1
+          ? all.find((o) => !o.sub && o.name.toLowerCase() === lc)
+          : undefined) ??
         (all.length === 1 ? all[0] : undefined);
       if (hit) {
         const unit = (UNITS as readonly string[]).includes(hit.uom) ? (hit.uom as EditLine['unit']) : l.unit;
@@ -152,7 +159,9 @@ export function LineRow(props: {
                       <div key={o.code} className={k === hl ? 'hl' : ''} onMouseDown={() => pick(o)}>
                         <div style={s('display:flex;justify-content:space-between;align-items:baseline;gap:8px')}>
                           <span className="c">{o.code}</span>
-                          <b style={s('font-size:12px;color:var(--org-dk)')}>{o.price == null ? 'no price' : cur(o.price, 6)}</b>
+                          <b style={s('font-size:12px;color:var(--org-dk)')}>
+                            {o.price == null ? 'no price' : cur(o.price, 6)}
+                          </b>
                         </div>
                         <div style={s('margin-top:1px')}>
                           {o.name}

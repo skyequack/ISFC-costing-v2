@@ -10,7 +10,12 @@ export const dynamic = 'force-dynamic';
 
 export const GET = withAuth({}, async (_req, { user }) => {
   const rows = await withScope(user, (q, scope) => listRecipes(q, scope));
-  return Response.json({ recipes: rows.map((r) => ({ ...r, photoUrl: r.photoSha ? `/api/recipes/${r.id}/photo?v=${r.photoSha.slice(0, 8)}` : null })) });
+  return Response.json({
+    recipes: rows.map((r) => ({
+      ...r,
+      photoUrl: r.photoSha ? `/api/recipes/${r.id}/photo?v=${r.photoSha.slice(0, 8)}` : null,
+    })),
+  });
 });
 
 export const POST = withAuth({ perm: 'recipe.create' }, async (req, { user }) => {

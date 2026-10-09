@@ -32,7 +32,9 @@ function decode(file: File): Promise<HTMLImageElement> {
 }
 
 const toBlob = (cv: HTMLCanvasElement, type: string, q?: number) =>
-  new Promise<Blob>((resolve, reject) => cv.toBlob((b) => (b ? resolve(b) : reject('That photo could not be used')), type, q));
+  new Promise<Blob>((resolve, reject) =>
+    cv.toBlob((b) => (b ? resolve(b) : reject('That photo could not be used')), type, q),
+  );
 
 export async function readPhoto(file: File | undefined | null): Promise<PreparedImage> {
   if (!file) throw 'no file';
@@ -69,8 +71,16 @@ export async function readLogo(file: File | undefined | null): Promise<PreparedI
   cv.getContext('2d')!.drawImage(img, 0, 0, W, H);
   let blob = await toBlob(cv, 'image/png');
   // keep the original when it is already smaller (never an SVG: the server stores raster images only)
-  if (blob.size > file.size && /^image\/(png|jpeg|webp)$/.test(file.type) && file.size <= 512_000 && iw <= 1024 && ih <= 1024) blob = file;
+  if (
+    blob.size > file.size &&
+    /^image\/(png|jpeg|webp)$/.test(file.type) &&
+    file.size <= 512_000 &&
+    iw <= 1024 &&
+    ih <= 1024
+  )
+    blob = file;
   return { blob, w: W, h: H, kb: Math.round(blob.size / 1024) };
 }
 
-export const imgError = (e: unknown, fallback = 'That photo could not be used'): string => (typeof e === 'string' ? e : fallback);
+export const imgError = (e: unknown, fallback = 'That photo could not be used'): string =>
+  typeof e === 'string' ? e : fallback;

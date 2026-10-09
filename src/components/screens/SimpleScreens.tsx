@@ -21,8 +21,8 @@ export function YieldsScreen() {
   return (
     <>
       <div className="note">
-        Reference only. Copy a figure into the Yield % column of a recipe line. A yield above 100% is correct for anything that
-        absorbs water - 100 g of dry rice becomes about 270 g cooked.
+        Reference only. Copy a figure into the Yield % column of a recipe line. A yield above 100% is correct for
+        anything that absorbs water - 100 g of dry rice becomes about 270 g cooked.
       </div>
       <div style={s('max-width:360px;margin-bottom:14px')}>
         <input id="q_y" type="text" placeholder="Search..." value={yq} onChange={(e) => setYq(e.target.value)} />
@@ -165,7 +165,9 @@ function when(iso: string): string {
   const d = new Date(iso);
   const n = new Date();
   const same = d.toDateString() === n.toDateString();
-  return (same ? 'Today' : d.toLocaleDateString()) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return (
+    (same ? 'Today' : d.toLocaleDateString()) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  );
 }
 
 /** Legacy vAudit (954). Search runs on the server (the log has no cap now); D-31 archive marker + "show archived". */
@@ -206,8 +208,8 @@ export function AuditScreen({ initial }: { initial: { rows: AuditRow[]; total: n
       title: 'Clear the activity log',
       body: (
         <p>
-          This hides all {data.total} recorded entries from the log. They are kept in the database and can be shown again with Show
-          archived. Export it first if you need the history.
+          This hides all {data.total} recorded entries from the log. They are kept in the database and can be shown
+          again with Show archived. Export it first if you need the history.
         </p>
       ),
       foot: (
@@ -235,7 +237,8 @@ export function AuditScreen({ initial }: { initial: { rows: AuditRow[]; total: n
     });
   }
 
-  const pill = (a: string) => (/Delet|Reset|Restore/i.test(a) ? 'p-bad' : /Price|Setting/i.test(a) ? 'p-warn' : 'p-menu');
+  const pill = (a: string) =>
+    /Delet|Reset|Restore/i.test(a) ? 'p-bad' : /Price|Setting/i.test(a) ? 'p-warn' : 'p-menu';
   const roleLabel = useMemo(() => (r: string) => (isRole(r) ? ROLES[r].label : r), []);
 
   return (
@@ -251,17 +254,18 @@ export function AuditScreen({ initial }: { initial: { rows: AuditRow[]; total: n
         </Perm>
       </Acts>
       <div className="note">
-        Every price change, card edit and deletion is recorded with the name of whoever was signed in. {data.total} entries held,
-        newest first.
-        {data.archivedHidden > 0 && (
-          <>
-            {' '}
-            {data.archivedHidden} older entries are archived.
-          </>
-        )}
+        Every price change, card edit and deletion is recorded with the name of whoever was signed in. {data.total}{' '}
+        entries held, newest first.
+        {data.archivedHidden > 0 && <> {data.archivedHidden} older entries are archived.</>}
       </div>
       <div style={s('max-width:380px;margin-bottom:14px;display:flex;gap:12px;align-items:center')}>
-        <input id="q_a" type="text" placeholder="Search the log..." value={aq} onChange={(e) => setAq(e.target.value)} />
+        <input
+          id="q_a"
+          type="text"
+          placeholder="Search the log..."
+          value={aq}
+          onChange={(e) => setAq(e.target.value)}
+        />
         {can('data.admin') && (
           <label style={s('font-size:12px;white-space:nowrap;display:flex;gap:6px;align-items:center;cursor:pointer')}>
             <input type="checkbox" checked={archived} onChange={(e) => setArchived(e.target.checked)} /> Show archived

@@ -31,8 +31,7 @@ export function Shell({ session, children }: { session: ClientSession; children:
                 <div className="view" id="view">
                   {children}
                 </div>
-                <div id="pvbar"></div>
-                <div id="printcard"></div>
+                <PrintLayer />
               </main>
             </div>
           </ModalProvider>

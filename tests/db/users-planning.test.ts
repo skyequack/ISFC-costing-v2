@@ -13,14 +13,28 @@ import {
   type ClerkPort,
   type ClerkUserLite,
 } from '@/lib/services/users';
-import { createMenu, loadProduction, priceMenuItem, saveMenu, setMenuActive, setMenuPax, setProduction } from '@/lib/services/planning';
+import {
+  createMenu,
+  loadProduction,
+  priceMenuItem,
+  saveMenu,
+  setMenuActive,
+  setMenuPax,
+  setProduction,
+} from '@/lib/services/planning';
 import { applyMenuDay } from '@/lib/services/planning-apply';
 import { createRecipe } from '@/lib/services/recipes';
 import { connect, hasTestDb, inRollback, insertBrand } from './helpers';
 
 vi.mock('@/lib/db/catalog-cache', () => ({ getCatalog: vi.fn(), CATALOG_TAG: 'catalog' }));
 
-const U = (role: Role, n: string = role): SessionUser => ({ id: `u-${n}`, clerkUserId: `c-${n}`, email: null, name: `T ${n}`, role });
+const U = (role: Role, n: string = role): SessionUser => ({
+  id: `u-${n}`,
+  clerkUserId: `c-${n}`,
+  email: null,
+  name: `T ${n}`,
+  role,
+});
 const gm = U('gm');
 
 async function fail(p: Promise<unknown>): Promise<ApiError> {
@@ -68,7 +82,13 @@ function fakeClerk(users: ClerkUserLite[]): ClerkPort & { calls: string[]; failR
     },
   };
 }
-const cu = (id: string, role: Role | null, banned = false): ClerkUserLite => ({ id, name: `Name ${id}`, email: `${id}@x.test`, role, banned });
+const cu = (id: string, role: Role | null, banned = false): ClerkUserLite => ({
+  id,
+  name: `Name ${id}`,
+  email: `${id}@x.test`,
+  role,
+  banned,
+});
 
 describe.skipIf(!hasTestDb)('users tab rules (D-31) with a fake Clerk', { timeout: 120_000 }, () => {
   let c: pg.Client;
@@ -86,7 +106,9 @@ describe.skipIf(!hasTestDb)('users tab rules (D-31) with a fake Clerk', { timeou
       expect((await fail(inviteUser(c, clerk, U('fin'), { email: 'a@b.co', role: 'chef' }))).status).toBe(403);
       await inviteUser(c, clerk, gm, { email: 'new@b.co', role: 'chef' });
       expect(clerk.calls).toEqual(['invite new@b.co chef']);
-      const a = await c.query(`SELECT detail FROM audit_log WHERE action = 'Invited user' ORDER BY created_at DESC LIMIT 1`);
+      const a = await c.query(
+        `SELECT detail FROM audit_log WHERE action = 'Invited user' ORDER BY created_at DESC LIMIT 1`,
+      );
       expect(a.rows[0]!.detail).toContain('Head Chef');
     }));
 
@@ -136,106 +158,175 @@ describe.skipIf(!hasTestDb)('users tab rules (D-31) with a fake Clerk', { timeou
     }));
 });
 
-describe.skipIf(!hasTestDb)('planning services (menus, headcounts, production, apply, price)', { timeout: 120_000 }, () => {
-  let c: pg.Client;
-  beforeAll(async () => {
-    c = await connect();
-  }, 60_000);
-  afterAll(async () => {
-    await c.end();
-  });
+describe.skipIf(!hasTestDb)(
+  'planning services (menus, headcounts, production, apply, price)',
+  { timeout: 120_000 },
+  () => {
+    let c: pg.Client;
+    beforeAll(async () => {
+      c = await connect();
+    }, 60_000);
+    afterAll(async () => {
+      await c.end();
+    });
 
-  async function ssem(): Promise<{ id: string; scope: BrandScope }> {
-    const id = (await c.query(`SELECT id FROM brand WHERE legacy_id = 'bssem'`)).rows[0]!.id as string;
-    return { id, scope: makeScope([id]) };
-  }
+    async function ssem(): Promise<{ id: string; scope: BrandScope }> {
+      const id = (await c.query(`SELECT id FROM brand WHERE legacy_id = 'bssem'`)).rows[0]!.id as string;
+      return { id, scope: makeScope([id]) };
+    }
 
-  it('menus are SSEM-only (404 for other scopes); basic editor validates codes and versions; deactivate keeps headcounts', () =>
-    inRollback(c, async () => {
-      const { scope } = await ssem();
-      const other = makeScope([await insertBrand(c, 'QQ')]);
-      expect((await fail(createMenu(c, gm, other, 'X', ['SATURDAY']))).status).toBe(404);
-      expect((await fail(createMenu(c, U('chef'), scope, 'X', ['SATURDAY']))).status).toBe(403);
-      const id = await createMenu(c, U('cc'), scope, 'TEST MENU', ['SATURDAY', 'SUNDAY']);
-      const item = (await c.query(`SELECT code FROM ingredient LIMIT 1`)).rows[0]!.code as string;
-      await saveMenu(c, gm, scope, id, {
-        version: 0,
-        name: 'TEST MENU',
-        days: ['SATURDAY', 'SUNDAY'],
-        rows: [{ meal: 'LUNCH', cells: { SATURDAY: { label: 'dish', kind: 'ITEM', code: item }, SUNDAY: null } }],
-      });
-      expect((await fail(saveMenu(c, gm, scope, id, { version: 0, name: 'TEST MENU', days: ['SATURDAY'], rows: [] }))).status).toBe(409);
-      expect(
-        (await fail(saveMenu(c, gm, scope, id, { version: 1, name: 'TEST MENU', days: ['SATURDAY'], rows: [{ meal: 'L', cells: { SATURDAY: { label: 'x', kind: 'RECIPE', code: 'NOPE-0' } } }] }))).status,
-      ).toBe(422);
-      await setMenuPax(c, gm, scope, { month: '2099-01', day: '05', location: '', menuId: id, people: 12 });
-      await setMenuActive(c, gm, scope, id, false);
-      expect(Number((await c.query('SELECT people FROM menu_pax WHERE menu_id = $1', [id])).rows[0]!.people)).toBe(12);
-    }));
+    it('menus are SSEM-only (404 for other scopes); basic editor validates codes and versions; deactivate keeps headcounts', () =>
+      inRollback(c, async () => {
+        const { scope } = await ssem();
+        const other = makeScope([await insertBrand(c, 'QQ')]);
+        expect((await fail(createMenu(c, gm, other, 'X', ['SATURDAY']))).status).toBe(404);
+        expect((await fail(createMenu(c, U('chef'), scope, 'X', ['SATURDAY']))).status).toBe(403);
+        const id = await createMenu(c, U('cc'), scope, 'TEST MENU', ['SATURDAY', 'SUNDAY']);
+        const item = (await c.query(`SELECT code FROM ingredient LIMIT 1`)).rows[0]!.code as string;
+        await saveMenu(c, gm, scope, id, {
+          version: 0,
+          name: 'TEST MENU',
+          days: ['SATURDAY', 'SUNDAY'],
+          rows: [{ meal: 'LUNCH', cells: { SATURDAY: { label: 'dish', kind: 'ITEM', code: item }, SUNDAY: null } }],
+        });
+        expect(
+          (await fail(saveMenu(c, gm, scope, id, { version: 0, name: 'TEST MENU', days: ['SATURDAY'], rows: [] })))
+            .status,
+        ).toBe(409);
+        expect(
+          (
+            await fail(
+              saveMenu(c, gm, scope, id, {
+                version: 1,
+                name: 'TEST MENU',
+                days: ['SATURDAY'],
+                rows: [{ meal: 'L', cells: { SATURDAY: { label: 'x', kind: 'RECIPE', code: 'NOPE-0' } } }],
+              }),
+            )
+          ).status,
+        ).toBe(422);
+        await setMenuPax(c, gm, scope, { month: '2099-01', day: '05', location: '', menuId: id, people: 12 });
+        await setMenuActive(c, gm, scope, id, false);
+        expect(Number((await c.query('SELECT people FROM menu_pax WHERE menu_id = $1', [id])).rows[0]!.people)).toBe(
+          12,
+        );
+      }));
 
-  it('headcount and production: rounded, 0 deletes, sites validated, scope by card, sub-recipes refused, unaudited', () =>
-    inRollback(c, async () => {
-      const { id: ssemId, scope } = await ssem();
-      const menuId = (await c.query('SELECT id FROM menu LIMIT 1')).rows[0]!.id as string;
-      const pax = (people: number, location = '') => setMenuPax(c, gm, scope, { month: '2099-02', day: '03', location, menuId, people });
-      await pax(10.6, 'NIC');
-      expect((await c.query(`SELECT people FROM menu_pax WHERE month = '2099-02'`)).rows[0]!.people).toBe(11);
-      await pax(0, 'NIC');
-      expect((await c.query(`SELECT count(*)::int AS n FROM menu_pax WHERE month = '2099-02'`)).rows[0]!.n).toBe(0);
-      expect((await fail(pax(5, 'MARS'))).status).toBe(400);
-      expect((await fail(setMenuPax(c, U('viewer'), scope, { month: '2099-02', day: '03', location: '', menuId, people: 5 }))).status).toBe(403);
+    it('headcount and production: rounded, 0 deletes, sites validated, scope by card, sub-recipes refused, unaudited', () =>
+      inRollback(c, async () => {
+        const { id: ssemId, scope } = await ssem();
+        const menuId = (await c.query('SELECT id FROM menu LIMIT 1')).rows[0]!.id as string;
+        const pax = (people: number, location = '') =>
+          setMenuPax(c, gm, scope, { month: '2099-02', day: '03', location, menuId, people });
+        await pax(10.6, 'NIC');
+        expect((await c.query(`SELECT people FROM menu_pax WHERE month = '2099-02'`)).rows[0]!.people).toBe(11);
+        await pax(0, 'NIC');
+        expect((await c.query(`SELECT count(*)::int AS n FROM menu_pax WHERE month = '2099-02'`)).rows[0]!.n).toBe(0);
+        expect((await fail(pax(5, 'MARS'))).status).toBe(400);
+        expect(
+          (
+            await fail(
+              setMenuPax(c, U('viewer'), scope, { month: '2099-02', day: '03', location: '', menuId, people: 5 }),
+            )
+          ).status,
+        ).toBe(403);
 
-      const rid = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'MENU' });
-      const code = (await c.query('SELECT code FROM recipe WHERE id = $1', [rid])).rows[0]!.code as string;
-      const before = Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n);
-      await setProduction(c, U('chef'), scope, { month: '2099-02', day: '03', location: 'NIC', recipeCode: code, portions: 40.4 });
-      expect((await loadProduction(c, scope, '2099-02'))[0]).toMatchObject({ code, location: 'NIC', portions: 40 });
-      expect(Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n)).toBe(before); // unaudited as in legacy
-      const sub = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'SUB' });
-      const subCode = (await c.query('SELECT code FROM recipe WHERE id = $1', [sub])).rows[0]!.code as string;
-      expect((await fail(setProduction(c, gm, scope, { month: '2099-02', day: '03', location: '', recipeCode: subCode, portions: 1 }))).status).toBe(422);
-      // scope: another brand cannot see or write this card's production
-      const other = makeScope([await insertBrand(c, 'QR')]);
-      expect((await fail(setProduction(c, gm, other, { month: '2099-02', day: '03', location: '', recipeCode: code, portions: 1 }))).status).toBe(404);
-      expect(await loadProduction(c, other, '2099-02')).toHaveLength(0);
-      await setProduction(c, gm, scope, { month: '2099-02', day: '03', location: 'NIC', recipeCode: code, portions: 0 });
-      expect(await loadProduction(c, scope, '2099-02')).toHaveLength(0);
-    }));
+        const rid = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'MENU' });
+        const code = (await c.query('SELECT code FROM recipe WHERE id = $1', [rid])).rows[0]!.code as string;
+        const before = Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n);
+        await setProduction(c, U('chef'), scope, {
+          month: '2099-02',
+          day: '03',
+          location: 'NIC',
+          recipeCode: code,
+          portions: 40.4,
+        });
+        expect((await loadProduction(c, scope, '2099-02'))[0]).toMatchObject({ code, location: 'NIC', portions: 40 });
+        expect(Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n)).toBe(before); // unaudited as in legacy
+        const sub = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'SUB' });
+        const subCode = (await c.query('SELECT code FROM recipe WHERE id = $1', [sub])).rows[0]!.code as string;
+        expect(
+          (
+            await fail(
+              setProduction(c, gm, scope, {
+                month: '2099-02',
+                day: '03',
+                location: '',
+                recipeCode: subCode,
+                portions: 1,
+              }),
+            )
+          ).status,
+        ).toBe(422);
+        // scope: another brand cannot see or write this card's production
+        const other = makeScope([await insertBrand(c, 'QR')]);
+        expect(
+          (
+            await fail(
+              setProduction(c, gm, other, { month: '2099-02', day: '03', location: '', recipeCode: code, portions: 1 }),
+            )
+          ).status,
+        ).toBe(404);
+        expect(await loadProduction(c, other, '2099-02')).toHaveLength(0);
+        await setProduction(c, gm, scope, {
+          month: '2099-02',
+          day: '03',
+          location: 'NIC',
+          recipeCode: code,
+          portions: 0,
+        });
+        expect(await loadProduction(c, scope, '2099-02')).toHaveLength(0);
+      }));
 
-  it('apply-menu-day: headcounts become portions for the weekday, overwrites only demanded dishes, audited', () =>
-    inRollback(c, async () => {
-      const { id: ssemId, scope } = await ssem();
-      const menus = (await c.query('SELECT id FROM menu ORDER BY sort_order LIMIT 2')).rows.map((r) => r.id as string);
-      await setMenuPax(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC', menuId: menus[0]!, people: 20 });
-      await setMenuPax(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC', menuId: menus[1]!, people: 5 });
-      const rid = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'MENU' });
-      const stray = (await c.query('SELECT code FROM recipe WHERE id = $1', [rid])).rows[0]!.code as string;
-      await setProduction(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC', recipeCode: stray, portions: 9 });
-      const out = await applyMenuDay(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC' });
-      expect(out.people).toBe(25);
-      expect(out.dishes).toBeGreaterThan(0);
-      const prod = await loadProduction(c, scope, '2099-03');
-      expect(prod.length).toBeGreaterThanOrEqual(out.dishes);
-      expect(prod.find((p) => p.code === stray)!.portions).toBe(9); // stale code NOT cleared (legacy)
-      const a = await c.query(`SELECT detail FROM audit_log WHERE action = 'Turned the menus into production' ORDER BY created_at DESC LIMIT 1`);
-      expect(a.rows[0]!.detail).toMatch(/25 people across 2 menus became/);
-      expect(a.rows[0]!.detail).not.toMatch(/&amp;|&lt;/); // plain text, not HTML-escaped (bug 12)
-      expect((await fail(applyMenuDay(c, gm, scope, { month: '2099-03', day: '08', location: 'NIC' }))).status).toBe(422); // no headcount
-    }));
+    it('apply-menu-day: headcounts become portions for the weekday, overwrites only demanded dishes, audited', () =>
+      inRollback(c, async () => {
+        const { id: ssemId, scope } = await ssem();
+        const menus = (await c.query('SELECT id FROM menu ORDER BY sort_order LIMIT 2')).rows.map(
+          (r) => r.id as string,
+        );
+        await setMenuPax(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC', menuId: menus[0]!, people: 20 });
+        await setMenuPax(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC', menuId: menus[1]!, people: 5 });
+        const rid = await createRecipe(c, gm, scope, { brandId: ssemId, type: 'MENU' });
+        const stray = (await c.query('SELECT code FROM recipe WHERE id = $1', [rid])).rows[0]!.code as string;
+        await setProduction(c, gm, scope, {
+          month: '2099-03',
+          day: '07',
+          location: 'NIC',
+          recipeCode: stray,
+          portions: 9,
+        });
+        const out = await applyMenuDay(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC' });
+        expect(out.people).toBe(25);
+        expect(out.dishes).toBeGreaterThan(0);
+        const prod = await loadProduction(c, scope, '2099-03');
+        expect(prod.length).toBeGreaterThanOrEqual(out.dishes);
+        expect(prod.find((p) => p.code === stray)!.portions).toBe(9); // stale code NOT cleared (legacy)
+        const a = await c.query(
+          `SELECT detail FROM audit_log WHERE action = 'Turned the menus into production' ORDER BY created_at DESC LIMIT 1`,
+        );
+        expect(a.rows[0]!.detail).toMatch(/25 people across 2 menus became/);
+        expect(a.rows[0]!.detail).not.toMatch(/&amp;|&lt;/); // plain text, not HTML-escaped (bug 12)
+        expect((await fail(applyMenuDay(c, gm, scope, { month: '2099-03', day: '08', location: 'NIC' }))).status).toBe(
+          422,
+        ); // no headcount
+      }));
 
-  it('menu price: writes the item price, clears PRICE MISSING, appends history; needs items.edit', () =>
-    inRollback(c, async () => {
-      const { scope } = await ssem();
-      await c.query(`INSERT INTO ingredient (code,name,uom,price,category,subcategory,flag) VALUES ('MNU-TEST','Menu thing','Each',NULL,'c','s','PRICE MISSING')`);
-      const hist: unknown[] = [];
-      const add = async (id: string, was: number | null, now: number) => {
-        hist.push([id, was, now]);
-      };
-      expect((await fail(priceMenuItem(c, U('chef'), scope, 'MNU-TEST', 3, add))).status).toBe(403);
-      expect((await fail(priceMenuItem(c, gm, scope, 'MNU-TEST', -1, add))).status).toBe(400);
-      await priceMenuItem(c, U('fin'), scope, 'MNU-TEST', 3.25, add);
-      const r = (await c.query(`SELECT price, flag FROM ingredient WHERE code = 'MNU-TEST'`)).rows[0]!;
-      expect(r).toMatchObject({ price: 3.25, flag: '' });
-      expect(hist).toHaveLength(1);
-    }));
-});
+    it('menu price: writes the item price, clears PRICE MISSING, appends history; needs items.edit', () =>
+      inRollback(c, async () => {
+        const { scope } = await ssem();
+        await c.query(
+          `INSERT INTO ingredient (code,name,uom,price,category,subcategory,flag) VALUES ('MNU-TEST','Menu thing','Each',NULL,'c','s','PRICE MISSING')`,
+        );
+        const hist: unknown[] = [];
+        const add = async (id: string, was: number | null, now: number) => {
+          hist.push([id, was, now]);
+        };
+        expect((await fail(priceMenuItem(c, U('chef'), scope, 'MNU-TEST', 3, add))).status).toBe(403);
+        expect((await fail(priceMenuItem(c, gm, scope, 'MNU-TEST', -1, add))).status).toBe(400);
+        await priceMenuItem(c, U('fin'), scope, 'MNU-TEST', 3.25, add);
+        const r = (await c.query(`SELECT price, flag FROM ingredient WHERE code = 'MNU-TEST'`)).rows[0]!;
+        expect(r).toMatchObject({ price: 3.25, flag: '' });
+        expect(hist).toHaveLength(1);
+      }));
+  },
+);

@@ -147,7 +147,10 @@ export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<
                           <i style={{ width: `${bar.w}%`, background: bar.col }}></i>
                         </div>
                       </td>
-                      <td className="n" style={{ color: c.sp && c.net < 0 ? 'var(--bad)' : undefined, fontWeight: 600 }}>
+                      <td
+                        className="n"
+                        style={{ color: c.sp && c.net < 0 ? 'var(--bad)' : undefined, fontWeight: 600 }}
+                      >
                         {c.sp ? cur(c.net) : '-'}
                       </td>
                       <td className="c">{pct(c.npPct)}</td>
@@ -208,7 +211,11 @@ export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<
                             </div>
                           </td>
                           <td className="c">
-                            {g.over ? <span className="pill p-warn">{g.over}</span> : <span className="pill p-ok">0</span>}
+                            {g.over ? (
+                              <span className="pill p-warn">{g.over}</span>
+                            ) : (
+                              <span className="pill p-ok">0</span>
+                            )}
                           </td>
                           <td
                             className="n"
@@ -228,7 +235,12 @@ export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<
 
           {d.subs > 0 && (
             <>
-              <h3 style={{ ...s('font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--grn-dk)'), margin: '26px 0 12px' }}>
+              <h3
+                style={{
+                  ...s('font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--grn-dk)'),
+                  margin: '26px 0 12px',
+                }}
+              >
                 Sub-Recipes{d.subs > 20 ? ` · first 20 of ${d.subs}` : ''}
               </h3>
               <div className="tw">

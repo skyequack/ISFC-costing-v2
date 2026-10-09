@@ -85,14 +85,16 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
       const k = (r.cat || '').trim() || 'NOCAT';
       c.set(k, (c.get(k) ?? 0) + 1);
     }
-    return [...c.keys()].sort((a, b) => {
-      const ia = ORD.indexOf(a),
-        ib = ORD.indexOf(b);
-      if (ia >= 0 && ib >= 0) return ia - ib;
-      if (ia >= 0) return -1;
-      if (ib >= 0) return 1;
-      return a.localeCompare(b);
-    }).map((k) => [k, c.get(k)!] as const);
+    return [...c.keys()]
+      .sort((a, b) => {
+        const ia = ORD.indexOf(a),
+          ib = ORD.indexOf(b);
+        if (ia >= 0 && ib >= 0) return ia - ib;
+        if (ia >= 0) return -1;
+        if (ib >= 0) return 1;
+        return a.localeCompare(b);
+      })
+      .map((k) => [k, c.get(k)!] as const);
   }, [base]);
 
   const selected = rows.filter((r) => sel.has(r.id));
@@ -281,7 +283,11 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
                   return (
                     <tr key={r.id} className={sel.has(r.id) ? 'sel' : ''}>
                       <td className="ck">
-                        <input type="checkbox" checked={sel.has(r.id)} onChange={(e) => toggle(r.id, e.target.checked)} />
+                        <input
+                          type="checkbox"
+                          checked={sel.has(r.id)}
+                          onChange={(e) => toggle(r.id, e.target.checked)}
+                        />
                       </td>
                       <td className="mono" style={s('color:var(--org-dk);font-weight:700')}>
                         {r.code}
@@ -307,7 +313,9 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
                         )}
                       </td>
                       <td className="c">
-                        <span className={`pill ${r.type === 'sub' ? 'p-sub' : 'p-menu'}`}>{r.type === 'sub' ? 'Sub' : 'Menu'}</span>
+                        <span className={`pill ${r.type === 'sub' ? 'p-sub' : 'p-menu'}`}>
+                          {r.type === 'sub' ? 'Sub' : 'Menu'}
+                        </span>
                       </td>
                       <td className="c">
                         {cur(c.bOut, 0)} {c.bUom}

@@ -14,7 +14,9 @@ const body = z.object({ code: z.string().trim().min(1).max(60), price: z.number(
 export const POST = withAuth({ perm: 'items.edit' }, async (req, { user }) => {
   const b = await parseJson(req, body);
   const out = await inTx(user, (tx, scope) =>
-    priceMenuItem(tx, user, scope, b.code, b.price, (id, was, now) => addPriceHistory(tx, user, id, was, now, 'MENU_PLAN')),
+    priceMenuItem(tx, user, scope, b.code, b.price, (id, was, now) =>
+      addPriceHistory(tx, user, id, was, now, 'MENU_PLAN'),
+    ),
   );
   bustCatalog();
   return Response.json(out);

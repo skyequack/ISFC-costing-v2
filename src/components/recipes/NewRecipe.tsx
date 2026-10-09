@@ -121,7 +121,11 @@ function NewBody({ st }: { st: Store<Form> }) {
               >
                 {b.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={b.logoUrl} alt="" style={s('height:30px;object-fit:contain;display:block;margin-bottom:5px')} />
+                  <img
+                    src={b.logoUrl}
+                    alt=""
+                    style={s('height:30px;object-fit:contain;display:block;margin-bottom:5px')}
+                  />
                 ) : (
                   <span className="bt-code" style={{ background: b.color, color: b.onSolid }}>
                     {b.code}
@@ -145,7 +149,12 @@ function NewBody({ st }: { st: Store<Form> }) {
                 <Perm perm="recipe.edit">
                   <label className="btn sm o">
                     Replace
-                    <input type="file" accept="image/*" style={s('display:none')} onChange={(e) => choosePhoto(e.target.files?.[0])} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={s('display:none')}
+                      onChange={(e) => choosePhoto(e.target.files?.[0])}
+                    />
                   </label>
                 </Perm>
                 <button className="btn sm d" onClick={() => st.set({ photo: null, preview: null, kb: 0 })}>
@@ -158,7 +167,12 @@ function NewBody({ st }: { st: Store<Form> }) {
             <label className="phadd">
               <span className="pl">{'＋'}</span>
               <span>Add a photo</span>
-              <input type="file" accept="image/*" style={s('display:none')} onChange={(e) => choosePhoto(e.target.files?.[0])} />
+              <input
+                type="file"
+                accept="image/*"
+                style={s('display:none')}
+                onChange={(e) => choosePhoto(e.target.files?.[0])}
+              />
             </label>
           )}
         </div>

@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { ApiError } from './errors';
 
 /** Parse + validate a JSON body. Any failure is a 400 naming the offending paths (never the values). */
-export async function parseJson<T extends z.ZodType>(req: Request, schema: T, maxBytes = 2_000_000): Promise<z.output<T>> {
+export async function parseJson<T extends z.ZodType>(
+  req: Request,
+  schema: T,
+  maxBytes = 2_000_000,
+): Promise<z.output<T>> {
   const len = Number(req.headers.get('content-length') ?? 0);
   if (len > maxBytes) throw new ApiError('too_large', 'Request body is too large');
   let raw: unknown;

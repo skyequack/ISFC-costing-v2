@@ -78,9 +78,18 @@ export function EditScreen(props: EditProps) {
       if (local) setD((p) => ({ ...p, recipe: { ...p.recipe, ...local } }));
       queue.current = queue.current.then(async () => {
         try {
-          const nd = await api<RecipeDetail>('PATCH', `/api/recipes/${first.recipe.id}`, { version: verRef.current, ...patch });
+          const nd = await api<RecipeDetail>('PATCH', `/api/recipes/${first.recipe.id}`, {
+            version: verRef.current,
+            ...patch,
+          });
           verRef.current = nd.recipe.version;
-          setD((p) => ({ ...p, view: nd.view, settings: nd.settings, packaging: nd.packaging, recipe: { ...p.recipe, version: nd.recipe.version, code: nd.recipe.code, history: nd.recipe.history } }));
+          setD((p) => ({
+            ...p,
+            view: nd.view,
+            settings: nd.settings,
+            packaging: nd.packaging,
+            recipe: { ...p.recipe, version: nd.recipe.version, code: nd.recipe.code, history: nd.recipe.history },
+          }));
         } catch (e) {
           toast(errText(e));
           if (e instanceof ClientApiError && (e.status === 409 || e.status === 422)) router.refresh();
@@ -104,10 +113,16 @@ export function EditScreen(props: EditProps) {
   const setBatchOut = (v: string) => {
     const n = parseFloat(v);
     const val = isFinite(n) && n >= 0 ? n : 0;
-    save({ batchOut: val, ...(r.type === 'SUB' ? { subQty: val } : {}) }, { batchOut: val, ...(r.type === 'SUB' ? { subQty: val } : {}) });
+    save(
+      { batchOut: val, ...(r.type === 'SUB' ? { subQty: val } : {}) },
+      { batchOut: val, ...(r.type === 'SUB' ? { subQty: val } : {}) },
+    );
   };
   const setBatchUom = (u: 'Gram' | 'Ml' | 'Each') =>
-    save({ batchUom: u, ...(r.type === 'SUB' ? { subUom: u } : {}) }, { batchUom: u, ...(r.type === 'SUB' ? { subUom: u } : {}) });
+    save(
+      { batchUom: u, ...(r.type === 'SUB' ? { subUom: u } : {}) },
+      { batchUom: u, ...(r.type === 'SUB' ? { subUom: u } : {}) },
+    );
   const autoBatchOut = () => {
     const v = +c.autoOut.toFixed(3);
     save(
@@ -123,7 +138,13 @@ export function EditScreen(props: EditProps) {
   const regenCode = () => save({ regenCode: true });
 
   // ------------------------------------------------------------------ lines / method
-  const lines: EditLine[] = r.lines.map((l) => ({ code: l.code, qty: l.qty, unit: l.unit as EditLine['unit'], y: l.y, yp: l.yp }));
+  const lines: EditLine[] = r.lines.map((l) => ({
+    code: l.code,
+    qty: l.qty,
+    unit: l.unit as EditLine['unit'],
+    y: l.y,
+    yp: l.yp,
+  }));
   const commitLines = (next: EditLine[]) => {
     const withBlank = next.length ? next : [{ code: '', qty: 0, unit: 'Gram' as const, y: 1, yp: null }];
     save(
@@ -131,7 +152,8 @@ export function EditScreen(props: EditProps) {
       { lines: withBlank.map((l, i) => ({ sortOrder: i, code: l.code, qty: l.qty, unit: l.unit, y: l.y, yp: l.yp })) },
     );
   };
-  const setLine = (i: number, patch: Partial<EditLine>) => commitLines(lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+  const setLine = (i: number, patch: Partial<EditLine>) =>
+    commitLines(lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
   const setMethod = (m: string[]) => save({ method: m }, { method: m });
 
   // ------------------------------------------------------------------ photo
@@ -165,7 +187,9 @@ export function EditScreen(props: EditProps) {
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={r.photoUrl} alt="" style={s('width:100%;border-radius:9px;display:block')} />
-          <div style={s('font-size:11.5px;color:var(--mute);margin-top:9px')}>{Math.round((r.photoSize ?? 0) / 1024)} KB stored in this file.</div>
+          <div style={s('font-size:11.5px;color:var(--mute);margin-top:9px')}>
+            {Math.round((r.photoSize ?? 0) / 1024)} KB stored in this file.
+          </div>
         </>
       ),
     });
@@ -271,7 +295,12 @@ export function EditScreen(props: EditProps) {
                   <label className="fl">Recipe Code</label>
                   <div style={s('display:flex;gap:6px')}>
                     <Perm perm="recipe.edit">
-                      <CommitInput className="cell mono" value={r.code} placeholder="auto" onCommit={(v) => save({ code: v.trim() }, { code: v.trim() })} />
+                      <CommitInput
+                        className="cell mono"
+                        value={r.code}
+                        placeholder="auto"
+                        onCommit={(v) => save({ code: v.trim() }, { code: v.trim() })}
+                      />
                     </Perm>
                     <Perm perm="recipe.edit">
                       <button className="btn sm o" onClick={regenCode} title="Generate the next free code">
@@ -321,9 +350,20 @@ export function EditScreen(props: EditProps) {
                   <label className="fl">Output (portions)</label>
                   <div style={s('display:flex;gap:6px')}>
                     <Perm perm="recipe.edit">
-                      <CommitInput className="cell" type="number" step="1" min="1" value={r.output || 1} onCommit={setOutput} />
+                      <CommitInput
+                        className="cell"
+                        type="number"
+                        step="1"
+                        min="1"
+                        value={r.output || 1}
+                        onCommit={setOutput}
+                      />
                     </Perm>
-                    <CostBreakdownButton onClick={() => openBreakdown(modal, d, r.code, r.name, r.type === 'SUB', () => router.push('/items'))} />
+                    <CostBreakdownButton
+                      onClick={() =>
+                        openBreakdown(modal, d, r.code, r.name, r.type === 'SUB', () => router.push('/items'))
+                      }
+                    />
                   </div>
                   <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
                     {c.out > 1 ? `Batch cost divided by ${c.out} portions.` : 'One portion per batch.'}
@@ -342,7 +382,15 @@ export function EditScreen(props: EditProps) {
                           <Perm perm="recipe.edit">
                             <label className="btn sm o">
                               Replace
-                              <input type="file" accept="image/*" style={s('display:none')} onChange={(e) => { setPhoto(e.target.files?.[0]); e.target.value = ''; }} />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={s('display:none')}
+                                onChange={(e) => {
+                                  setPhoto(e.target.files?.[0]);
+                                  e.target.value = '';
+                                }}
+                              />
                             </label>
                           </Perm>
                           <Perm perm="recipe.edit">
@@ -358,7 +406,15 @@ export function EditScreen(props: EditProps) {
                         <label className="phadd">
                           <span className="pl">{'＋'}</span>
                           <span>Add a photo</span>
-                          <input type="file" accept="image/*" style={s('display:none')} onChange={(e) => { setPhoto(e.target.files?.[0]); e.target.value = ''; }} />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={s('display:none')}
+                            onChange={(e) => {
+                              setPhoto(e.target.files?.[0]);
+                              e.target.value = '';
+                            }}
+                          />
                         </label>
                       </Perm>
                     )}
@@ -367,7 +423,9 @@ export function EditScreen(props: EditProps) {
                 <div className="field">
                   <label className="fl">
                     Batch Output
-                    {r.type === 'SUB' && <span style={s('color:var(--grn-dk)')}> {'–'} divides the cost to give price per unit</span>}
+                    {r.type === 'SUB' && (
+                      <span style={s('color:var(--grn-dk)')}> {'–'} divides the cost to give price per unit</span>
+                    )}
                   </label>
                   <div style={s('display:flex;gap:6px')}>
                     <Perm perm="recipe.edit">
@@ -382,13 +440,21 @@ export function EditScreen(props: EditProps) {
                       />
                     </Perm>
                     <Perm perm="recipe.edit">
-                      <select style={s('width:92px')} value={c.bUom} onChange={(e) => setBatchUom(e.target.value as 'Gram' | 'Ml' | 'Each')}>
+                      <select
+                        style={s('width:92px')}
+                        value={c.bUom}
+                        onChange={(e) => setBatchUom(e.target.value as 'Gram' | 'Ml' | 'Each')}
+                      >
                         {['Gram', 'Ml', 'Each'].map((u) => (
                           <option key={u}>{u}</option>
                         ))}
                       </select>
                     </Perm>
-                    <button className="btn sm o" onClick={autoBatchOut} title="Set to the net weight of all ingredients">
+                    <button
+                      className="btn sm o"
+                      onClick={autoBatchOut}
+                      title="Set to the net weight of all ingredients"
+                    >
                       Auto
                     </button>
                   </div>
@@ -480,18 +546,27 @@ export function EditScreen(props: EditProps) {
                   <button
                     className="btn sm"
                     onClick={() =>
-                      openBrowse(modal, r.brandId, (code, unit) => {
-                        const last = lines[lines.length - 1];
-                        if (last && !last.code) commitLines(lines.map((l, j) => (j === lines.length - 1 ? { ...l, code, unit, y: 1 } : l)));
-                        else commitLines([...lines, { code, qty: 0, unit, y: 1, yp: null }]);
-                      }, toast)
+                      openBrowse(
+                        modal,
+                        r.brandId,
+                        (code, unit) => {
+                          const last = lines[lines.length - 1];
+                          if (last && !last.code)
+                            commitLines(lines.map((l, j) => (j === lines.length - 1 ? { ...l, code, unit, y: 1 } : l)));
+                          else commitLines([...lines, { code, qty: 0, unit, y: 1, yp: null }]);
+                        },
+                        toast,
+                      )
                     }
                   >
                     {'＋'} Search raw materials
                   </button>
                 </Perm>
                 <Perm perm="recipe.edit">
-                  <button className="btn sm o" onClick={() => commitLines([...lines, { code: '', qty: 0, unit: 'Gram', y: 1, yp: null }])}>
+                  <button
+                    className="btn sm o"
+                    onClick={() => commitLines([...lines, { code: '', qty: 0, unit: 'Gram', y: 1, yp: null }])}
+                  >
                     Add blank row
                   </button>
                 </Perm>
@@ -552,7 +627,11 @@ export function EditScreen(props: EditProps) {
                 <PRow k="Portion size" v={`${cur(c.portion, batchDp)} ${c.bUom}`} />
                 <PRow k="Original cost / portion" v={cur(c.orig, 3)} />
                 <PRow k="Variable buffer" v={cur(c.food - c.orig, 3)} note={'+' + pct(st.buffer)} />
-                <PRow k="FOOD COST" v={<span style={s('color:var(--bc-tx,var(--org-dk))')}>{cur(c.food, 3)}</span>} hd />
+                <PRow
+                  k="FOOD COST"
+                  v={<span style={s('color:var(--bc-tx,var(--org-dk))')}>{cur(c.food, 3)}</span>}
+                  hd
+                />
                 <PRow k="Packaging" v={cur(c.pkg)} note={pct(st.pkg)} />
                 <PRow k="Delivery" v={cur(c.del)} note={pct(st.del)} />
                 <PRow k="Labor" v={cur(c.lab)} note={pct(st.lab)} />
@@ -560,14 +639,22 @@ export function EditScreen(props: EditProps) {
                 <PRow k="TOTAL COST" v={cur(c.totalCost)} hd />
                 <PRow
                   k="NET PROFIT"
-                  v={<span style={{ color: c.sp && c.net < 0 ? 'var(--bad)' : 'var(--grn-dk)' }}>{c.sp ? cur(c.net) : '-'}</span>}
+                  v={
+                    <span style={{ color: c.sp && c.net < 0 ? 'var(--bad)' : 'var(--grn-dk)' }}>
+                      {c.sp ? cur(c.net) : '-'}
+                    </span>
+                  }
                   hd
                 />
               </div>
 
               <div style={s('margin-top:16px;padding:13px;background:var(--org-xl);border-radius:9px')}>
                 <div style={s('display:flex;justify-content:space-between;align-items:center;margin-bottom:8px')}>
-                  <span style={s('font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bc-tx,var(--mute))')}>
+                  <span
+                    style={s(
+                      'font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bc-tx,var(--mute))',
+                    )}
+                  >
                     Food Cost
                   </span>
                   <span className={`pill ${fcClass(c.fcPct, st.target)}`} style={s('font-size:13px;padding:3px 11px')}>
@@ -578,11 +665,22 @@ export function EditScreen(props: EditProps) {
                   <i
                     style={{
                       width: `${c.fcPct == null ? 0 : Math.min(100, (c.fcPct / Math.max(st.target * 2, 0.01)) * 100)}%`,
-                      background: c.fcPct == null ? '#ccc' : c.fcPct <= st.target ? 'var(--grn)' : c.fcPct <= st.target * 1.25 ? 'var(--warn)' : 'var(--bad)',
+                      background:
+                        c.fcPct == null
+                          ? '#ccc'
+                          : c.fcPct <= st.target
+                            ? 'var(--grn)'
+                            : c.fcPct <= st.target * 1.25
+                              ? 'var(--warn)'
+                              : 'var(--bad)',
                     }}
                   ></i>
                 </div>
-                <div style={s('display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:6px')}>
+                <div
+                  style={s(
+                    'display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:6px',
+                  )}
+                >
                   <span>target {pct(st.target)}</span>
                   <span>net {pct(c.npPct)}</span>
                 </div>

@@ -43,7 +43,13 @@ interface EditForm {
  * Users & Access (D-31). New screen, built only from legacy primitives (.note, .tw, pills, modal). Roles live in Clerk
  * (publicMetadata.role); brand access lives in this database. Suspended = banned in Clerk and inactive here.
  */
-export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id: string; name: string; code: string }[] }) {
+export function UsersScreen({
+  users,
+  brands,
+}: {
+  users: UserRow[];
+  brands: { id: string; name: string; code: string }[];
+}) {
   const router = useRouter();
   const toast = useToast();
   const modal = useModal();
@@ -126,7 +132,9 @@ export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id:
       body: (
         <p style={s('font-size:13.5px')}>
           <b>{u.name}</b>
-          {suspend ? ' will no longer be able to sign in. Their history stays in the activity log.' : ' will be able to sign in again.'}
+          {suspend
+            ? ' will no longer be able to sign in. Their history stays in the activity log.'
+            : ' will be able to sign in again.'}
         </p>
       ),
       foot: (
@@ -197,13 +205,14 @@ export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id:
       </Acts>
       {nOff > 0 && (
         <div className="note" style={s('margin-bottom:10px')}>
-          {nOff} account{nOff === 1 ? ' is' : 's are'} suspended {'–'} kept for the record but unable to sign in. {users.length - nOff} can sign in.
+          {nOff} account{nOff === 1 ? ' is' : 's are'} suspended {'–'} kept for the record but unable to sign in.{' '}
+          {users.length - nOff} can sign in.
         </div>
       )}
       <div className="note r">
-        <b>Understand what this is.</b> Each person signs in as themselves. Access levels stop the wrong person changing a purchase price or
-        deleting a card by accident, and every action is recorded with their name. A person with no access level yet sees &ldquo;Account pending&rdquo;
-        until you give them one.
+        <b>Understand what this is.</b> Each person signs in as themselves. Access levels stop the wrong person changing
+        a purchase price or deleting a card by accident, and every action is recorded with their name. A person with no
+        access level yet sees &ldquo;Account pending&rdquo; until you give them one.
       </div>
       <div className="tw" style={s('margin-bottom:22px')}>
         <table>
@@ -245,7 +254,13 @@ export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id:
                       <span className="pill p-warn">no role yet</span>
                     )}
                   </td>
-                  <td className="c">{u.active ? <span className="pill p-ok">available</span> : <span className="pill p-gr">suspended</span>}</td>
+                  <td className="c">
+                    {u.active ? (
+                      <span className="pill p-ok">available</span>
+                    ) : (
+                      <span className="pill p-gr">suspended</span>
+                    )}
+                  </td>
                   <td style={s('font-size:12px')}>
                     {u.role === 'gm' ? (
                       <span className="pill p-gr">all brands</span>
@@ -283,7 +298,9 @@ export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id:
         </table>
       </div>
 
-      <h3 style={s('margin:0 0 12px;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--org-dk)')}>What each level unlocks</h3>
+      <h3 style={s('margin:0 0 12px;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--org-dk)')}>
+        What each level unlocks
+      </h3>
       <div className="tw">
         <table>
           <thead>
@@ -305,7 +322,11 @@ export function UsersScreen({ users, brands }: { users: UserRow[]; brands: { id:
                   const ok = perms.includes('*') || perms.includes(p);
                   return (
                     <td key={k} className="c">
-                      {ok ? <span style={s('color:var(--grn-dk);font-weight:700')}>{'✓'}</span> : <span style={s('color:#D8CCC2')}>{'—'}</span>}
+                      {ok ? (
+                        <span style={s('color:var(--grn-dk);font-weight:700')}>{'✓'}</span>
+                      ) : (
+                        <span style={s('color:#D8CCC2')}>{'—'}</span>
+                      )}
                     </td>
                   );
                 })}
@@ -324,7 +345,14 @@ function InviteBody({ st }: { st: Store<InviteForm> }) {
     <>
       <div className="field">
         <label className="fl">Email address</label>
-        <input type="text" className="cell" value={f.email} autoFocus placeholder="name@company.com" onChange={(e) => st.set({ email: e.target.value })} />
+        <input
+          type="text"
+          className="cell"
+          value={f.email}
+          autoFocus
+          placeholder="name@company.com"
+          onChange={(e) => st.set({ email: e.target.value })}
+        />
       </div>
       <div className="field">
         <label className="fl">Access level</label>
@@ -337,14 +365,22 @@ function InviteBody({ st }: { st: Store<InviteForm> }) {
         </select>
       </div>
       <div className="note" style={s('margin:0')}>
-        {ROLES[f.role].note} They receive an email invitation; after they sign up they land with this access level. Assign their brands
-        afterwards with Edit.
+        {ROLES[f.role].note} They receive an email invitation; after they sign up they land with this access level.
+        Assign their brands afterwards with Edit.
       </div>
     </>
   );
 }
 
-function EditBody({ st, u, brands }: { st: Store<EditForm>; u: UserRow; brands: { id: string; name: string; code: string }[] }) {
+function EditBody({
+  st,
+  u,
+  brands,
+}: {
+  st: Store<EditForm>;
+  u: UserRow;
+  brands: { id: string; name: string; code: string }[];
+}) {
   const f = useStore(st);
   return (
     <>
@@ -362,7 +398,11 @@ function EditBody({ st, u, brands }: { st: Store<EditForm>; u: UserRow; brands: 
             </option>
           ))}
         </select>
-        {u.isYou && <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>You cannot change your own access level.</div>}
+        {u.isYou && (
+          <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
+            You cannot change your own access level.
+          </div>
+        )}
       </div>
       {f.role === 'gm' ? (
         <div className="note" style={s('margin:0')}>
@@ -371,19 +411,29 @@ function EditBody({ st, u, brands }: { st: Store<EditForm>; u: UserRow; brands: 
       ) : (
         <div className="field">
           <label className="fl">Brands this person can work in</label>
-          <div style={s('display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid var(--line);border-radius:7px;padding:9px')}>
+          <div
+            style={s(
+              'display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid var(--line);border-radius:7px;padding:9px',
+            )}
+          >
             {brands.map((b) => (
               <label key={b.id} style={s('display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer')}>
                 <input
                   type="checkbox"
                   checked={f.brandIds.includes(b.id)}
-                  onChange={(e) => st.set({ brandIds: e.target.checked ? [...f.brandIds, b.id] : f.brandIds.filter((x) => x !== b.id) })}
+                  onChange={(e) =>
+                    st.set({
+                      brandIds: e.target.checked ? [...f.brandIds, b.id] : f.brandIds.filter((x) => x !== b.id),
+                    })
+                  }
                 />
                 {b.name}
               </label>
             ))}
           </div>
-          <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>A person with no brand sees no recipes, production or menus.</div>
+          <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
+            A person with no brand sees no recipes, production or menus.
+          </div>
         </div>
       )}
     </>

@@ -48,7 +48,15 @@ export async function loadMenus(db: Queryable, includeInactive = false): Promise
   for (const r of rows) {
     let m = menus.get(r.id);
     if (!m) {
-      m = { id: r.id, name: r.name, sortOrder: r.sort_order, days: r.days, active: r.active, version: r.version, rows: [] };
+      m = {
+        id: r.id,
+        name: r.name,
+        sortOrder: r.sort_order,
+        days: r.days,
+        active: r.active,
+        version: r.version,
+        rows: [],
+      };
       menus.set(r.id, m);
     }
     if (r.rid) {
@@ -108,7 +116,9 @@ async function writeMenuBody(tx: Queryable, menuId: string, input: MenuSaveIn): 
     if (bad.length) throw new ApiError('unprocessable', `Unknown ingredient code: ${bad.slice(0, 5).join(', ')}`);
   }
   if (recipes.size) {
-    const r = await tx.query('SELECT code FROM recipe WHERE code = ANY($1::text[]) AND deleted_at IS NULL', [[...recipes]]);
+    const r = await tx.query('SELECT code FROM recipe WHERE code = ANY($1::text[]) AND deleted_at IS NULL', [
+      [...recipes],
+    ]);
     const have = new Set(r.rows.map((x) => x.code));
     const bad = [...recipes].filter((c) => !have.has(c));
     if (bad.length) throw new ApiError('unprocessable', `Unknown recipe code: ${bad.slice(0, 5).join(', ')}`);
@@ -116,48 +126,88 @@ async function writeMenuBody(tx: Queryable, menuId: string, input: MenuSaveIn): 
   await tx.query('DELETE FROM menu_row WHERE menu_id = $1', [menuId]); // cells cascade
   for (let i = 0; i < input.rows.length; i++) {
     const row = input.rows[i]!;
-    const { rows } = await tx.query('INSERT INTO menu_row (menu_id, sort_order, meal) VALUES ($1,$2,$3) RETURNING id', [menuId, i, row.meal]);
+    const { rows } = await tx.query('INSERT INTO menu_row (menu_id, sort_order, meal) VALUES ($1,$2,$3) RETURNING id', [
+      menuId,
+      i,
+      row.meal,
+    ]);
     const rid = rows[0]!.id as string;
     const cells = Object.entries(row.cells).filter(([, c]) => c !== null) as [string, z.output<typeof cellIn>][];
     if (cells.length)
       await tx.query(
         `INSERT INTO menu_cell (row_id, day, kind, code, label)
          SELECT $1, d, k::menu_cell_kind, nullif(c, ''), l FROM unnest($2::text[], $3::text[], $4::text[], $5::text[]) AS t(d,k,c,l)`,
-        [rid, cells.map(([d]) => d), cells.map(([, c]) => c.kind), cells.map(([, c]) => c.code ?? ''), cells.map(([, c]) => c.label)],
+        [
+          rid,
+          cells.map(([d]) => d),
+          cells.map(([, c]) => c.kind),
+          cells.map(([, c]) => c.code ?? ''),
+          cells.map(([, c]) => c.label),
+        ],
       );
   }
 }
 
-export async function createMenu(tx: Queryable, user: SessionUser, scope: BrandScope, name: string, days: string[]): Promise<string> {
+export async function createMenu(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  name: string,
+  days: string[],
+): Promise<string> {
   needMenuEdit(user);
   await requireMenus(tx, scope);
   const dup = await tx.query('SELECT 1 FROM menu WHERE lower(name) = lower($1)', [name]);
   if (dup.rows[0]) throw new ApiError('conflict', 'A menu with that name already exists');
   const n = Number((await tx.query('SELECT coalesce(max(sort_order), -1) + 1 AS n FROM menu')).rows[0]!.n);
-  const { rows } = await tx.query('INSERT INTO menu (name, sort_order, days) VALUES ($1,$2,$3) RETURNING id', [name, n, days]);
+  const { rows } = await tx.query('INSERT INTO menu (name, sort_order, days) VALUES ($1,$2,$3) RETURNING id', [
+    name,
+    n,
+    days,
+  ]);
   await appendAudit(tx, user, 'Menu edited', `${name}: created`);
   return rows[0]!.id as string;
 }
 
-export async function saveMenu(tx: Queryable, user: SessionUser, scope: BrandScope, id: string, input: MenuSaveIn): Promise<void> {
+export async function saveMenu(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+  input: MenuSaveIn,
+): Promise<void> {
   needMenuEdit(user);
   await requireMenus(tx, scope);
   const cur = (await tx.query('SELECT name, version FROM menu WHERE id = $1 FOR UPDATE', [id])).rows[0];
   if (!cur) throw new ApiError('not_found', 'Not found');
-  if (cur.version !== input.version) throw new ApiError('conflict', 'This menu was changed by someone else - reload it');
+  if (cur.version !== input.version)
+    throw new ApiError('conflict', 'This menu was changed by someone else - reload it');
   if (input.name !== cur.name) {
     const dup = await tx.query('SELECT 1 FROM menu WHERE lower(name) = lower($1) AND id <> $2', [input.name, id]);
     if (dup.rows[0]) throw new ApiError('conflict', 'A menu with that name already exists');
   }
   await writeMenuBody(tx, id, input);
-  await tx.query('UPDATE menu SET name = $2, days = $3, version = version + 1 WHERE id = $1', [id, input.name, input.days]);
+  await tx.query('UPDATE menu SET name = $2, days = $3, version = version + 1 WHERE id = $1', [
+    id,
+    input.name,
+    input.days,
+  ]);
   await appendAudit(tx, user, 'Menu edited', `${input.name}: ${input.rows.length} rows`);
 }
 
-export async function setMenuActive(tx: Queryable, user: SessionUser, scope: BrandScope, id: string, active: boolean): Promise<void> {
+export async function setMenuActive(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+  active: boolean,
+): Promise<void> {
   needMenuEdit(user);
   await requireMenus(tx, scope);
-  const r = await tx.query('UPDATE menu SET active = $2, version = version + 1 WHERE id = $1 RETURNING name', [id, active]);
+  const r = await tx.query('UPDATE menu SET active = $2, version = version + 1 WHERE id = $1 RETURNING name', [
+    id,
+    active,
+  ]);
   if (!r.rows[0]) throw new ApiError('not_found', 'Not found');
   await appendAudit(tx, user, 'Menu edited', `${r.rows[0].name}: ${active ? 'reactivated' : 'deactivated'}`);
 }
@@ -167,7 +217,8 @@ export async function setMenuActive(tx: Queryable, user: SessionUser, scope: Bra
 async function siteAllowed(tx: Queryable, brandId: string, location: string): Promise<void> {
   if (location === '') return;
   const b = (await tx.query('SELECT locations FROM brand WHERE id = $1', [brandId])).rows[0];
-  if (!b || !(b.locations as string[]).includes(location)) throw new ApiError('bad_request', `Unknown site ${location}`);
+  if (!b || !(b.locations as string[]).includes(location))
+    throw new ApiError('bad_request', `Unknown site ${location}`);
 }
 
 export const paxIn = z.object({
@@ -179,7 +230,12 @@ export const paxIn = z.object({
 });
 
 /** Legacy setMenuPax (2221): rounded, >= 0, 0 deletes. Needs recipe.edit (D-32). */
-export async function setMenuPax(tx: Queryable, user: SessionUser, scope: BrandScope, input: z.output<typeof paxIn>): Promise<void> {
+export async function setMenuPax(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: z.output<typeof paxIn>,
+): Promise<void> {
   if (!can(user.role, 'recipe.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   await requireMenus(tx, scope);
   const ssem = (await ssemBrandId(tx))!;
@@ -193,7 +249,13 @@ export async function setMenuPax(tx: Queryable, user: SessionUser, scope: BrandS
        ON CONFLICT (month, day, location, menu_id) DO UPDATE SET people = EXCLUDED.people`,
       [input.month, input.day, input.location, input.menuId, q],
     );
-  else await tx.query('DELETE FROM menu_pax WHERE month = $1 AND day = $2 AND location = $3 AND menu_id = $4', [input.month, input.day, input.location, input.menuId]);
+  else
+    await tx.query('DELETE FROM menu_pax WHERE month = $1 AND day = $2 AND location = $3 AND menu_id = $4', [
+      input.month,
+      input.day,
+      input.location,
+      input.menuId,
+    ]);
 }
 
 export const productionIn = z.object({
@@ -205,14 +267,20 @@ export const productionIn = z.object({
 });
 
 async function cardForProduction(tx: Queryable, scope: BrandScope, code: string): Promise<{ brandId: string }> {
-  const r = (await tx.query(`SELECT brand_id, type FROM recipe WHERE code = $1 AND deleted_at IS NULL`, [code])).rows[0];
+  const r = (await tx.query(`SELECT brand_id, type FROM recipe WHERE code = $1 AND deleted_at IS NULL`, [code]))
+    .rows[0];
   if (!r || !canSeeBrand(scope, r.brand_id)) throw new ApiError('not_found', 'Not found');
   if (r.type === 'SUB') throw new ApiError('unprocessable', 'Sub-recipes are not produced directly');
   return { brandId: r.brand_id as string };
 }
 
 /** Legacy setProd (2077): rounded, >= 0, 0 deletes. Needs recipe.edit (D-32); the card must be in the caller's brands. */
-export async function setProduction(tx: Queryable, user: SessionUser, scope: BrandScope, input: z.output<typeof productionIn>): Promise<void> {
+export async function setProduction(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: z.output<typeof productionIn>,
+): Promise<void> {
   if (!can(user.role, 'recipe.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   const { brandId } = await cardForProduction(tx, scope, input.recipeCode);
   await siteAllowed(tx, brandId, input.location);
@@ -223,7 +291,11 @@ export async function setProduction(tx: Queryable, user: SessionUser, scope: Bra
        ON CONFLICT (month, day, location, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
       [input.month, input.day, input.location, input.recipeCode, q],
     );
-  else await tx.query('DELETE FROM production_entry WHERE month = $1 AND day = $2 AND location = $3 AND recipe_code = $4', [input.month, input.day, input.location, input.recipeCode]);
+  else
+    await tx.query(
+      'DELETE FROM production_entry WHERE month = $1 AND day = $2 AND location = $3 AND recipe_code = $4',
+      [input.month, input.day, input.location, input.recipeCode],
+    );
 }
 
 export interface ProdEntryRow {
@@ -244,14 +316,20 @@ export async function loadProduction(db: Queryable, scope: BrandScope, month: st
   return rows as unknown as ProdEntryRow[];
 }
 
-export async function loadPax(db: Queryable, month: string): Promise<{ day: string; location: string; menuId: string; people: number }[]> {
-  const { rows } = await db.query('SELECT day, location, menu_id, people FROM menu_pax WHERE month = $1 ORDER BY day', [month]);
+export async function loadPax(
+  db: Queryable,
+  month: string,
+): Promise<{ day: string; location: string; menuId: string; people: number }[]> {
+  const { rows } = await db.query('SELECT day, location, menu_id, people FROM menu_pax WHERE month = $1 ORDER BY day', [
+    month,
+  ]);
   return rows.map((r) => ({ day: r.day, location: r.location, menuId: r.menu_id, people: r.people }));
 }
 
 export const applyDayIn = z.object({
   month: monthStr,
   day: dayStr,
+  /** a site name, '' (unassigned) or '*' (every site added together, D-20) */
   location: siteStr.default(''),
 });
 
@@ -265,13 +343,23 @@ export async function priceMenuItem(
 ): Promise<{ name: string }> {
   if (!can(user.role, 'items.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   await requireMenus(tx, scope);
-  const it = (await tx.query('SELECT id, code, name, price, flag, version FROM ingredient WHERE code = $1 FOR UPDATE', [code])).rows[0];
+  const it = (
+    await tx.query('SELECT id, code, name, price, flag, version FROM ingredient WHERE code = $1 FOR UPDATE', [code])
+  ).rows[0];
   if (!it) throw new ApiError('not_found', 'Not found');
   if (!(price >= 0) || !isFinite(price)) throw new ApiError('bad_request', 'Enter a price of 0 or more');
   const flag = /PRICE MISSING/i.test(it.flag as string) ? '' : (it.flag as string);
-  await tx.query('UPDATE ingredient SET price = $2, price_updated_at = now(), flag = $3, version = version + 1 WHERE id = $1', [it.id, price, flag]);
+  await tx.query(
+    'UPDATE ingredient SET price = $2, price_updated_at = now(), flag = $3, version = version + 1 WHERE id = $1',
+    [it.id, price, flag],
+  );
   await addHistory(it.id as string, it.price as number | null, price);
   const f = (v: number | null) => (v == null ? 'no price' : v.toFixed(4));
-  await appendAudit(tx, user, 'Priced a menu item from the menu plan', `${it.code} ${it.name}: ${f(it.price as number | null)} → ${f(price)}`);
+  await appendAudit(
+    tx,
+    user,
+    'Priced a menu item from the menu plan',
+    `${it.code} ${it.name}: ${f(it.price as number | null)} → ${f(price)}`,
+  );
   return { name: it.name as string };
 }

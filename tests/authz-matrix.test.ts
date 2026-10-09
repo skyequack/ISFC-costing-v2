@@ -46,7 +46,7 @@ function endpoints(): Endpoint[] {
   for (const file of routeFiles(apiDir)) {
     const src = fs.readFileSync(file, 'utf8');
     const rel = path.relative(apiDir, path.dirname(file)).replace(/\\/g, '/');
-    const url = 'http://x/api/' + rel.replace(/\[(\w+)\]/g, 'abc') ;
+    const url = 'http://x/api/' + rel.replace(/\[(\w+)\]/g, 'abc');
     for (const m of METHODS) {
       const re = new RegExp(`export\\s+const\\s+${m}\\s*=\\s*withAuth(?:<[^>]*>)?\\(\\s*\\{([^}]*)\\}`);
       const match = src.match(re);
@@ -68,7 +68,10 @@ describe('permission matrix', () => {
     expect(gated.length).toBeGreaterThanOrEqual(30);
     // the GM-only permissions are used by their endpoints
     for (const p of ['users.manage', 'data.admin', 'brands.edit', 'menu.edit'] as const)
-      expect(gated.some((e) => e.perm === p), p).toBe(true);
+      expect(
+        gated.some((e) => e.perm === p),
+        p,
+      ).toBe(true);
   });
 
   it('GM-only permissions are held by no other role', () => {
@@ -77,15 +80,25 @@ describe('permission matrix', () => {
     expect(ROLE_KEYS.filter((r) => can(r, 'menu.edit')).sort()).toEqual(['cc', 'gm']);
   });
 
-  const cases = gated.flatMap((e) => ROLE_KEYS.map((r) => [`${r} ${e.method} ${path.relative(apiDir, path.dirname(e.file)).replace(/\\/g, '/')}`, e, r] as const));
+  const cases = gated.flatMap((e) =>
+    ROLE_KEYS.map(
+      (r) => [`${r} ${e.method} ${path.relative(apiDir, path.dirname(e.file)).replace(/\\/g, '/')}`, e, r] as const,
+    ),
+  );
 
   it.each(cases)('%s', async (_name, e, role) => {
     getSession.mockResolvedValue({ status: 'ok', user: user(role) });
-    const mod = (await import(/* @vite-ignore */ e.file)) as Record<string, (req: Request, ctx: unknown) => Promise<Response>>;
+    const mod = (await import(/* @vite-ignore */ e.file)) as Record<
+      string,
+      (req: Request, ctx: unknown) => Promise<Response>
+    >;
     const body = e.method === 'GET' || e.method === 'DELETE' ? undefined : JSON.stringify({});
-    const res = await mod[e.method]!(new Request(e.url, { method: e.method, body, headers: { 'content-type': 'application/json' } }), {
-      params: Promise.resolve({ id: 'abc' }),
-    });
+    const res = await mod[e.method]!(
+      new Request(e.url, { method: e.method, body, headers: { 'content-type': 'application/json' } }),
+      {
+        params: Promise.resolve({ id: 'abc' }),
+      },
+    );
     const allowed = can(role, e.perm!);
     if (allowed) expect(res.status, 'must pass the permission gate').not.toBe(403);
     else expect(res.status).toBe(403);
@@ -100,10 +113,21 @@ describe('every non-gated handler is still wrapped (deny by default)', () => {
       .sort();
     // endpoints that authorise inside the service (field-level or scoped rules); anything new must be added knowingly
     const allowed = new Set([
-      'GET recipes', 'GET recipes/[id]', 'PATCH recipes/[id]', 'DELETE recipes/[id]', 'GET recipes/[id]/photo',
-      'POST recipes/bulk', 'GET ingredients', 'GET brands', 'GET settings', 'GET me', 'GET catalog/search', 'GET menus',
+      'GET recipes',
+      'GET recipes/[id]',
+      'PATCH recipes/[id]',
+      'DELETE recipes/[id]',
+      'GET recipes/[id]/photo',
+      'POST recipes/bulk',
+      'GET ingredients',
+      'GET brands',
+      'GET settings',
+      'GET me',
+      'GET catalog/search',
+      'GET menus',
       'GET brands/[id]/logo',
     ]);
-    for (const o of open) expect(allowed.has(o), `${o} has no declared permission - add it to withAuth or allow-list it`).toBe(true);
+    for (const o of open)
+      expect(allowed.has(o), `${o} has no declared permission - add it to withAuth or allow-list it`).toBe(true);
   });
 });
