@@ -27,6 +27,8 @@ export function normY(y: number): number {
 export const recipeSaveIn = z.object({
   version: z.number().int().min(0),
   code: codeStr.min(1).optional(),
+  /** Legacy regenCode (2880): allocate the next free auto code for the card's brand and type. */
+  regenCode: z.boolean().optional(),
   name: trimmed(200).optional(),
   category: trimmed(100).optional(),
   type: z.enum(['MENU', 'SUB']).optional(),

@@ -14,7 +14,7 @@ export interface CatalogData {
   conv: [string, ConvEntry][];
   recipes: CostRecipe[];
   /** card code -> facts the engine does not need but callers filter on. */
-  cards: Record<string, { id: string; brandId: string; status: 'DRAFT' | 'LOCKED' }>;
+  cards: Record<string, { id: string; brandId: string; status: 'DRAFT' | 'LOCKED'; category: string }>;
   settings: CostSettings & { currency: string; priceDate: string; version: number };
 }
 
@@ -36,7 +36,7 @@ export async function loadCatalogData(db: Queryable): Promise<CatalogData> {
        FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id ORDER BY i.code`,
   );
   const rec = await db.query(
-    `SELECT r.id AS rid, r.code, r.name, r.type, r.brand_id, r.status, r.output, r.sub_qty, r.sub_uom,
+    `SELECT r.id AS rid, r.code, r.name, r.type, r.brand_id, r.status, r.category, r.output, r.sub_qty, r.sub_uom,
               r.batch_out, r.batch_uom, r.selling_price, r.buffer,
               l.code AS lcode, l.qty, l.unit, l.y, l.yp
        FROM recipe r LEFT JOIN recipe_line l ON l.recipe_id = r.id
@@ -79,7 +79,7 @@ export async function loadCatalogData(db: Queryable): Promise<CatalogData> {
       };
       byId.set(r.rid, card);
       recipes.push(card);
-      cards[r.code] = { id: r.rid, brandId: r.brand_id, status: r.status };
+      cards[r.code] = { id: r.rid, brandId: r.brand_id, status: r.status, category: r.category };
     }
     if (r.lcode !== null) card.lines.push({ code: r.lcode, qty: r.qty, unit: r.unit, y: r.y, yp: r.yp });
   }

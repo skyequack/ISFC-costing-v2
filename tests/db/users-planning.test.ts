@@ -20,7 +20,7 @@ import { connect, hasTestDb, inRollback, insertBrand } from './helpers';
 
 vi.mock('@/lib/db/catalog-cache', () => ({ getCatalog: vi.fn(), CATALOG_TAG: 'catalog' }));
 
-const U = (role: Role, n = role): SessionUser => ({ id: `u-${n}`, clerkUserId: `c-${n}`, email: null, name: `T ${n}`, role });
+const U = (role: Role, n: string = role): SessionUser => ({ id: `u-${n}`, clerkUserId: `c-${n}`, email: null, name: `T ${n}`, role });
 const gm = U('gm');
 
 async function fail(p: Promise<unknown>): Promise<ApiError> {

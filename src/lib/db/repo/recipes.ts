@@ -18,6 +18,8 @@ export interface RecipeListDto {
   lockedBy: string | null;
   version: number;
   photoSha: string | null;
+  /** bytes of the stored photo (for the "N KB" label), or null. */
+  photoSize: number | null;
   updatedAt: Date;
 }
 
@@ -44,7 +46,7 @@ export interface RecipeDto extends RecipeListDto {
 }
 
 const COLS = `r.id, r.code, r.name, r.category, r.type, r.brand_id, r.output, r.selling_price, r.buffer, r.status,
-              r.locked_by, r.version, p.sha256 AS photo_sha, r.updated_at`;
+              r.locked_by, r.version, p.sha256 AS photo_sha, p.size AS photo_size, r.updated_at`;
 const FROM = 'FROM recipe r LEFT JOIN recipe_photo p ON p.recipe_id = r.id';
 
 /** Live (not soft-deleted) cards in the caller's brands. */

@@ -204,7 +204,15 @@ export async function saveRecipe(
     set['selling_price'] = input.sellingPrice;
     fields.push('sellingPrice');
   }
-  const codeChanged = input.code !== undefined && input.code !== head.code;
+  // legacy setBrand / setF('type') / regenCode: an auto-numbered code is re-allocated when the brand or type changes
+  let wantedCode = input.code;
+  const brandOrTypeChanged =
+    (input.brandId !== undefined && input.brandId !== head.brandId) || (input.type !== undefined && input.type !== head.type);
+  if (wantedCode === undefined && (input.regenCode || (brandOrTypeChanged && isAutoCode(head.code)))) {
+    await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
+    wantedCode = await nextCode(tx, input.brandId ?? head.brandId, input.type ?? head.type);
+  }
+  const codeChanged = wantedCode !== undefined && wantedCode !== head.code;
   if (codeChanged) fields.push('code');
   const linesIn = input.lines?.map((l) => ({ ...l, y: normY(l.y) }));
   const linesChanged = linesIn !== undefined && !sameLines(oldLines, linesIn);
@@ -223,7 +231,7 @@ export async function saveRecipe(
   }
 
   await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
-  const newCode = codeChanged ? (input.code as string) : head.code;
+  const newCode = codeChanged ? (wantedCode as string) : head.code;
   let renamedRefs = 0;
   if (codeChanged) {
     await assertCodeFree(tx, newCode, id);
@@ -448,4 +456,28 @@ export async function assertEditableCard(tx: Queryable, user: SessionUser, scope
   const h = await lockHead(tx, scope, id);
   if (h.status === 'LOCKED') throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
   return { id: h.id, code: h.code, name: h.name };
+}
+
+/** Legacy confirmDelete warning: other (visible) live cards whose lines still use the codes of `ids`. */
+export async function recipeReferences(
+  db: Queryable,
+  scope: BrandScope,
+  ids: string[],
+): Promise<{ lines: number; cards: string[]; codes: string[] }> {
+  const own = await db.query('SELECT code FROM recipe WHERE id = ANY($1::text[]) AND deleted_at IS NULL AND brand_id = ANY($2::text[])', [
+    ids,
+    [...scope.brandIds],
+  ]);
+  const codes = own.rows.map((r) => String(r.code)).filter(Boolean);
+  if (!codes.length) return { lines: 0, cards: [], codes: [] };
+  const { rows } = await db.query(
+    `SELECT r.name, l.code FROM recipe_line l JOIN recipe r ON r.id = l.recipe_id AND r.deleted_at IS NULL
+      WHERE l.code = ANY($1::text[]) AND NOT (r.id = ANY($2::text[])) AND r.brand_id = ANY($3::text[])`,
+    [codes, ids, [...scope.brandIds]],
+  );
+  return {
+    lines: rows.length,
+    cards: [...new Set(rows.map((r) => String(r.name)))],
+    codes: [...new Set(rows.map((r) => String(r.code)))],
+  };
 }
