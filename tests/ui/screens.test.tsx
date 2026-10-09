@@ -78,6 +78,54 @@ describe('recipe editor (legacy vEdit)', () => {
     expect(b!.body).toEqual({ version: 1, sellingPrice: 30 });
   });
 
+  it('two line edits in the same tick (quantity blur + unit change) both reach the server', async () => {
+    let version = 0;
+    onFetch((c) => (c.method === 'PATCH' ? { json: detailFixture({ version: ++version }) } : undefined));
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    const qty = screen.getByDisplayValue('100');
+    const unit = screen.getAllByDisplayValue('Gram').find((e) => e.tagName === 'SELECT' && e.closest('table'))!;
+    // one batched event burst, as a fast keyboard/automation produces: no render between the two handlers
+    const { act } = await import('@testing-library/react');
+    act(() => {
+      fireEvent.focus(qty);
+      fireEvent.change(qty, { target: { value: '500' } });
+      fireEvent.blur(qty);
+      fireEvent.change(unit, { target: { value: 'Ml' } });
+    });
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(2));
+    const last = calls.filter((c) => c.method === 'PATCH')[1]!;
+    expect(last.body).toMatchObject({ lines: [{ code: 'ING-1', qty: 500, unit: 'Ml' }] });
+  });
+
+  it('a picked ingredient shows its name, unit and price at once, not "unknown code"', async () => {
+    const user = userEvent.setup();
+    const hold = new Promise(() => {});
+    onFetch((c) => {
+      if (c.url.startsWith('/api/catalog/search'))
+        return {
+          json: {
+            all: [{ code: 'ING-9', name: 'Fresh Chicken Whole', uom: 'Gram', price: 0.01373, sub: false }],
+            total: 1,
+          },
+        };
+      return undefined;
+    });
+    // the PATCH never answers, so only what the picker already knew can be on screen
+    const realFetch = globalThis.fetch;
+    vi.stubGlobal('fetch', (u: string, i?: RequestInit) =>
+      i?.method === 'PATCH' ? (hold as Promise<Response>) : realFetch(u, i),
+    );
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    const code = screen.getByDisplayValue('ING-1');
+    await user.clear(code);
+    await user.type(code, 'chicken');
+    await user.click(await screen.findByText('Fresh Chicken Whole', { selector: 'div' }));
+    expect(await screen.findAllByText('Fresh Chicken Whole')).not.toHaveLength(0);
+    expect(screen.queryByText('unknown code')).toBeNull();
+    expect(screen.getByText('0.013730')).toBeTruthy();
+    vi.stubGlobal('fetch', realFetch);
+  });
+
   it('read-only role: inputs are locked, no Lock / Delete behaviour needed; server messages surface as a toast and refresh on conflict', async () => {
     const user = userEvent.setup();
     onFetch((c) =>

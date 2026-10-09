@@ -44,8 +44,21 @@ export function LineRow(props: {
   }, [l.code]);
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const kind = lv?.kind;
-  const bad = !l.code ? '' : kind === 'none' ? 'p-bad' : lv?.needConv ? 'p-warn' : lv?.err ? 'p-bad' : '';
+  // Between choosing an ingredient and the server's costed view coming back, show what the picker already told us.
+  const [hint, setHint] = useState<PickOption | null>(null);
+  const pending = !!hint && hint.code === l.code && lv?.name !== hint.name;
+  const kind = pending ? (hint.sub ? 'sub' : 'item') : lv?.kind;
+  const bad = !l.code
+    ? ''
+    : pending
+      ? ''
+      : kind === 'none'
+        ? 'p-bad'
+        : lv?.needConv
+          ? 'p-warn'
+          : lv?.err
+            ? 'p-bad'
+            : '';
   const rate = l.yp != null ? l.yp / 100 : buffer;
 
   function search(q: string) {
@@ -71,6 +84,7 @@ export function LineRow(props: {
     setText(o.code);
     setOpts(null);
     const unit = (UNITS as readonly string[]).includes(o.uom) ? (o.uom as EditLine['unit']) : l.unit;
+    setHint(o);
     props.onChange({ code: o.code, unit, y: l.y > 0 ? l.y : 1 });
     toast(`${o.name}  ·  ${cur(o.price ?? 0, 6)} per ${o.uom}`);
     setTimeout(() => (picking.current = false), 300);
@@ -98,6 +112,7 @@ export function LineRow(props: {
       if (hit) {
         const unit = (UNITS as readonly string[]).includes(hit.uom) ? (hit.uom as EditLine['unit']) : l.unit;
         setText(hit.code);
+        setHint(hit);
         props.onChange({ code: hit.code, unit, y: l.y > 0 ? l.y : 1 });
       } else {
         toast(all.length ? `Several items match “${v}” – pick one from the list` : `No ingredient matches “${v}”`);
@@ -190,7 +205,7 @@ export function LineRow(props: {
           </div>
         </td>
         <td style={s('font-size:12.5px')}>
-          {l.code ? lv?.name : <span style={s('color:var(--mute)')}>empty line</span>}
+          {l.code ? pending ? hint.name : lv?.name : <span style={s('color:var(--mute)')}>empty line</span>}
           {kind === 'sub' && (
             <span className="pill p-sub" style={s('margin-left:6px')}>
               sub
@@ -203,7 +218,7 @@ export function LineRow(props: {
           )}
         </td>
         <td className="c" style={s('font-size:11.5px;color:var(--mute)')}>
-          {lv?.uom || ''}
+          {pending ? hint.uom : lv?.uom || ''}
         </td>
         <td>
           <Perm perm="recipe.edit">
@@ -241,7 +256,7 @@ export function LineRow(props: {
           </Perm>
         </td>
         <td className="n mono" style={s('font-size:11.5px')}>
-          {l.code ? cur(lv?.price ?? 0, 6) : ''}
+          {l.code ? cur((pending ? hint.price : lv?.price) ?? 0, 6) : ''}
         </td>
         <td
           className="n"

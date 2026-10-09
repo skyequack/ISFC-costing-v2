@@ -2,6 +2,7 @@ import { Client, Pool, type PoolClient, type QueryResultRow } from 'pg';
 import { attachDatabasePool } from '@vercel/functions';
 import { getEnv } from '../env';
 import { normalizeConnectionString } from './conn';
+import { traceClients } from './trace';
 
 /** Anything that can run a query: the pool, a transaction client, or a test fake. */
 export interface Queryable {
@@ -27,6 +28,7 @@ export function getPool(): Pool {
       idleTimeoutMillis: 5000,
     });
     attachDatabasePool(pool);
+    traceClients(pool);
     g.__pool = pool;
   }
   return g.__pool;

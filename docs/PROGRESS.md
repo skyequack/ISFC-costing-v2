@@ -59,6 +59,14 @@ typecheck ✅ · lint ✅ · prettier ✅ · `npm test` 484 passed (83 DB tests 
 - Parsing of big spreadsheets runs on the main thread (the plan said "worker"): caps are 25 MB file, 20 000 rows, 80 columns, zip-bomb guard. A worker is a later improvement.
 - Clerk session-token role claim, Vercel project (region `fra1`), GitHub CI variable/secret: Phase 7 / RUNBOOK.
 
+## Live GM pass (2026-10-10, signed in by the user, Neon `dev`)
+
+Create/rename/add-ingredient/cost/lock/unlock/delete a card, Production entry in SSEM, and a 200 from all 12 other screens: all worked, numbers matched (Beef Steak food cost 29.628; line cost = qty × price × 1.15). Not yet done live: file uploads, backup/restore, Preparation, Menu Plans, inviting a user.
+
+- Fixed: ingredient pick showed "unknown code" until the save returned (the row now shows the picker's name/UoM/price at once); two line edits in the same tick overwrote each other (edits now start from the newest lines, `linesRef` in `EditScreen`); both have jsdom regression tests. Brand-logo tiles load lazily.
+- **Speed** (measured with `SQL_TRACE=1|2`, `src/lib/db/trace.ts`; launch config `isfc-dev-trace`): one Neon round trip ≈ 84 ms from the dev machine (eu-central-1), cold connect ≈ 1.9 s. A name-only PATCH runs 17 statements (≈ 2.2 s of 2.5 s), a lines PATCH 23, a card GET 10, create 13, delete 7. Reducible: card + lines + method loaded in 3 statements (1 would do); the advisory lock is taken even when no line/code/type changes; brand-scope and user lookups repeat on every request; the full catalog (ingredients + all recipes) is reloaded inside every save to recompute the cost view. Not yet changed (decision pending). Deployed in fra1 next to Neon the same statements cost far less; re-measure after Phase 7.
+- Tool: `node --env-file=.env.local tools/rtt.mjs` prints the database round-trip time.
+
 ## Open items for the user (decisions that were NOT made for you)
 
 - **D-55 stale PIN wording** (lock dialog "Reopening it needs the manager PIN", locked-card banner, bulk lock, Settings → "Manage users and PINs" / "not by a shared PIN"): kept verbatim because D-41 says no wording changes. They are now untrue. Tell me the replacement text and it is a 6-line change.

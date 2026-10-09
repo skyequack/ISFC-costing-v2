@@ -124,6 +124,8 @@ function NewBody({ st }: { st: Store<Form> }) {
                   <img
                     src={b.logoUrl}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     style={s('height:30px;object-fit:contain;display:block;margin-bottom:5px')}
                   />
                 ) : (

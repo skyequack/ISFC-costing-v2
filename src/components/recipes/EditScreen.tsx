@@ -145,15 +145,19 @@ export function EditScreen(props: EditProps) {
     y: l.y,
     yp: l.yp,
   }));
+  // Edits are built from the newest lines, not the last render's copy, so two edits in one tick never overwrite each other.
+  const linesRef = useRef(lines);
+  linesRef.current = lines;
   const commitLines = (next: EditLine[]) => {
     const withBlank = next.length ? next : [{ code: '', qty: 0, unit: 'Gram' as const, y: 1, yp: null }];
+    linesRef.current = withBlank;
     save(
       { lines: withBlank },
       { lines: withBlank.map((l, i) => ({ sortOrder: i, code: l.code, qty: l.qty, unit: l.unit, y: l.y, yp: l.yp })) },
     );
   };
   const setLine = (i: number, patch: Partial<EditLine>) =>
-    commitLines(lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+    commitLines(linesRef.current.map((l, j) => (j === i ? { ...l, ...patch } : l)));
   const setMethod = (m: string[]) => save({ method: m }, { method: m });
 
   // ------------------------------------------------------------------ photo
@@ -518,7 +522,7 @@ export function EditScreen(props: EditProps) {
                         brandId={r.brandId}
                         buffer={r.buffer != null ? r.buffer : st.buffer}
                         onChange={(patch) => setLine(i, patch)}
-                        onDelete={() => commitLines(lines.filter((_, j) => j !== i))}
+                        onDelete={() => commitLines(linesRef.current.filter((_, j) => j !== i))}
                       />
                     ))}
                   </tbody>
@@ -550,10 +554,11 @@ export function EditScreen(props: EditProps) {
                         modal,
                         r.brandId,
                         (code, unit) => {
-                          const last = lines[lines.length - 1];
+                          const cur0 = linesRef.current;
+                          const last = cur0[cur0.length - 1];
                           if (last && !last.code)
-                            commitLines(lines.map((l, j) => (j === lines.length - 1 ? { ...l, code, unit, y: 1 } : l)));
-                          else commitLines([...lines, { code, qty: 0, unit, y: 1, yp: null }]);
+                            commitLines(cur0.map((l, j) => (j === cur0.length - 1 ? { ...l, code, unit, y: 1 } : l)));
+                          else commitLines([...cur0, { code, qty: 0, unit, y: 1, yp: null }]);
                         },
                         toast,
                       )
@@ -565,7 +570,9 @@ export function EditScreen(props: EditProps) {
                 <Perm perm="recipe.edit">
                   <button
                     className="btn sm o"
-                    onClick={() => commitLines([...lines, { code: '', qty: 0, unit: 'Gram', y: 1, yp: null }])}
+                    onClick={() =>
+                      commitLines([...linesRef.current, { code: '', qty: 0, unit: 'Gram', y: 1, yp: null }])
+                    }
                   >
                     Add blank row
                   </button>
