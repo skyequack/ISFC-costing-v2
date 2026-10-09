@@ -3,7 +3,7 @@ import { assertAcyclicWith, CycleError, type GraphRecipe } from '@/domain/recipe
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { loadCatalog, type Catalog } from '../db/catalog';
-import { appendAudit } from '../db/repo/audit';
+import { appendAudit, appendAuditMany, type AuditEntry } from '../db/repo/audit';
 import { getRecipe, type RecipeDto } from '../db/repo/recipes';
 import { assertBrandVisible, canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
@@ -63,6 +63,52 @@ async function lockHead(tx: Queryable, scope: BrandScope, id: string): Promise<H
     buffer: r.buffer,
     status: r.status,
     version: r.version,
+  };
+}
+
+type StoredLine = { code: string; qty: number; unit: string; y: number; yp: number | null };
+
+/**
+ * lockHead plus the card's lines and method steps in ONE statement (save path). Lines and steps are aggregated in
+ * order, so the arrays equal what the two separate ORDER BY queries returned (doubles round-trip through JSON).
+ */
+async function lockHeadWithBody(
+  tx: Queryable,
+  scope: BrandScope,
+  id: string,
+): Promise<{ head: Head; oldLines: StoredLine[]; oldMethod: string[] }> {
+  const { rows } = await tx.query(
+    `SELECT r.id, r.code, r.name, r.category, r.type, r.brand_id, r.output, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom,
+            r.selling_price, r.buffer, r.status, r.version,
+            coalesce((SELECT json_agg(json_build_object('code', l.code, 'qty', l.qty, 'unit', l.unit, 'y', l.y, 'yp', l.yp)
+                                      ORDER BY l.sort_order) FROM recipe_line l WHERE l.recipe_id = r.id), '[]'::json) AS lines,
+            coalesce((SELECT json_agg(m.text ORDER BY m.step_number) FROM recipe_method_step m WHERE m.recipe_id = r.id),
+                     '[]'::json) AS method
+       FROM recipe r WHERE r.id = $1 AND r.deleted_at IS NULL FOR UPDATE OF r`,
+    [id],
+  );
+  const r = rows[0];
+  if (!r || !canSeeBrand(scope, r.brand_id)) throw new ApiError('not_found', 'Not found');
+  return {
+    head: {
+      id: r.id,
+      code: r.code,
+      name: r.name,
+      category: r.category,
+      type: r.type,
+      brandId: r.brand_id,
+      output: r.output,
+      subQty: r.sub_qty,
+      subUom: r.sub_uom,
+      batchOut: r.batch_out,
+      batchUom: r.batch_uom,
+      sellingPrice: r.selling_price,
+      buffer: r.buffer,
+      status: r.status,
+      version: r.version,
+    },
+    oldLines: r.lines as StoredLine[],
+    oldMethod: (r.method as unknown[]).map((t) => String(t)),
   };
 }
 
@@ -179,20 +225,13 @@ export async function saveRecipe(
   id: string,
   input: RecipeSaveIn,
 ): Promise<SaveResult> {
-  const head = await lockHead(tx, scope, id);
+  const { head, oldLines, oldMethod } = await lockHeadWithBody(tx, scope, id);
   if (head.status === 'LOCKED')
     throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
   if (head.version !== input.version)
     throw new ApiError('conflict', 'This card was changed by someone else – reload it', {
       currentVersion: head.version,
     });
-
-  const oldLines = (
-    await tx.query('SELECT code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [id])
-  ).rows as { code: string; qty: number; unit: string; y: number; yp: number | null }[];
-  const oldMethod = (
-    await tx.query('SELECT text FROM recipe_method_step WHERE recipe_id = $1 ORDER BY step_number', [id])
-  ).rows.map((r) => String(r.text));
 
   const fields: string[] = [];
   const set: Record<string, unknown> = {};
@@ -221,8 +260,10 @@ export async function saveRecipe(
   const brandOrTypeChanged =
     (input.brandId !== undefined && input.brandId !== head.brandId) ||
     (input.type !== undefined && input.type !== head.type);
+  let graphLocked = false;
   if (wantedCode === undefined && (input.regenCode || (brandOrTypeChanged && isAutoCode(head.code)))) {
     await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
+    graphLocked = true;
     wantedCode = await nextCode(tx, input.brandId ?? head.brandId, input.type ?? head.type);
   }
   const codeChanged = wantedCode !== undefined && wantedCode !== head.code;
@@ -243,7 +284,12 @@ export async function saveRecipe(
     if (!canSeeBrand(scope, input.brandId)) throw new ApiError('forbidden', 'You have no access to that brand');
   }
 
-  await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
+  // The graph/code lock (D-34) serialises code allocation, line-code checks and the cycle check. Edits that touch none of
+  // them (name, category, output, batch, buffer, price, method) are already serialised per card by the row lock.
+  if (!graphLocked && (linesChanged || codeChanged || brandOrTypeChanged)) {
+    await tx.query('SELECT pg_advisory_xact_lock($1)', [GRAPH_LOCK]);
+    graphLocked = true;
+  }
   const newCode = codeChanged ? (wantedCode as string) : head.code;
   let renamedRefs = 0;
   if (codeChanged) {
@@ -333,39 +379,33 @@ export async function saveRecipe(
 
   // audit: legacy actions kept, plus D-15 'Edited card' (collapsed per user/card/10 min so autosave is not noise)
   const label = `${newCode}`;
+  const audit: AuditEntry[] = [];
   if (priceChanged)
-    await appendAudit(
-      tx,
-      user,
-      'Changed sales price',
-      `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
-    );
+    audit.push({
+      action: 'Changed sales price',
+      detail: `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
+    });
   if (linesChanged) {
     const ypChanged = linesIn!.some((l, i) => oldLines[i] && l.code === oldLines[i]!.code && l.yp !== oldLines[i]!.yp);
     if (ypChanged)
-      await appendAudit(
-        tx,
-        user,
-        'Changed a line yield',
-        `Yield changed on a line of ${label}. Other lines keep theirs.`,
-      );
+      audit.push({
+        action: 'Changed a line yield',
+        detail: `Yield changed on a line of ${label}. Other lines keep theirs.`,
+      });
   }
   if (codeChanged)
-    await appendAudit(
-      tx,
-      user,
-      'Renamed card code',
-      `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`,
-    );
+    audit.push({
+      action: 'Renamed card code',
+      detail: `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`,
+    });
   const other = fields.filter((f) => f !== 'sellingPrice' && f !== 'code');
-  if (other.length) {
-    const recent = await tx.query(
-      `SELECT 1 FROM audit_log WHERE user_id = $1 AND action = 'Edited card' AND detail LIKE $2 AND created_at > now() - interval '10 minutes' LIMIT 1`,
-      [user.id, label.replace(/[\\%_]/g, '\\$&') + ' %'],
-    );
-    if (!recent.rows[0])
-      await appendAudit(tx, user, 'Edited card', `${label} – ${input.name ?? head.name} (${other.join(', ')})`);
-  }
+  if (other.length)
+    audit.push({
+      action: 'Edited card',
+      detail: `${label} – ${input.name ?? head.name} (${other.join(', ')})`,
+      recentLike: label.replace(/[\\%_]/g, '\\$&') + ' %',
+    });
+  await appendAuditMany(tx, user, audit);
   return { changed: true, fields };
 }
 

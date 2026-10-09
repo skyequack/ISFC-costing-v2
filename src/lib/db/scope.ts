@@ -17,7 +17,19 @@ export function makeScope(ids: readonly string[]): BrandScope {
   return { brandIds: Object.freeze([...new Set(ids)]) } as unknown as BrandScope;
 }
 
+/**
+ * Scope already read together with the user row at the start of the request (getSession), keyed by the session
+ * user object. It saves one round trip per request; it is still only ever built by makeScope().
+ */
+const prefetched = new WeakMap<object, BrandScope>();
+
+export function attachScope(user: object, ids: readonly string[]): void {
+  prefetched.set(user, makeScope(ids));
+}
+
 export async function visibleBrandIds(user: Pick<SessionUser, 'id' | 'role'>, db: Queryable): Promise<BrandScope> {
+  const known = prefetched.get(user);
+  if (known) return known;
   if (user.role === 'gm') {
     const { rows } = await db.query<{ id: string }>('SELECT id FROM brand ORDER BY id');
     return makeScope(rows.map((r) => r.id));
