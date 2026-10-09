@@ -41,6 +41,8 @@ export function EditScreen(props: EditProps) {
   const [d, setD] = useState(first);
   const verRef = useRef(first.recipe.version);
   const queue = useRef<Promise<void>>(Promise.resolve());
+  const pending = useRef<SavePatch[]>([]);
+  const flushing = useRef(false);
   const act = useRecipeActions(first.settings.target);
   const printMenu = usePrintMenu();
 
@@ -72,29 +74,49 @@ export function EditScreen(props: EditProps) {
     [r.id, r.code, r.name, r.type, locked, c.food, c.fcPct, c.sp, c.net, c.err],
   );
 
-  /** Optimistic local edit + serialised PATCH; the server answers with the recomputed cost view. */
+  /**
+   * Optimistic local edit + serialised PATCH; the server answers with the recomputed cost view.
+   * Edits made while a PATCH is in flight (or in the same tick) are merged into ONE follow-up request (last value per
+   * field wins; `lines` and `method` are always full arrays, so that is exact). The first edit is sent at once. A price
+   * edit is never merged with other fields: it needs `recipe.price`, everything else `recipe.edit`, so each keeps failing
+   * or succeeding on its own.
+   */
   const save = useCallback(
     (patch: SavePatch, local?: Partial<RecipeDetail['recipe']>) => {
       if (local) setD((p) => ({ ...p, recipe: { ...p.recipe, ...local } }));
-      queue.current = queue.current.then(async () => {
+      const isPrice = (x: SavePatch) => 'sellingPrice' in x;
+      const last = pending.current[pending.current.length - 1];
+      if (last && isPrice(last) === isPrice(patch)) pending.current[pending.current.length - 1] = { ...last, ...patch };
+      else pending.current.push(patch);
+      if (flushing.current) return;
+      flushing.current = true;
+      queue.current = (async () => {
+        await Promise.resolve(); // same-tick edits join the first request
         try {
-          const nd = await api<RecipeDetail>('PATCH', `/api/recipes/${first.recipe.id}`, {
-            version: verRef.current,
-            ...patch,
-          });
-          verRef.current = nd.recipe.version;
-          setD((p) => ({
-            ...p,
-            view: nd.view,
-            settings: nd.settings,
-            packaging: nd.packaging,
-            recipe: { ...p.recipe, version: nd.recipe.version, code: nd.recipe.code, history: nd.recipe.history },
-          }));
-        } catch (e) {
-          toast(errText(e));
-          if (e instanceof ClientApiError && (e.status === 409 || e.status === 422)) router.refresh();
+          while (pending.current.length) {
+            const next = pending.current.shift()!;
+            try {
+              const nd = await api<RecipeDetail>('PATCH', `/api/recipes/${first.recipe.id}`, {
+                version: verRef.current,
+                ...next,
+              });
+              verRef.current = nd.recipe.version;
+              setD((p) => ({
+                ...p,
+                view: nd.view,
+                settings: nd.settings,
+                packaging: nd.packaging,
+                recipe: { ...p.recipe, version: nd.recipe.version, code: nd.recipe.code, history: nd.recipe.history },
+              }));
+            } catch (e) {
+              toast(errText(e));
+              if (e instanceof ClientApiError && (e.status === 409 || e.status === 422)) router.refresh();
+            }
+          }
+        } finally {
+          flushing.current = false;
         }
-      });
+      })();
     },
     [first.recipe.id, router, toast],
   );

@@ -92,9 +92,64 @@ describe('recipe editor (legacy vEdit)', () => {
       fireEvent.blur(qty);
       fireEvent.change(unit, { target: { value: 'Ml' } });
     });
-    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(2));
-    const last = calls.filter((c) => c.method === 'PATCH')[1]!;
-    expect(last.body).toMatchObject({ lines: [{ code: 'ING-1', qty: 500, unit: 'Ml' }] });
+    // both edits are in the SAME request now (coalesced), and neither is lost
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1));
+    expect(calls.filter((c) => c.method === 'PATCH')[0]!.body).toMatchObject({
+      version: 0,
+      lines: [{ code: 'ING-1', qty: 500, unit: 'Ml' }],
+    });
+  });
+
+  it('edits made while a save is in flight become ONE follow-up request with the newest version; a price edit is never merged', async () => {
+    let release: (() => void) | undefined;
+    let version = 0;
+    const gate = new Promise<void>((r) => (release = r));
+    const real = globalThis.fetch;
+    let first = true;
+    vi.stubGlobal('fetch', async (u: string, i?: RequestInit) => {
+      if (i?.method === 'PATCH' && first) {
+        first = false;
+        calls.push({ method: 'PATCH', url: u, body: JSON.parse(String(i.body)) });
+        await gate; // the first save stays in flight while the user keeps editing
+        return new Response(JSON.stringify(detailFixture({ version: ++version })), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return real(u, i);
+    });
+    onFetch((c) => (c.method === 'PATCH' ? { json: detailFixture({ version: ++version }) } : undefined));
+    const user = userEvent.setup();
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    const name = screen.getByDisplayValue('Beef Steak');
+    await user.clear(name);
+    await user.type(name, 'A');
+    await user.tab(); // save 1 goes out and is held
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1));
+    const cat = screen.getByDisplayValue('Main Course');
+    await user.clear(cat);
+    await user.type(cat, 'Grill');
+    await user.tab(); // queued
+    const qty = screen.getByDisplayValue('100');
+    await user.clear(qty);
+    await user.type(qty, '250');
+    await user.tab(); // merged into the same queued request
+    const price = screen.getByDisplayValue('0');
+    await user.clear(price);
+    await user.type(price, '30');
+    await user.tab(); // price: its own request
+    expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1); // nothing else sent while one is in flight
+    release!();
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(3));
+    const [a, b, p] = calls.filter((c) => c.method === 'PATCH');
+    expect(a!.body).toEqual({ version: 0, name: 'A' });
+    expect(b!.body).toEqual({
+      version: 1,
+      category: 'Grill',
+      lines: [{ code: 'ING-1', qty: 250, unit: 'Gram', y: 1, yp: null }],
+    });
+    expect(p!.body).toEqual({ version: 2, sellingPrice: 30 });
+    vi.stubGlobal('fetch', real);
   });
 
   it('a picked ingredient shows its name, unit and price at once, not "unknown code"', async () => {
