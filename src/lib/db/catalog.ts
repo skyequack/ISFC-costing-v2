@@ -115,3 +115,80 @@ export function buildCatalog(data: CatalogData): Catalog {
 export async function loadCatalog(db: Queryable): Promise<Catalog> {
   return buildCatalog(await loadCatalogData(db));
 }
+
+const NONFOOD = (category: string) => category.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() === 'nonfood';
+
+/**
+ * The part of the catalog that costing ONE card can read, in a single statement (instead of every ingredient and every
+ * recipe line). The engine only ever does Map.get(code) for codes reachable from the card's lines (items, sub-recipes and
+ * their lines, conversions by item code), so the transitive closure of the line codes costs the card identically. UNION
+ * (not UNION ALL) lets a cycle terminate; the card itself is always included; lines stay in sort_order (float summation
+ * order); live cards only. Also returns the card's packaging lines (main category Nonfood) and the cost settings.
+ * `cards` is empty: it is only used by list screens, never by costing.
+ */
+export async function loadCostClosure(
+  db: Queryable,
+  lineCodes: string[],
+  selfId: string,
+): Promise<{ catalog: Catalog; packaging: string[] }> {
+  const { rows } = await db.query(
+    `WITH RECURSIVE walk(code) AS (
+       SELECT DISTINCT c FROM unnest($1::text[]) AS c WHERE c <> ''
+       UNION
+       SELECT l.code FROM walk w
+         JOIN recipe r ON r.code = w.code AND r.deleted_at IS NULL
+         JOIN recipe_line l ON l.recipe_id = r.id
+        WHERE l.code <> ''
+     )
+     SELECT
+       (SELECT coalesce(json_agg(json_build_object('code', i.code, 'name', i.name, 'uom', i.uom, 'price', i.price,
+                                                   'category', i.category, 'recipeUnit', c.recipe_unit, 'factor', c.factor)
+                                 ORDER BY i.code), '[]'::json)
+          FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id
+         WHERE i.code IN (SELECT code FROM walk)) AS items,
+       (SELECT coalesce(json_agg(json_build_object(
+                  'id', r.id, 'code', r.code, 'name', r.name, 'type', r.type, 'output', r.output, 'subQty', r.sub_qty,
+                  'subUom', r.sub_uom, 'batchOut', r.batch_out, 'batchUom', r.batch_uom, 'price', r.selling_price,
+                  'buffer', r.buffer,
+                  'lines', (SELECT coalesce(json_agg(json_build_object('code', l.code, 'qty', l.qty, 'unit', l.unit,
+                                                                       'y', l.y, 'yp', l.yp) ORDER BY l.sort_order), '[]'::json)
+                              FROM recipe_line l WHERE l.recipe_id = r.id)) ORDER BY r.code), '[]'::json)
+          FROM recipe r
+         WHERE r.deleted_at IS NULL AND (r.code IN (SELECT code FROM walk) OR r.id = $2)) AS recipes,
+       (SELECT json_build_object('currency', s.currency, 'pkg', s.pkg, 'del', s.del, 'lab', s.lab, 'ops', s.ops,
+                                 'buffer', s.buffer, 'target', s.target, 'vat', s.vat,
+                                 'priceDate', to_char(s.price_date, 'YYYY-MM-DD'), 'version', s.version)
+          FROM cost_settings s WHERE s.id = 1) AS settings`,
+    [lineCodes, selfId],
+  );
+  const row = rows[0];
+  if (!row?.settings) throw new Error('cost_settings row is missing (database not seeded)');
+
+  type ItemRow = {
+    code: string;
+    name: string;
+    uom: string;
+    price: number | null;
+    category: string;
+    recipeUnit: string | null;
+    factor: number | null;
+  };
+  const itemRows = row.items as ItemRow[];
+  const items: CostItem[] = [];
+  const conv: [string, ConvEntry][] = [];
+  for (const r of itemRows) {
+    items.push({ code: r.code, name: r.name, uom: r.uom, price: r.price });
+    if (r.recipeUnit !== null) conv.push([r.code, [r.recipeUnit, r.factor as number]]);
+  }
+  type RecRow = Omit<CostRecipe, 'type'> & { type: 'MENU' | 'SUB' };
+  const recipes: CostRecipe[] = (row.recipes as RecRow[]).map((r) => ({
+    ...r,
+    type: r.type === 'SUB' ? 'sub' : 'menu',
+  }));
+  const settings = row.settings as CatalogData['settings'];
+  const wanted = new Set(lineCodes);
+  return {
+    catalog: buildCatalog({ items, conv, recipes, cards: {}, settings }),
+    packaging: itemRows.filter((r) => wanted.has(r.code) && NONFOOD(r.category)).map((r) => r.code),
+  };
+}

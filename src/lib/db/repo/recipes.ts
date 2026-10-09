@@ -60,25 +60,30 @@ export async function listRecipes(db: Queryable, scope: BrandScope): Promise<Rec
 
 /** One live card with lines, method and lock history. Unknown OR out-of-scope id -> 404 (indistinguishable). */
 export async function getRecipe(db: Queryable, scope: BrandScope, id: string): Promise<RecipeDto> {
-  const head = await db.query(
-    `SELECT ${COLS}, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom, r.locked_at, r.cost_at_lock ${FROM}
-     WHERE r.id = $1 AND r.deleted_at IS NULL AND r.brand_id = ANY($2::text[])`,
+  // one statement: head + lines + method + history (aggregated in order) instead of four round trips
+  const { rows } = await db.query(
+    `SELECT ${COLS}, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom, r.locked_at, r.cost_at_lock,
+            coalesce((SELECT json_agg(json_build_object('sortOrder', l.sort_order, 'code', l.code, 'qty', l.qty,
+                                                        'unit', l.unit, 'y', l.y, 'yp', l.yp) ORDER BY l.sort_order)
+                        FROM recipe_line l WHERE l.recipe_id = r.id), '[]'::json) AS lines_json,
+            coalesce((SELECT json_agg(m.text ORDER BY m.step_number)
+                        FROM recipe_method_step m WHERE m.recipe_id = r.id), '[]'::json) AS method_json,
+            coalesce((SELECT json_agg(json_build_object('action', h.action, 'who', h.who, 'at', h.created_at)
+                                      ORDER BY h.created_at)
+                        FROM recipe_history_entry h WHERE h.recipe_id = r.id), '[]'::json) AS history_json
+       ${FROM}
+      WHERE r.id = $1 AND r.deleted_at IS NULL AND r.brand_id = ANY($2::text[])`,
     [id, [...scope.brandIds]],
   );
-  if (!head.rows[0]) throw new ApiError('not_found', 'Not found');
-  const lines = await db.query(
-    'SELECT sort_order, code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order',
-    [id],
-  );
-  const method = await db.query('SELECT text FROM recipe_method_step WHERE recipe_id = $1 ORDER BY step_number', [id]);
-  const history = await db.query(
-    'SELECT action, who, created_at AS at FROM recipe_history_entry WHERE recipe_id = $1 ORDER BY created_at',
-    [id],
-  );
+  if (!rows[0]) throw new ApiError('not_found', 'Not found');
+  const { lines_json, method_json, history_json, ...head } = rows[0] as Record<string, unknown>;
   return {
-    ...camelRow<Omit<RecipeDto, 'lines' | 'method' | 'history'>>(head.rows[0]),
-    lines: camelRows<RecipeLineDto>(lines.rows),
-    method: method.rows.map((r) => String(r.text)),
-    history: camelRows<RecipeDto['history'][number]>(history.rows),
+    ...camelRow<Omit<RecipeDto, 'lines' | 'method' | 'history'>>(head),
+    lines: lines_json as RecipeLineDto[],
+    method: (method_json as unknown[]).map((t) => String(t)),
+    history: (history_json as { action: 'LOCK' | 'UNLOCK'; who: string; at: string }[]).map((h) => ({
+      ...h,
+      at: new Date(h.at),
+    })),
   };
 }
