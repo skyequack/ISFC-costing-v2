@@ -96,7 +96,10 @@ describe('plan helpers', () => {
 
   it('planWeek is the sum of the day totals', () => {
     const m = menus[0]!;
-    expect(planWeek(m, L)).toBeCloseTo(m.days.reduce((a, d) => a + planDay(m, d, L).tot, 0), 9);
+    expect(planWeek(m, L)).toBeCloseTo(
+      m.days.reduce((a, d) => a + planDay(m, d, L).tot, 0),
+      9,
+    );
   });
 
   it('weekday: Saturday-first week', () => {
@@ -128,20 +131,29 @@ describe('menu plan defensive branches (menus with missing rows / days / cells)'
     expect(planDay(bare, 'SATURDAY', L)).toEqual({ tot: 0, priced: 0, unp: 0 });
     expect(planWeek(bare, L)).toBe(0);
     expect(menuPreview(bare, 'SATURDAY', L)).toEqual({ hit: [], miss: [] });
-    const empty = { id: 'e', name: 'Empty', days: ['SATURDAY'], rows: [{ meal: 'LUNCH', cells: {} }] } as unknown as PlanMenu;
+    const empty = {
+      id: 'e',
+      name: 'Empty',
+      days: ['SATURDAY'],
+      rows: [{ meal: 'LUNCH', cells: {} }],
+    } as unknown as PlanMenu;
     expect(planDay(empty, 'SATURDAY', L)).toEqual({ tot: 0, priced: 0, unp: 0 });
     expect(menuPreview(empty, 'SATURDAY', L)).toEqual({ hit: [], miss: [] });
   });
   it('a card cell whose code is not a card, and an ITEM cell resolved through a newer card or reported as unpriced', () => {
     const m = {
-      id: 'm', name: 'M', days: ['SATURDAY'],
+      id: 'm',
+      name: 'M',
+      days: ['SATURDAY'],
       rows: [
         { meal: 'LUNCH', cells: { SATURDAY: { label: 'Grilled Beef Steak', kind: 'ITEM', code: 'NO-SUCH-ITEM' } } },
         { meal: 'DINNER', cells: { SATURDAY: { label: 'zzz', kind: 'RECIPE', code: 'NOPE' } } },
       ],
     } as unknown as PlanMenu;
     expect(menuPreview(m, 'SATURDAY', L).miss).toEqual(['zzz']);
-    expect(planCost({ label: 'Grilled Beef Steak', kind: 'ITEM', code: 'NO-SUCH-ITEM' }, L).src).toMatch(/new card|item missing/);
+    expect(planCost({ label: 'Grilled Beef Steak', kind: 'ITEM', code: 'NO-SUCH-ITEM' }, L).src).toMatch(
+      /new card|item missing/,
+    );
     const priced = [...ctx.items.values()].find((i) => i.price == null)!;
     expect(planCost({ label: 'qqq', kind: 'ITEM', code: priced.code }, L)).toEqual({ v: null, src: 'no price' });
   });

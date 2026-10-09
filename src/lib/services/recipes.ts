@@ -2,7 +2,7 @@ import { costWithIssues } from '@/domain/costing';
 import { assertAcyclicWith, CycleError, type GraphRecipe } from '@/domain/recipes/graph';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
-import { loadCatalog } from '../db/catalog';
+import { loadCatalog, type Catalog } from '../db/catalog';
 import { appendAudit } from '../db/repo/audit';
 import { getRecipe, type RecipeDto } from '../db/repo/recipes';
 import { assertBrandVisible, canSeeBrand, type BrandScope } from '../db/scope';
@@ -11,9 +11,10 @@ import { can, type Permission } from '../permissions';
 import { money } from '../format';
 import { normY, type LineIn, type RecipeSaveIn } from '../validation/common';
 import { toCostRecipe } from './card-view';
+import { CODE_LOCK } from './ingredients';
 
 /** Fixed lock key so recipe saves serialise their graph check (D-34). */
-const GRAPH_LOCK = 8_041_001;
+const GRAPH_LOCK = CODE_LOCK;
 
 function need(user: SessionUser, perm: Permission, message?: string): void {
   if (!can(user.role, perm)) throw new ApiError('forbidden', message ?? 'Your role cannot do that');
@@ -360,7 +361,7 @@ export async function saveRecipe(
   if (other.length) {
     const recent = await tx.query(
       `SELECT 1 FROM audit_log WHERE user_id = $1 AND action = 'Edited card' AND detail LIKE $2 AND created_at > now() - interval '10 minutes' LIMIT 1`,
-      [user.id, `${label} %`],
+      [user.id, label.replace(/[\\%_]/g, '\\$&') + ' %'],
     );
     if (!recent.rows[0])
       await appendAudit(tx, user, 'Edited card', `${label} – ${input.name ?? head.name} (${other.join(', ')})`);
@@ -481,9 +482,9 @@ async function lockOne(
   user: SessionUser,
   head: Head,
   who: string,
-  overrideReason?: string,
+  overrideReason: string | undefined,
+  catalog: Catalog,
 ): Promise<void> {
-  const catalog = await loadCatalog(tx);
   const lines = (
     await tx.query('SELECT code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [head.id])
   ).rows as RecipeDto['lines'];
@@ -548,7 +549,8 @@ export async function lockRecipes(
   const heads = await loadHeadsByIds(tx, scope, ids);
   const todo = heads.filter((h) => h.status === 'DRAFT');
   if (!todo.length) throw new ApiError('unprocessable', 'Nothing selected is unlocked');
-  for (const h of todo) await lockOne(tx, user, h, who, overrideReason);
+  const catalog = await loadCatalog(tx); // once for the whole batch
+  for (const h of todo) await lockOne(tx, user, h, who, overrideReason, catalog);
   if (todo.length === 1) {
     const h = todo[0]!;
     await appendAudit(

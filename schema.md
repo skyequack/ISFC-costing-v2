@@ -9,7 +9,7 @@
 - **Connections:** the running app uses the pooled URL (`DATABASE_URL`, host contains `-pooler`) through `src/lib/db/client.ts`; migrations, seeding and bulk import/restore use `DATABASE_URL_UNPOOLED`. Transaction-scoped features (`pg_advisory_xact_lock`, `SELECT … FOR UPDATE`) are safe through the pooler.
 - **Branches:** `production` (live), `dev` (local work and seeding), short-lived per-run branches for tests/CI (TTL 7 d). Take a branch / note a PITR point before every production migration.
 
-## Tables (21 + `schema_migrations`)
+## Tables (22 + `schema_migrations`)
 | Table | Purpose / key rules |
 |---|---|
 | `brand` | 14 rows. `legacy_id`, `code` (recipe-code prefix), `name` unique; `name_ar`, `color` (`''` allowed), `ink_color`, `locations text[]` (only SSEM has values; GM-editable, D-52: names are referenced by `menu_pax.location` / `production_entry.location`, so rename cascades in one transaction and removal of a site with rows is refused), `active`. |
@@ -28,6 +28,7 @@
 | `menu`, `menu_row`, `menu_cell`, `menu_pax` | Editable menus (D-05), seeded from legacy `MENU_PLAN` (8 menus, 148 rows, 1001 cells). `menu.legacy_index` translates legacy `LOC|menuIndex` pax keys on restore. Meal labels are not unique. Cell `kind` ITEM → `ingredient.code` (710), RECIPE → `recipe.code` (290), NONE (1) has no code (CHECK). Absent day = no row (23 in the seed). Deactivate menus rather than delete (pax rows cascade). |
 | `production_entry` | (month, day, location, recipe_code) → portions ≥ 0; `location ''` = legacy/unassigned bucket. Brand scoping through `recipe.code → brand_id`. |
 | `seed_run` | Seed version + checksum; a re-seed must not overwrite edited data. |
+| `restore_chunk` | (migration 0002) staging for a chunked backup restore: `(session_id, seq)` → a ≤ 1.5 MB slice of the backup JSON, owner `user_id`; deleted on commit, pruned after a day. |
 
 ## Cross-table rules enforced in the application
 - Ingredient and recipe codes must not collide case-insensitively (legacy `resolve()` is items-first): checked inside a serializable transaction (retry on SQLSTATE `40001`) plus a verification query.

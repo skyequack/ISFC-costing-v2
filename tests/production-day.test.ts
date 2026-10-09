@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { cost, type CostRecipe } from '@/domain/costing';
 import { appendPriceCheck, PRICE_VARIANCE_THRESHOLD, priceMove } from '@/domain/ingredients';
-import { byCostDesc, byQtyDesc, dayTotals, daysIn, pad2, ProdIndex, reqForDay, type ProdCard } from '@/domain/production/day';
+import {
+  byCostDesc,
+  byQtyDesc,
+  dayTotals,
+  daysIn,
+  pad2,
+  ProdIndex,
+  reqForDay,
+  type ProdCard,
+} from '@/domain/production/day';
 import { goldenContext, goldenState } from './helpers/golden';
 
 describe('price variance (D-43)', () => {
@@ -36,7 +45,12 @@ describe('daily production arithmetic (D-20: all sites = every site + unassigned
     { day: '02', location: 'NIC', code: b.code, portions: 7 },
     { day: '03', location: 'NIC', code: b.code, portions: 0 },
   ]);
-  const cards: ProdCard[] = [a, b].map((r) => ({ recipe: r, food: cost(r, ctx).food, section: r === a ? 'hot' : 'sal', brandId: 'b' }));
+  const cards: ProdCard[] = [a, b].map((r) => ({
+    recipe: r,
+    food: cost(r, ctx).food,
+    section: r === a ? 'hot' : 'sal',
+    brandId: 'b',
+  }));
 
   it('qty: one site, the unassigned bucket, or everything', () => {
     expect(idx.qty('01', a.code, 'NIC')).toBe(40);
@@ -45,7 +59,11 @@ describe('daily production arithmetic (D-20: all sites = every site + unassigned
     expect(idx.qty('01', a.code, 'YANBU')).toBe(0);
     expect(idx.qty('09', a.code, '*')).toBe(0);
     expect(idx.qty('01', 'NOPE', '*')).toBe(0);
-    expect(idx.bySite('01', a.code).sort()).toEqual([['', 5], ['NEOM', 25], ['NIC', 40]]);
+    expect(idx.bySite('01', a.code).sort()).toEqual([
+      ['', 5],
+      ['NEOM', 25],
+      ['NIC', 40],
+    ]);
     expect(idx.bySite('03', b.code)).toEqual([['NIC', 0]].filter(([, q]) => (q as number) > 0));
   });
   it('day totals add portions x cost per section; zero-portion cards are skipped', () => {
@@ -63,7 +81,9 @@ describe('daily production arithmetic (D-20: all sites = every site + unassigned
     expect(Object.keys(day.bySec).sort()).toEqual(['hot', 'sal']);
     const all = Object.values(day.all);
     expect(all.length).toBeGreaterThan(0);
-    const sumPer = Object.values(day.bySec).flat().reduce((n, x) => n + Object.values(x.per).reduce((m, e) => m + e.qty, 0), 0);
+    const sumPer = Object.values(day.bySec)
+      .flat()
+      .reduce((n, x) => n + Object.values(x.per).reduce((m, e) => m + e.qty, 0), 0);
     expect(all.reduce((n, e) => n + e.qty, 0)).toBeCloseTo(sumPer, 6);
     const byCost = [...all].sort(byCostDesc);
     const byQty = [...all].sort(byQtyDesc);

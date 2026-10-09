@@ -15,7 +15,7 @@ vi.mock('@/lib/db/client', async (orig) => {
   return {
     ...actual,
     db: { query: (t: string, v?: unknown[]) => h.client.query(t, v) },
-    withTransaction: async <T,>(fn: (tx: unknown) => Promise<T>): Promise<T> => {
+    withTransaction: async <T>(fn: (tx: unknown) => Promise<T>): Promise<T> => {
       await h.client.query('SAVEPOINT ex');
       try {
         const r = await fn(h.client);
@@ -49,8 +49,12 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
   });
 
   async function mkUser(role: Role, brandIds: string[]): Promise<SessionUser> {
-    const { rows } = await c.query(`INSERT INTO app_user (clerk_user_id, name) VALUES ($1,$2) RETURNING id`, [`clerk-${role}-${Math.random()}`, `T ${role}`]);
-    for (const b of brandIds) await c.query('INSERT INTO user_brand_access (user_id, brand_id) VALUES ($1,$2)', [rows[0]!.id, b]);
+    const { rows } = await c.query(`INSERT INTO app_user (clerk_user_id, name) VALUES ($1,$2) RETURNING id`, [
+      `clerk-${role}-${Math.random()}`,
+      `T ${role}`,
+    ]);
+    for (const b of brandIds)
+      await c.query('INSERT INTO user_brand_access (user_id, brand_id) VALUES ($1,$2)', [rows[0]!.id, b]);
     return { id: rows[0]!.id as string, clerkUserId: 'c', email: null, name: `T ${role}`, role };
   }
   const as = (u: SessionUser) => (h.session = { status: 'ok', user: u });
@@ -59,7 +63,10 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
     return GET(new Request(`http://x/api/export/${kind}${qs}`), ctx(kind));
   };
   const exportedRows = async (u: SessionUser) =>
-    Number((await c.query(`SELECT count(*) AS n FROM audit_log WHERE action = 'Exported data' AND user_id = $1`, [u.id])).rows[0]!.n);
+    Number(
+      (await c.query(`SELECT count(*) AS n FROM audit_log WHERE action = 'Exported data' AND user_id = $1`, [u.id]))
+        .rows[0]!.n,
+    );
 
   it('every kind answers, is audited once with kind and row count, and a viewer may export', async () => {
     const viewer = await mkUser('viewer', []);
@@ -83,7 +90,10 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
       expect((await res.text()).length).toBeGreaterThan(20);
       expect(await exportedRows(gm), k).toBe(before + 1);
     }
-    const a = await c.query(`SELECT detail FROM audit_log WHERE action = 'Exported data' AND user_id = $1 AND detail LIKE 'prep:%'`, [gm.id]);
+    const a = await c.query(
+      `SELECT detail FROM audit_log WHERE action = 'Exported data' AND user_id = $1 AND detail LIKE 'prep:%'`,
+      [gm.id],
+    );
     expect(a.rows).toHaveLength(1);
     expect(a.rows[0]!.detail).toMatch(/^prep: \d+ rows?$/);
     as(viewer);
@@ -104,13 +114,15 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
   it('formula starters are neutralised in CSV cells; money/price text is untouched', async () => {
     const brand = await insertBrand(c, 'XB');
     const gm = await mkUser('gm', []);
-    await c.query(`INSERT INTO ingredient (code, name, uom, price, category, subcategory) VALUES ('XB-1', '=HYPERLINK("http://evil","x")', 'Gram', 0.0000800001, '+cmd', '@sum')`);
+    await c.query(
+      `INSERT INTO ingredient (code, name, uom, price, category, subcategory) VALUES ('XB-1', '=HYPERLINK("http://evil","x")', 'Gram', 0.0000800001, '+cmd', '@sum')`,
+    );
     await c.query('INSERT INTO item_brand_scope SELECT id, $1 FROM ingredient WHERE code = $2', [brand, 'XB-1']);
     as(gm);
     const text = await (await get('ingredients')).text();
     const line = text.split('\n').find((l) => l.startsWith('XB-1'))!;
     expect(line).toContain(`"'=HYPERLINK(""http://evil"",""x"")"`);
-    expect(line).toContain(",0.000080,"); // 6 dp, never rounded to zero
+    expect(line).toContain(',0.000080,'); // 6 dp, never rounded to zero
     expect(line).toContain("'+cmd");
     expect(line).toContain("'@sum");
   });
@@ -131,9 +143,14 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
   it('production export: the intended columns (D-19) with one row per site/dish and a DAY TOTAL row', async () => {
     const gm = await mkUser('gm', []);
     as(gm);
-    const r = (await c.query(`SELECT code FROM recipe WHERE type = 'MENU' AND deleted_at IS NULL ORDER BY code LIMIT 2`)).rows;
+    const r = (
+      await c.query(`SELECT code FROM recipe WHERE type = 'MENU' AND deleted_at IS NULL ORDER BY code LIMIT 2`)
+    ).rows;
     for (const [i, row] of r.entries()) {
-      await c.query(`INSERT INTO production_entry (month, day, location, recipe_code, portions) VALUES ('2098-04','05','NIC',$1,$2), ('2098-04','05','',$1,$3)`, [row.code, 10 + i, 3]);
+      await c.query(
+        `INSERT INTO production_entry (month, day, location, recipe_code, portions) VALUES ('2098-04','05','NIC',$1,$2), ('2098-04','05','',$1,$3)`,
+        [row.code, 10 + i, 3],
+      );
     }
     const lines = (await (await get('production', '?month=2098-04&brand=*&loc=*')).text()).split('\n');
     expect(lines[0]).toBe('Month,Day,Site,Brand,Section,Dish,Code,Portions,Cost/portion,Cost');
@@ -157,14 +174,25 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
     const brand = (await c.query('SELECT id FROM brand ORDER BY legacy_id LIMIT 1')).rows[0]!.id as string;
     // preview a slice of cards (the whole file is chunked in the UI); nothing may be blocked and everything is an update
     const sample = parsed.cards.filter((x) => x.lines.length).slice(0, 40);
-    const input = recipeImportIn.parse({ cards: sample, defaultBrandId: brand, takePrice: false, allowUpdate: true, grant: false });
+    const input = recipeImportIn.parse({
+      cards: sample,
+      defaultBrandId: brand,
+      takePrice: false,
+      allowUpdate: true,
+      grant: false,
+    });
     const scope = await visibleBrandIds(gm, c);
     const plan = await previewRecipeImport(c, gm, scope, input);
     expect(plan.counts.blocked).toBe(0);
     expect(plan.cards.every((x) => x.action === 'update')).toBe(true);
     // lines survive the round trip exactly (codes, quantities, waste %)
     for (const card of sample.slice(0, 5)) {
-      const stored = (await c.query(`SELECT l.code, l.qty, l.yp FROM recipe_line l JOIN recipe r ON r.id = l.recipe_id WHERE r.code = $1 AND r.deleted_at IS NULL ORDER BY l.sort_order`, [card.code])).rows;
+      const stored = (
+        await c.query(
+          `SELECT l.code, l.qty, l.yp FROM recipe_line l JOIN recipe r ON r.id = l.recipe_id WHERE r.code = $1 AND r.deleted_at IS NULL ORDER BY l.sort_order`,
+          [card.code],
+        )
+      ).rows;
       const nonBlank = stored.filter((l) => l.code);
       expect(card.lines.map((l) => [l.code, l.qty])).toEqual(nonBlank.map((l) => [l.code, l.qty]));
       expect(card.lines.map((l) => l.yp)).toEqual(nonBlank.map((l) => l.yp));

@@ -46,3 +46,10 @@ Preview deployment per PR with its own Neon branch. Prod: Neon branch backup →
 
 ## 7. Operations
 Structured logs (no bodies/photos); `requestId` returned on 500s. Rate limits on import/export/photo/user routes. Monitor `/api/health`. Back up: Neon PITR; plus admin JSON/CSV backup screen. Audit log immutable (DB triggers); never grant the app role UPDATE/DELETE/TRUNCATE on `audit_log`; run migrations under a separate owner role.
+
+## 8. Added in Phases 3–6 (2026-10-09)
+- **Migration `0002_restore_staging.sql`** (staging table for chunked restores) is applied to Neon `dev` only. Before deploying, run `npm run db:migrate` against `production` after the usual branch/PITR step (Phase 7).
+- **Active brand** is the `isfc_brand` cookie (httpOnly, 180 days, validated against the user's brands on every request).
+- **Backup / restore** (Backup & Export, GM only): *Download full backup* assembles one JSON file from `GET /api/export/backup` parts (data + base64 photos/logos). *Restore* uploads the file in 1.2 MB slices to `restore_chunk`, runs a **dry-run** (the restore is applied and rolled back, so every constraint is exercised) and only then asks for the final click; the commit is one transaction on `DATABASE_URL_UNPOOLED`. Cards missing from the backup are soft-deleted, ingredients missing from it are kept, the audit log is never changed. **Try a restore on a throw-away Neon branch first** (`neon branches create --parent dev`), never first on production. Abandoned uploads are pruned after a day.
+- **Imports** (price list ≤ 500 rows per request, recipes ≤ 100 cards per request) are parsed in the browser; the server re-validates everything and refuses a commit whose hash differs from the dry-run.
+- **Visual smoke**: `npm run preview:screens` (see docs/TESTING.md §8).

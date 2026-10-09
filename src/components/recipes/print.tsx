@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { useModal } from '@/components/shared/Modal';
+import { downloadText, pageCss } from '@/components/shared/print-doc';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { printStore } from '@/components/shell/print-store';
@@ -53,23 +54,6 @@ export function toPrintCard(d: RecipeDetail, brand: PrintBrand | null): PrintCar
 
 export const cardHtml = (d: RecipeDetail, brand: PrintBrand | null) => buildCardHTML(toPrintCard(d, brand));
 
-/** Every same-origin stylesheet rule as text — the legacy "copy every <style>" (cardDocument 5884), robust to <link> CSS. */
-function pageCss(): string {
-  const out: string[] = [];
-  for (const ss of Array.from(document.styleSheets)) {
-    try {
-      out.push(
-        Array.from(ss.cssRules)
-          .map((r) => r.cssText)
-          .join('\n'),
-      );
-    } catch {
-      /* cross-origin sheet: skipped */
-    }
-  }
-  return out.join('\n');
-}
-
 /** Blob documents cannot use relative URLs, so images are fetched and inlined as data URLs at print time (D-49). */
 export async function inlineImages(html: string): Promise<string> {
   const urls = [...new Set([...html.matchAll(/<img[^>]*\ssrc="(\/[^"]+)"/g)].map((m) => m[1]!))];
@@ -105,17 +89,6 @@ export function cardDocument(html: string, code: string, name: string): string {
   );
 }
 
-function download(name: string, text: string, mime = 'text/plain;charset=utf-8') {
-  const b = new Blob([text], { type: mime });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(b);
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-}
-
 const inFrame = () => {
   try {
     return window.self !== window.top;
@@ -138,7 +111,7 @@ export function usePrintMenu(): (d: RecipeDetail, brand: PrintBrand | null) => v
       const closePreview = () => printStore.set({ preview: null, html: printStore.get().html });
       const downloadCard = async () => {
         const doc = cardDocument(await inlineImages(html), code, name);
-        download(
+        downloadText(
           `${code || 'recipe'}-${(name || 'card').replace(/[^\w-]+/g, '-')}.html`,
           doc,
           'text/html;charset=utf-8',
