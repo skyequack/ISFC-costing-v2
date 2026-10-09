@@ -18,7 +18,8 @@
     "db:migrate": "node scripts/migrate.mjs",
     "db:status": "node scripts/migrate.mjs --status",
     "db:seed": "node scripts/seed.mjs",
-    "test:db": "vitest run tests/db"
+    "test:db": "vitest run tests/db",
+    "preview:screens": "vitest run --config vitest.preview.config.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.7",

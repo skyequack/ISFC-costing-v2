@@ -12,3 +12,4 @@ test-results/
 playwright-report/
 .vercel/
 .neon
+public/_preview/
