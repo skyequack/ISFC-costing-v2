@@ -45,4 +45,4 @@ Behaviour: client resizes before upload (photo ≤ 760 px JPEG q.72; logo 320 px
 - The editor commits each field on blur/Enter (legacy `onchange`), sends `PATCH` with the card `version`, and adopts the server's recomputed cost; modals share form state through `createStore`/`useStore`.
 - Print: the card is `buildCardHTML` (`src/lib/print/card.ts`, D-21 label); blob documents copy the page's same-origin CSS rules and inline images as data URLs at print time. Production/store sheets: `src/lib/print/prod.ts`.
 - Not ported on purpose (D-54): the browser-storage notes, *Rebuild from this file*, *Backup including accounts & PINs*, *Reset to factory data*. New screens built only from legacy primitives: Users & Access, the menu editor, the reconciliation table, the import review dialogs.
-- Stale wording kept verbatim and listed for you in docs/PROGRESS.md (PIN sentences; "stored in this file").
+- Stale PIN / "stored in this file" sentences were rewritten under D-58 (the only wording changes besides the D-41 Backup subtitle).

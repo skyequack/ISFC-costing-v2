@@ -192,7 +192,7 @@ export function EditScreen(props: EditProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={r.photoUrl} alt="" style={s('width:100%;border-radius:9px;display:block')} />
           <div style={s('font-size:11.5px;color:var(--mute);margin-top:9px')}>
-            {Math.round((r.photoSize ?? 0) / 1024)} KB stored in this file.
+            {Math.round((r.photoSize ?? 0) / 1024)} KB stored.
           </div>
         </>
       ),

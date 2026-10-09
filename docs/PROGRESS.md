@@ -69,8 +69,7 @@ Create/rename/add-ingredient/cost/lock/unlock/delete a card, Production entry in
 
 ## Open items for the user (decisions that were NOT made for you)
 
-- **D-55 stale PIN wording** (lock dialog "Reopening it needs the manager PIN", locked-card banner, bulk lock, Settings → "Manage users and PINs" / "not by a shared PIN"): kept verbatim because D-41 says no wording changes. They are now untrue. Tell me the replacement text and it is a 6-line change.
-- The legacy "Photo … KB stored in this file" (photo enlarge dialog) and "stored inside this file" (brand logo help) have the same problem (D-49 stores pictures in the database).
+- ~~Stale PIN / "stored in this file" wording~~ — resolved by D-58 (approved 2026-10-10).
 - **D-54 / D-56 defaults** (Backup screen trimmed; restore semantics; strict recipe import) are marked 🟡 in DECISIONS.md — approve or change.
 - Recipe list order is by code (legacy used array order: demo cards, SSEM, SMC, NC).
 - Existing ingredients that a restore/backup does not contain are **kept** (history cascades otherwise); only cards are soft-deleted.

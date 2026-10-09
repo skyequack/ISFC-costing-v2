@@ -285,7 +285,9 @@ function LockBody({
           )}
         </>
       ) : (
-        <p style={s('font-size:13.5px')}>These {count} cards become read-only. Reopening needs the manager PIN.</p>
+        <p style={s('font-size:13.5px')}>
+          These {count} cards become read-only. Reopening needs a General Manager or Cost Controller.
+        </p>
       )}
       {f.problem && (
         <div className="note r" style={s('margin-top:12px')}>
@@ -311,7 +313,7 @@ function LockBody({
       )}
       {single && (
         <div className="note" style={s('margin:0')}>
-          Once locked the card becomes read-only. Reopening it needs the manager PIN.
+          Once locked the card becomes read-only. Reopening it needs a General Manager or Cost Controller.
         </div>
       )}
     </>

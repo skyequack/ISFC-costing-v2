@@ -59,7 +59,7 @@ export function LockedCard({
                 <span suppressHydrationWarning>{when}</span>
               </>
             )}
-            . It is read-only. Reopening it needs the manager PIN.
+            . It is read-only. Reopening it needs a General Manager or Cost Controller.
           </div>
           {snap?.food != null && (
             <div style={s('font-size:12px;margin-top:3px')}>

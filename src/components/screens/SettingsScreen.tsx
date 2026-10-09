@@ -237,7 +237,7 @@ export function SettingsScreen({
         <div className="bd">
           <p style={s('font-size:13px;color:var(--mute);margin-bottom:12px')}>
             Who may approve a card, reopen an approved one, change a price or delete anything is decided by access
-            level, not by a shared PIN. Each person signs in as themselves and every action is logged.
+            level, not by a shared password. Each person signs in as themselves and every action is logged.
           </p>
           <div className="tw" style={s('box-shadow:none;margin-bottom:14px')}>
             <table>
@@ -286,11 +286,11 @@ export function SettingsScreen({
           </div>
           {can('users.manage') ? (
             <button className="btn" onClick={() => router.push('/users')}>
-              Manage users and PINs
+              Manage users and roles
             </button>
           ) : (
             <div className="note" style={s('margin:0')}>
-              Only a General Manager can add users or change PINs.
+              Only a General Manager can add users or change roles.
             </div>
           )}
         </div>
@@ -483,7 +483,7 @@ function LogoBox({ pick, onPick, help }: { pick: LogoPick; onPick: (p: LogoPick)
         </button>
         {help && (
           <div style={s('font-size:10.5px;color:var(--mute);margin-top:7px')}>
-            PNG with a transparent background works best. Resized to 320 px wide and stored inside this file, so keep it
+            PNG with a transparent background works best. Resized to 320 px wide and stored in the database, so keep it
             small.
           </div>
         )}
