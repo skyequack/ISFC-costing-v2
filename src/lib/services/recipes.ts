@@ -2,15 +2,16 @@ import { costWithIssues } from '@/domain/costing';
 import { assertAcyclicWith, CycleError, type GraphRecipe } from '@/domain/recipes/graph';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
-import { loadCatalog, type Catalog } from '../db/catalog';
-import { appendAudit, appendAuditMany, type AuditEntry } from '../db/repo/audit';
-import { getRecipe, type RecipeDto } from '../db/repo/recipes';
+import { closureSql, loadCatalog, parseClosure, type Catalog, type ClosureRow } from '../db/catalog';
+import { appendAudit, auditInsertSql, type AuditEntry } from '../db/repo/audit';
+import { getRecipe, parseRecipeRow, RECIPE_FULL_FROM, RECIPE_FULL_SELECT, type RecipeDto } from '../db/repo/recipes';
 import { assertBrandVisible, canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can, type Permission } from '../permissions';
 import { money } from '../format';
 import { normY, type LineIn, type RecipeSaveIn } from '../validation/common';
 import { toCostRecipe } from './card-view';
+import { detailFrom, recipeDetail, type RecipeDetail } from './recipe-detail';
 import { CODE_LOCK } from './ingredients';
 
 /** Fixed lock key so recipe saves serialise their graph check (D-34). */
@@ -66,50 +67,50 @@ async function lockHead(tx: Queryable, scope: BrandScope, id: string): Promise<H
   };
 }
 
-type StoredLine = { code: string; qty: number; unit: string; y: number; yp: number | null };
-
 /**
- * lockHead plus the card's lines and method steps in ONE statement (save path). Lines and steps are aggregated in
- * order, so the arrays equal what the two separate ORDER BY queries returned (doubles round-trip through JSON).
+ * The save path's load, in ONE statement: the full card (head, lines, method, lock history) under a row lock, and, when
+ * `withClosure`, everything costing it needs (its cost closure, settings), so the response can be built without a re-read.
+ * Lines and steps are aggregated in order, so the arrays equal what separate ORDER BY queries returned (doubles
+ * round-trip through JSON). Scope is checked in TS after the lock, exactly as lockHead did (404 either way).
  */
-async function lockHeadWithBody(
+async function loadForSave(
   tx: Queryable,
   scope: BrandScope,
   id: string,
-): Promise<{ head: Head; oldLines: StoredLine[]; oldMethod: string[] }> {
+  withClosure: boolean,
+): Promise<{ recipe: RecipeDto; head: Head; closure?: ClosureRow }> {
+  const q = withClosure
+    ? closureSql(`SELECT DISTINCT sl.code FROM recipe_line sl WHERE sl.recipe_id = $1 AND sl.code <> ''`, '$1')
+    : null;
   const { rows } = await tx.query(
-    `SELECT r.id, r.code, r.name, r.category, r.type, r.brand_id, r.output, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom,
-            r.selling_price, r.buffer, r.status, r.version,
-            coalesce((SELECT json_agg(json_build_object('code', l.code, 'qty', l.qty, 'unit', l.unit, 'y', l.y, 'yp', l.yp)
-                                      ORDER BY l.sort_order) FROM recipe_line l WHERE l.recipe_id = r.id), '[]'::json) AS lines,
-            coalesce((SELECT json_agg(m.text ORDER BY m.step_number) FROM recipe_method_step m WHERE m.recipe_id = r.id),
-                     '[]'::json) AS method
-       FROM recipe r WHERE r.id = $1 AND r.deleted_at IS NULL FOR UPDATE OF r`,
+    `${q ? `WITH RECURSIVE ${q.cte}` : ''}
+     SELECT ${RECIPE_FULL_SELECT}${q ? `, ${q.selects}` : ''}
+       ${RECIPE_FULL_FROM} WHERE r.id = $1 AND r.deleted_at IS NULL FOR UPDATE OF r`,
     [id],
   );
-  const r = rows[0];
-  if (!r || !canSeeBrand(scope, r.brand_id)) throw new ApiError('not_found', 'Not found');
-  return {
-    head: {
-      id: r.id,
-      code: r.code,
-      name: r.name,
-      category: r.category,
-      type: r.type,
-      brandId: r.brand_id,
-      output: r.output,
-      subQty: r.sub_qty,
-      subUom: r.sub_uom,
-      batchOut: r.batch_out,
-      batchUom: r.batch_uom,
-      sellingPrice: r.selling_price,
-      buffer: r.buffer,
-      status: r.status,
-      version: r.version,
-    },
-    oldLines: r.lines as StoredLine[],
-    oldMethod: (r.method as unknown[]).map((t) => String(t)),
+  const row = rows[0] as Record<string, unknown> | undefined;
+  if (!row) throw new ApiError('not_found', 'Not found');
+  const { items, recipes, settings, ...own } = row;
+  const recipe = parseRecipeRow(own);
+  if (!canSeeBrand(scope, recipe.brandId)) throw new ApiError('not_found', 'Not found');
+  const head: Head = {
+    id: recipe.id,
+    code: recipe.code,
+    name: recipe.name,
+    category: recipe.category,
+    type: recipe.type,
+    brandId: recipe.brandId,
+    output: recipe.output,
+    subQty: recipe.subQty,
+    subUom: recipe.subUom,
+    batchOut: recipe.batchOut,
+    batchUom: recipe.batchUom,
+    sellingPrice: recipe.sellingPrice,
+    buffer: recipe.buffer,
+    status: recipe.status,
+    version: recipe.version,
   };
+  return { recipe, head, closure: q ? { items, recipes, settings } : undefined };
 }
 
 /** Legacy nextCode (2871): <BRAND>-<SR|MN>-<4 digits>, smallest unused number, case-insensitive across live cards. */
@@ -225,7 +226,37 @@ export async function saveRecipe(
   id: string,
   input: RecipeSaveIn,
 ): Promise<SaveResult> {
-  const { head, oldLines, oldMethod } = await lockHeadWithBody(tx, scope, id);
+  return (await saveCore(tx, user, scope, id, input, false)).result;
+}
+
+/**
+ * saveRecipe + the editor payload in the same round trips: when only scalar fields / the method changed (lines and code
+ * untouched), the new card and its cost view are built from the rows the save already loaded plus the version and
+ * updated_at the UPDATE returned, with no re-read. Lines or code changes (the cost closure itself can change, rename
+ * cascades) fall back to recipeDetail() after the write.
+ */
+export async function saveRecipeWithDetail(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+  input: RecipeSaveIn,
+): Promise<{ result: SaveResult; detail: RecipeDetail }> {
+  const out = await saveCore(tx, user, scope, id, input, true);
+  return { result: out.result, detail: out.detail ?? (await recipeDetail(tx, scope, id)) };
+}
+
+async function saveCore(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  id: string,
+  input: RecipeSaveIn,
+  withDetail: boolean,
+): Promise<{ result: SaveResult; detail?: RecipeDetail }> {
+  const { recipe: stored, head, closure } = await loadForSave(tx, scope, id, withDetail);
+  const oldLines = stored.lines;
+  const oldMethod = stored.method;
   if (head.status === 'LOCKED')
     throw new ApiError('unprocessable', 'That card is approved and locked – unlock it first');
   if (head.version !== input.version)
@@ -274,7 +305,16 @@ export async function saveRecipe(
   const methodChanged = input.method !== undefined && JSON.stringify(input.method) !== JSON.stringify(oldMethod);
   if (methodChanged) fields.push('method');
 
-  if (!fields.length) return { changed: false, fields };
+  /** The editor payload from what this save already loaded (no re-read): only valid while lines and code are untouched. */
+  const detailFromLoaded = (over: Partial<RecipeDto>): RecipeDetail | undefined => {
+    if (!withDetail || !closure || linesChanged || codeChanged) return undefined;
+    const next: RecipeDto = { ...stored, ...over };
+    const codes = [...new Set(next.lines.map((l) => l.code).filter(Boolean))];
+    const { catalog, packaging } = parseClosure(closure, codes, toCostRecipe(next));
+    return detailFrom(next, catalog, packaging);
+  };
+
+  if (!fields.length) return { result: { changed: false, fields }, detail: detailFromLoaded({}) };
 
   // field-level authorisation: price needs recipe.price; everything else needs recipe.edit
   if (priceChanged) need(user, 'recipe.price', 'Only Cost Control or management can set the selling price');
@@ -340,14 +380,49 @@ export async function saveRecipe(
     renamedRefs = (a.rowCount ?? 0) + (b.rowCount ?? 0) + c;
   }
 
+  // audit rows: legacy actions kept, plus D-15 'Edited card' (collapsed per user/card/10 min so autosave is not noise)
+  const label = `${newCode}`;
+  const audit: AuditEntry[] = [];
+  if (priceChanged)
+    audit.push({
+      action: 'Changed sales price',
+      detail: `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
+    });
+  if (linesChanged) {
+    const ypChanged = linesIn!.some((l, i) => oldLines[i] && l.code === oldLines[i]!.code && l.yp !== oldLines[i]!.yp);
+    if (ypChanged)
+      audit.push({
+        action: 'Changed a line yield',
+        detail: `Yield changed on a line of ${label}. Other lines keep theirs.`,
+      });
+  }
+  if (codeChanged)
+    audit.push({
+      action: 'Renamed card code',
+      detail: `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`,
+    });
+  const other = fields.filter((f) => f !== 'sellingPrice' && f !== 'code');
+  if (other.length)
+    audit.push({
+      action: 'Edited card',
+      detail: `${label} – ${input.name ?? head.name} (${other.join(', ')})`,
+      recentLike: label.replace(/[\\%_]/g, '\\$&') + ' %',
+    });
+
+  // ONE statement: the version-checked UPDATE and the audit rows (a data-modifying CTE runs regardless of being read, and
+  // both roll back together). Zero rows updated = someone else got in between: 409, which also discards the audit rows.
   const cols = Object.keys(set);
   const vals = cols.map((k) => set[k]);
-  const res = await tx.query(
-    `UPDATE recipe SET ${cols.map((c, i) => `${c} = $${i + 3}`).join(', ')}${cols.length ? ', ' : ''}version = version + 1
-      WHERE id = $1 AND version = $2`,
-    [id, input.version, ...vals],
+  const au = audit.length ? auditInsertSql(user, audit, 3 + vals.length) : null;
+  const upd = await tx.query<{ version: number; updated_at: Date }>(
+    `WITH u AS (
+       UPDATE recipe SET ${cols.map((c, i) => `${c} = $${i + 3}`).join(', ')}${cols.length ? ', ' : ''}version = version + 1
+        WHERE id = $1 AND version = $2
+        RETURNING version, updated_at)${au ? `, a AS (${au.sql})` : ''}
+     SELECT version, updated_at FROM u`,
+    [id, input.version, ...vals, ...(au ? au.params : [])],
   );
-  if (res.rowCount === 0) throw new ApiError('conflict', 'This card was changed by someone else – reload it');
+  if (!upd.rows[0]) throw new ApiError('conflict', 'This card was changed by someone else – reload it');
 
   if (linesChanged) {
     await tx.query('DELETE FROM recipe_line WHERE recipe_id = $1', [id]);
@@ -377,37 +452,26 @@ export async function saveRecipe(
       );
   }
 
-  // audit: legacy actions kept, plus D-15 'Edited card' (collapsed per user/card/10 min so autosave is not noise)
-  const label = `${newCode}`;
-  const audit: AuditEntry[] = [];
-  if (priceChanged)
-    audit.push({
-      action: 'Changed sales price',
-      detail: `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
-    });
-  if (linesChanged) {
-    const ypChanged = linesIn!.some((l, i) => oldLines[i] && l.code === oldLines[i]!.code && l.yp !== oldLines[i]!.yp);
-    if (ypChanged)
-      audit.push({
-        action: 'Changed a line yield',
-        detail: `Yield changed on a line of ${label}. Other lines keep theirs.`,
-      });
-  }
-  if (codeChanged)
-    audit.push({
-      action: 'Renamed card code',
-      detail: `${head.code} → ${newCode} (${renamedRefs} reference${renamedRefs === 1 ? '' : 's'} updated)`,
-    });
-  const other = fields.filter((f) => f !== 'sellingPrice' && f !== 'code');
-  if (other.length)
-    audit.push({
-      action: 'Edited card',
-      detail: `${label} – ${input.name ?? head.name} (${other.join(', ')})`,
-      recentLike: label.replace(/[\\%_]/g, '\\$&') + ' %',
-    });
-  await appendAuditMany(tx, user, audit);
-  return { changed: true, fields };
+  const scalar: Partial<RecipeDto> = {};
+  for (const [col, v] of Object.entries(set)) (scalar as Record<string, unknown>)[DTO_KEY[col] ?? col] = v;
+  const over: Partial<RecipeDto> = {
+    ...scalar,
+    version: upd.rows[0].version,
+    updatedAt: upd.rows[0].updated_at,
+    ...(methodChanged ? { method: input.method! } : {}),
+  };
+  return { result: { changed: true, fields }, detail: detailFromLoaded(over) };
 }
+
+/** UPDATE column -> RecipeDto key, for the columns saveRecipe can set (the rest are named the same). */
+const DTO_KEY: Record<string, string> = {
+  brand_id: 'brandId',
+  sub_qty: 'subQty',
+  sub_uom: 'subUom',
+  batch_out: 'batchOut',
+  batch_uom: 'batchUom',
+  selling_price: 'sellingPrice',
+};
 
 async function loadHeadsByIds(tx: Queryable, scope: BrandScope, ids: string[]): Promise<Head[]> {
   const out: Head[] = [];

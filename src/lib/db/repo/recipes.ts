@@ -58,11 +58,8 @@ export async function listRecipes(db: Queryable, scope: BrandScope): Promise<Rec
   return camelRows<RecipeListDto>(rows);
 }
 
-/** One live card with lines, method and lock history. Unknown OR out-of-scope id -> 404 (indistinguishable). */
-export async function getRecipe(db: Queryable, scope: BrandScope, id: string): Promise<RecipeDto> {
-  // one statement: head + lines + method + history (aggregated in order) instead of four round trips
-  const { rows } = await db.query(
-    `SELECT ${COLS}, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom, r.locked_at, r.cost_at_lock,
+/** The columns of a full card: head + lines + method + lock history aggregated in order (one statement, no round trips). */
+export const RECIPE_FULL_SELECT = `${COLS}, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom, r.locked_at, r.cost_at_lock,
             coalesce((SELECT json_agg(json_build_object('sortOrder', l.sort_order, 'code', l.code, 'qty', l.qty,
                                                         'unit', l.unit, 'y', l.y, 'yp', l.yp) ORDER BY l.sort_order)
                         FROM recipe_line l WHERE l.recipe_id = r.id), '[]'::json) AS lines_json,
@@ -70,13 +67,12 @@ export async function getRecipe(db: Queryable, scope: BrandScope, id: string): P
                         FROM recipe_method_step m WHERE m.recipe_id = r.id), '[]'::json) AS method_json,
             coalesce((SELECT json_agg(json_build_object('action', h.action, 'who', h.who, 'at', h.created_at)
                                       ORDER BY h.created_at)
-                        FROM recipe_history_entry h WHERE h.recipe_id = r.id), '[]'::json) AS history_json
-       ${FROM}
-      WHERE r.id = $1 AND r.deleted_at IS NULL AND r.brand_id = ANY($2::text[])`,
-    [id, [...scope.brandIds]],
-  );
-  if (!rows[0]) throw new ApiError('not_found', 'Not found');
-  const { lines_json, method_json, history_json, ...head } = rows[0] as Record<string, unknown>;
+                        FROM recipe_history_entry h WHERE h.recipe_id = r.id), '[]'::json) AS history_json`;
+export const RECIPE_FULL_FROM = FROM;
+
+/** A row selected with RECIPE_FULL_SELECT -> RecipeDto. */
+export function parseRecipeRow(row: Record<string, unknown>): RecipeDto {
+  const { lines_json, method_json, history_json, ...head } = row;
   return {
     ...camelRow<Omit<RecipeDto, 'lines' | 'method' | 'history'>>(head),
     lines: lines_json as RecipeLineDto[],
@@ -86,4 +82,15 @@ export async function getRecipe(db: Queryable, scope: BrandScope, id: string): P
       at: new Date(h.at),
     })),
   };
+}
+
+/** One live card with lines, method and lock history. Unknown OR out-of-scope id -> 404 (indistinguishable). */
+export async function getRecipe(db: Queryable, scope: BrandScope, id: string): Promise<RecipeDto> {
+  const { rows } = await db.query(
+    `SELECT ${RECIPE_FULL_SELECT} ${FROM}
+      WHERE r.id = $1 AND r.deleted_at IS NULL AND r.brand_id = ANY($2::text[])`,
+    [id, [...scope.brandIds]],
+  );
+  if (!rows[0]) throw new ApiError('not_found', 'Not found');
+  return parseRecipeRow(rows[0] as Record<string, unknown>);
 }

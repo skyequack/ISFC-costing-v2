@@ -5,7 +5,8 @@ import type { Queryable } from '@/lib/db/client';
 import { getRecipe } from '@/lib/db/repo/recipes';
 import { makeScope } from '@/lib/db/scope';
 import { createIngredient } from '@/lib/services/ingredients';
-import { createRecipe, saveRecipe } from '@/lib/services/recipes';
+import { recipeDetail } from '@/lib/services/recipe-detail';
+import { createRecipe, lockRecipes, saveRecipe, saveRecipeWithDetail } from '@/lib/services/recipes';
 import { connect, hasTestDb, inRollback, insertBrand } from './helpers';
 
 const gm: SessionUser = { id: 'u-gm', clerkUserId: 'c-gm', email: null, name: 'T gm', role: 'gm' };
@@ -102,16 +103,95 @@ describe.skipIf(!hasTestDb)(
         expect(lockCalls(s.sql)).toBeGreaterThanOrEqual(1);
       }));
 
-    it('a name-only save is load + update + one audit statement (no separate dedupe select)', () =>
+    it('a name-only save is two statements: the load, and ONE that updates the card and writes its audit rows', () =>
       inRollback(c, async () => {
         const { brand, scope } = await world();
         const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
         const s = spy(c);
         await saveRecipe(s.q, gm, scope, id, { version: 0, name: 'Only a name' });
-        expect(s.sql).toHaveLength(3);
+        expect(s.sql).toHaveLength(2);
         expect(s.sql[0]).toMatch(/FOR UPDATE OF r/);
-        expect(s.sql[1]).toMatch(/^UPDATE recipe/);
-        expect(s.sql[2]).toMatch(/INSERT INTO audit_log/);
+        expect(s.sql[1]).toMatch(/UPDATE recipe/);
+        expect(s.sql[1]).toMatch(/INSERT INTO audit_log/);
+        const n = (await c.query(`SELECT count(*)::int AS n FROM audit_log WHERE detail LIKE '%Only a name%'`)).rows[0]
+          .n;
+        expect(n).toBe(1);
+      }));
+
+    it('saveRecipeWithDetail answers a scalar edit with no re-read, equal to a fresh read of the saved card', () =>
+      inRollback(c, async () => {
+        const { brand, scope } = await world();
+        const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
+        const sub = await createRecipe(c, gm, scope, { brandId: brand, type: 'SUB' });
+        const subCode = (await getRecipe(c, scope, sub)).code;
+        await saveRecipe(c, gm, scope, sub, { version: 0, output: 1, subQty: 100, lines: [line('TSTI', 10)] });
+        await saveRecipe(c, gm, scope, id, {
+          version: 0,
+          name: 'Dish',
+          method: ['a', 'b'],
+          lines: [line(subCode, 3), line('TSTI', 1 / 3, { yp: 12.5 }), line('', 0), line('NOPE-1', 1)].slice(0, 3),
+        });
+        // a self reference written around the service, so the overlay of the new scalars on the card itself matters
+        await c.query(
+          `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y) VALUES ($1, 9, $2, 2, 'Gram', 1)`,
+          [id, (await getRecipe(c, scope, id)).code],
+        );
+        let version = (await getRecipe(c, scope, id)).version;
+        const patches: Record<string, unknown>[] = [
+          { name: 'Renamed dish' },
+          { category: 'Grill' },
+          { output: 4 },
+          { batchOut: 250, batchUom: 'Ml' },
+          { subQty: 7, subUom: 'Each' },
+          { buffer: 0.2 },
+          { sellingPrice: 55.5 },
+          { method: ['only one', 'two', ''] },
+          { name: 'Combo', output: 2, sellingPrice: 60, method: [] },
+          { name: 'Combo' }, // no-op: nothing to write, same payload
+        ];
+        for (const p of patches) {
+          const s = spy(c);
+          const { result, detail } = await saveRecipeWithDetail(s.q, gm, scope, id, { version, ...p });
+          const fresh = await recipeDetail(c, scope, id);
+          expect(detail).toEqual(fresh);
+          if (result.changed) version = detail.recipe.version;
+          // load + (update with audit), nothing re-read; a no-op is just the load
+          // method steps are replaced with their own DELETE (+ INSERT when there are steps)
+          const steps = 'method' in p ? ((p.method as string[]).length ? 2 : 1) : 0;
+          expect(s.sql.length, JSON.stringify(p)).toBe(result.changed ? 2 + steps : 1);
+        }
+      }));
+
+    it('saveRecipeWithDetail falls back to a re-read when lines or the code change, and the payload is still correct', () =>
+      inRollback(c, async () => {
+        const { brand, scope } = await world();
+        const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
+        const a = await saveRecipeWithDetail(c, gm, scope, id, { version: 0, lines: [line('TSTI', 50)] });
+        expect(a.detail).toEqual(await recipeDetail(c, scope, id));
+        expect(a.detail.view.cost.batch).toBe(100);
+        const b = await saveRecipeWithDetail(c, gm, scope, id, { version: 1, code: 'ZZ-CUSTOM-9', name: 'x' });
+        expect(b.detail).toEqual(await recipeDetail(c, scope, id));
+        expect(b.detail.recipe.code).toBe('ZZ-CUSTOM-9');
+      }));
+
+    it('saveRecipeWithDetail keeps every guard: stale version 409, locked 422, forbidden field 403, out-of-scope 404', () =>
+      inRollback(c, async () => {
+        const { brand, scope } = await world();
+        const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
+        const code = async (p: Promise<unknown>) => {
+          try {
+            await p;
+          } catch (e) {
+            return (e as { status?: number }).status;
+          }
+          return 200;
+        };
+        expect(await code(saveRecipeWithDetail(c, gm, scope, id, { version: 5, name: 'x' }))).toBe(409);
+        const chef: SessionUser = { ...gm, id: 'u-chef', role: 'chef' };
+        expect(await code(saveRecipeWithDetail(c, chef, scope, id, { version: 0, sellingPrice: 9 }))).toBe(403);
+        expect(await code(saveRecipeWithDetail(c, gm, makeScope([]), id, { version: 0, name: 'x' }))).toBe(404);
+        await lockRecipes(c, gm, scope, [id], 'Chef', 'test');
+        expect(await code(saveRecipeWithDetail(c, gm, scope, id, { version: 0, name: 'x' }))).toBe(422);
       }));
 
     it('audit: price + yield + rename + edit write four rows; autosave edits collapse per user and card within 10 minutes', () =>

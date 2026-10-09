@@ -131,37 +131,63 @@ export async function loadCostClosure(
   lineCodes: string[],
   selfId: string,
 ): Promise<{ catalog: Catalog; packaging: string[] }> {
-  const { rows } = await db.query(
-    `WITH RECURSIVE walk(code) AS (
-       SELECT DISTINCT c FROM unnest($1::text[]) AS c WHERE c <> ''
+  const q = closureSql(`SELECT DISTINCT c AS code FROM unnest($1::text[]) AS c WHERE c <> ''`, '$2');
+  const { rows } = await db.query(`WITH RECURSIVE ${q.cte} SELECT ${q.selects}`, [lineCodes, selfId]);
+  return parseClosure(rows[0] as ClosureRow, lineCodes);
+}
+
+/** The three json columns closureSql().selects produces. */
+export interface ClosureRow {
+  items: unknown;
+  recipes: unknown;
+  settings: unknown;
+}
+
+/**
+ * SQL for the closure, as parts so a caller can embed it in a bigger statement (the card-save load does):
+ * `cte` is the recursive `walk(code)` definition (put it after WITH RECURSIVE), `selects` the items/recipes/settings
+ * columns. `seed` is a SELECT returning the starting codes in a column named `code`; `selfIdParam` is the SQL
+ * placeholder (e.g. '$2') of the card's own id, which is always included.
+ */
+export function closureSql(seed: string, selfIdParam: string): { cte: string; selects: string } {
+  return {
+    cte: `walk(code) AS (
+       ${seed}
        UNION
-       SELECT l.code FROM walk w
-         JOIN recipe r ON r.code = w.code AND r.deleted_at IS NULL
-         JOIN recipe_line l ON l.recipe_id = r.id
-        WHERE l.code <> ''
-     )
-     SELECT
+       SELECT wl.code FROM walk w
+         JOIN recipe wr ON wr.code = w.code AND wr.deleted_at IS NULL
+         JOIN recipe_line wl ON wl.recipe_id = wr.id
+        WHERE wl.code <> ''
+     )`,
+    selects: `
        (SELECT coalesce(json_agg(json_build_object('code', i.code, 'name', i.name, 'uom', i.uom, 'price', i.price,
                                                    'category', i.category, 'recipeUnit', c.recipe_unit, 'factor', c.factor)
                                  ORDER BY i.code), '[]'::json)
           FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id
          WHERE i.code IN (SELECT code FROM walk)) AS items,
        (SELECT coalesce(json_agg(json_build_object(
-                  'id', r.id, 'code', r.code, 'name', r.name, 'type', r.type, 'output', r.output, 'subQty', r.sub_qty,
-                  'subUom', r.sub_uom, 'batchOut', r.batch_out, 'batchUom', r.batch_uom, 'price', r.selling_price,
-                  'buffer', r.buffer,
-                  'lines', (SELECT coalesce(json_agg(json_build_object('code', l.code, 'qty', l.qty, 'unit', l.unit,
-                                                                       'y', l.y, 'yp', l.yp) ORDER BY l.sort_order), '[]'::json)
-                              FROM recipe_line l WHERE l.recipe_id = r.id)) ORDER BY r.code), '[]'::json)
-          FROM recipe r
-         WHERE r.deleted_at IS NULL AND (r.code IN (SELECT code FROM walk) OR r.id = $2)) AS recipes,
+                  'id', cr.id, 'code', cr.code, 'name', cr.name, 'type', cr.type, 'output', cr.output,
+                  'subQty', cr.sub_qty, 'subUom', cr.sub_uom, 'batchOut', cr.batch_out, 'batchUom', cr.batch_uom,
+                  'price', cr.selling_price, 'buffer', cr.buffer,
+                  'lines', (SELECT coalesce(json_agg(json_build_object('code', cl.code, 'qty', cl.qty, 'unit', cl.unit,
+                                                                       'y', cl.y, 'yp', cl.yp) ORDER BY cl.sort_order), '[]'::json)
+                              FROM recipe_line cl WHERE cl.recipe_id = cr.id)) ORDER BY cr.code), '[]'::json)
+          FROM recipe cr
+         WHERE cr.deleted_at IS NULL AND (cr.code IN (SELECT code FROM walk) OR cr.id = ${selfIdParam})) AS recipes,
        (SELECT json_build_object('currency', s.currency, 'pkg', s.pkg, 'del', s.del, 'lab', s.lab, 'ops', s.ops,
                                  'buffer', s.buffer, 'target', s.target, 'vat', s.vat,
                                  'priceDate', to_char(s.price_date, 'YYYY-MM-DD'), 'version', s.version)
           FROM cost_settings s WHERE s.id = 1) AS settings`,
-    [lineCodes, selfId],
-  );
-  const row = rows[0];
+  };
+}
+
+/** Rows from closureSql() -> a costing Catalog plus the packaging codes among `lineCodes`. */
+export function parseClosure(
+  row: ClosureRow | undefined,
+  lineCodes: string[],
+  /** the card as it is AFTER an in-flight save: replaces the stored copy of that card in the closure (same id) */
+  override?: CostRecipe,
+): { catalog: Catalog; packaging: string[] } {
   if (!row?.settings) throw new Error('cost_settings row is missing (database not seeded)');
 
   type ItemRow = {
@@ -181,10 +207,9 @@ export async function loadCostClosure(
     if (r.recipeUnit !== null) conv.push([r.code, [r.recipeUnit, r.factor as number]]);
   }
   type RecRow = Omit<CostRecipe, 'type'> & { type: 'MENU' | 'SUB' };
-  const recipes: CostRecipe[] = (row.recipes as RecRow[]).map((r) => ({
-    ...r,
-    type: r.type === 'SUB' ? 'sub' : 'menu',
-  }));
+  const recipes: CostRecipe[] = (row.recipes as RecRow[]).map((r) =>
+    override && r.id === override.id ? override : { ...r, type: r.type === 'SUB' ? 'sub' : 'menu' },
+  );
   const settings = row.settings as CatalogData['settings'];
   const wanted = new Set(lineCodes);
   return {

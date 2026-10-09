@@ -1,5 +1,5 @@
 import type { Queryable } from '../db/client';
-import { loadCostClosure } from '../db/catalog';
+import { loadCostClosure, type Catalog } from '../db/catalog';
 import { getRecipe, type RecipeDto } from '../db/repo/recipes';
 import type { BrandScope } from '../db/scope';
 import { buildCardView, toCostRecipe, type CardView } from './card-view';
@@ -28,6 +28,11 @@ export async function recipeDetail(db: Queryable, scope: BrandScope, id: string)
   // costing needs only what the card's lines can reach, not the whole catalog (D-40 still holds: scope is applied above)
   const codes = [...new Set(recipe.lines.map((l) => l.code).filter(Boolean))];
   const { catalog, packaging } = await loadCostClosure(db, codes, recipe.id);
+  return detailFrom(recipe, catalog, packaging);
+}
+
+/** The editor payload from a loaded card and its cost closure (shared by the read path and the save path). */
+export function detailFrom(recipe: RecipeDto, catalog: Catalog, packaging: string[]): RecipeDetail {
   const view = buildCardView(catalog, toCostRecipe(recipe));
   const s = catalog.settings;
   return {
