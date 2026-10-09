@@ -26,10 +26,17 @@ Counts (1046/321/7321/34/14/8/146/1001, 135 null prices, 161 flags), code sets e
 - "Every route file exports a `withAuth`-wrapped handler" meta-test. Zod: NaN/Infinity/negative/oversized payloads → 400. CSV injection neutralisation. Import: dry-run validates, invalid row → whole commit refused, duplicate codes, combined graph cycle, brand change rules, zip-bomb/row-cap rejection, XLSX fuzz.
 - Users tab: invitation, role change, ban (immediate effect via `User.active`), delete, compensation on DB failure (mocked), self/last-GM protections.
 
+## 3b. Images suite (Phase 3/4 gate; D-48/D-49)
+- `sniffImage`: PNG/JPEG/WebP detected by magic bytes with correct width/height; SVG, GIF, HTML-as-PNG, truncated/corrupt headers, 0-byte, oversize, over-dimension → rejected; declared content-type/extension ignored.
+- Routes: PUT/GET/DELETE photo and logo; permission matrix (photo `recipe.edit`, logo `brands.edit`); LOCKED card → 422; out-of-scope brand → 404; list/dashboard endpoints never include bytes; `ETag`/304; `nosniff`; round trip bytes + sha256 equal; seeded logos' sha256 equal `public/assets/*`; replace changes the `sha8` in the DTO url; audit entries written in the same transaction.
+- Add-brand-with-logo two-step including failure of step 2 (brand kept, UI message).
+- Print: card print HTML contains the photo/logo inlined as a data URL.
+
 ## 4. Finance reconciliation (before go-live)
 Dashboard totals per brand vs `golden/costs.json`; a hand-checked priced sample (GRM-MN-0001: sp 108, food 29.63, fc 27.4%, net 24.37, suggest 98.76); settings change audit shows cards affected; locked card shows cost-at-lock vs cost-now; price history entries on every price change/import/menu-plan price; requisition reconciliation report reviewed; counts of flagged data-quality items surfaced on Health (135 PRICE MISSING, 4 PRICE CHECK, 8 UNIT CHECK, 7 "second sheet price", 3 SMC copy, others).
 
 ## 5. Visual baselines (Phase 5; procedure)
+Baselines must include: recipe editor with and without photo, Add-brand row with the logo box, Edit brand modal with and without logo.
 1. Serve `legacy/app.html` over a static server (not `file://`) with Playwright using one pinned Chromium on one OS/Docker image for both baselines; viewport 1440×900 (768×1024 informational only — legacy has no breakpoints, so no mobile parity); `deviceScaleFactor 1`, `reducedMotion`, CSS to disable transitions/animations/caret.
 2. `addInitScript` sets localStorage `isfc_costing_v1` = `golden/state.json` and signs in a GM (or drive the PIN login once and save `storageState`). Freeze the clock (`page.clock`/overridden `Date`) because `priceDate`, "Printed", `when()` and `uid()` use `Date.now`; mask `#savedot`/`#verline` volatility.
 3. Navigate by calling `go('route', id)`; screenshot full pages for every route plus states: modal open, toast visible, `.selbar` with selection, Items and Recipes pages 1 and 2, recipe edit, locked recipe, a brand with Arabic name tile.

@@ -8,10 +8,10 @@ src/
   components/          layout (shell), shared (Modal, Toast, Perm), per-feature client components
   domain/              PURE TS (no React/Prisma/Clerk/browser): costing, production, recipes (graph, codes), ingredients, menu-plans, dashboard
   data/                static data: yield-ref, sections, plan-alias (typed from prisma/seed-data/*.json)
-  lib/                 auth (withAuth, getCurrentUser, requirePermission), permissions (ROLES), db (prisma client, repositories), validation (zod schemas), audit, print (html builders), brand (palette), xlsx, utils, env.ts (zod-validated env)
+  lib/                 images (ImageStore interface + Postgres implementation, magic-byte sniffing, caps), auth (withAuth, getCurrentUser, requirePermission), permissions (ROLES), db (prisma client, repositories), validation (zod schemas), audit, print (html builders), brand (palette), xlsx, utils, env.ts (zod-validated env)
   styles/              legacy.css (verbatim), print.css
 prisma/                schema.prisma, migrations (incl. raw SQL), seed.ts, seed-data/*.json
-public/assets/         logos extracted from legacy
+public/assets/         app logo + original brand logo files (the seed loads brand logos into BrandLogo; uploads never touch the filesystem — Vercel is read-only)
 legacy/ golden/ tools/ read-only oracles + generators
 ```
 Layering rule: route handler → `withAuth` → Zod validation → application function in `domain/`+repository → Prisma transaction → audit (same transaction) → response. Route handlers hold no business logic.
@@ -53,3 +53,13 @@ Recipes soft-deleted (`deletedAt`), code reusable (partial unique index), restor
 
 ## 10. Where each concern is documented
 Behavior of the original → docs/legacy/*. Decisions → DECISIONS.md. Schema → schema.md. Endpoints → docs/API.md. Tests → docs/TESTING.md. UI strategy → docs/UI_PORT.md. Setup/ops → docs/RUNBOOK.md. Progress → docs/PROGRESS.md.
+
+## 11. Images (D-48 / D-49)
+Requirement: users add a picture to **recipe cards** (editor + New-card dialog) and to **brands** (Add brand + Edit brand). Design:
+- **Storage:** `RecipePhoto` / `BrandLogo` tables (`bytea`, contentType, size, width, height, sha256) behind `ImageStore { put, get, delete, meta }` in `src/lib/images`; the only implementation in V1 is Postgres. Moving to Vercel Blob/S3 later = a new implementation + a copy job; routes, DTOs and UI do not change.
+- **Transport:** `PUT` raw bytes (≤ 1.5 MB, well under Vercel's 4.5 MB body limit). Served by authenticated GET routes with `ETag`/immutable cache; DTOs carry `photoUrl`/`logoUrl` with `?v=<sha8>`; lists never load bytes (select only `sha256`). No data URLs in JSON or HTML.
+- **Validation (server, authoritative):** sniff magic bytes (PNG/JPEG/WebP), parse dimensions, enforce caps, ignore client content-type/extension, reject SVG/GIF/other. Responses carry `X-Content-Type-Options: nosniff`. Rate limit (~10/min/user) as for other write routes.
+- **Client:** legacy canvas pipeline ported (`readPhoto`: max 760 px, JPEG q.72; `pickLogo`: 320 px wide PNG, rasterises SVG, 3 MB input cap) so uploads are small before they leave the browser.
+- **Authorization:** photo `recipe.edit` + card not LOCKED + brand in scope; logo `brands.edit` (GM). Audit entries as in docs/API.md.
+- **Print:** blob print documents cannot use relative URLs; the print builders fetch the image and inline it as a data URL at print time (legacy printed data URLs).
+- **Backup/restore:** images are exported as base64 in chunked backup files and restored through the same `ImageStore`.

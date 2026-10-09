@@ -24,3 +24,11 @@ Shell + Brands (palette) → Dash → Items → Recipes → Edit/Locked + card p
 
 ## 5. Verification
 docs/TESTING.md §5 (visual baselines). Gate: every screen under the pixel threshold; new screens reviewed by eye.
+
+## 6. Pictures (D-48)
+Port these controls with the legacy markup/classes (no redesign):
+1. **Recipe card editor — "Dish Photo"** (legacy 3165-3176): `.phbox` (`.has` when a photo exists); empty state `<label class="phadd" data-perm="recipe.edit">` with `＋` / "Add a photo" and a hidden `<input type="file" accept="image/*">`; filled state: `<img>` (click = enlarge modal via the shared Modal), `.phact` with "Replace" (`label.btn.sm.o`), "Remove" (`btn sm d`), and the KB figure (`.phkb`, from `size`). Hidden for roles without `recipe.edit` and on LOCKED cards (editable()).
+2. **New recipe card dialog (new):** an optional "Add a photo" using the same `.phbox/.phadd` primitives; uploaded after the card is created. No new CSS.
+3. **Add brand (Settings, new):** the legacy inline row (`Brand name` + `Prefix` + `Add`) gains the **Brand logo** box (`.logobox` / `.logoprev` "No logo" / "Choose image" / "Remove logo", same helper text) so the logo is chosen before pressing Add; shown only with `brands.edit`. The brand is created, then the logo uploaded (docs/API.md two-step).
+4. **Edit brand modal:** unchanged control (Choose image / Remove logo, "PNG with a transparent background works best…"); the "stored inside this file" sentence is **stale** under D-49 and is a D-41-style wording change — keep verbatim until you confirm the replacement.
+Behaviour: client resizes before upload (photo ≤ 760 px JPEG q.72; logo 320 px PNG; SVG rasterised); show legacy toasts ("Processing the photo…", "Photo added · w×h · KB", "That photo could not be used", "That image is over 3 MB - use a smaller one"); previews use object URLs until saved; after save, `<img>` uses `photoUrl`/`logoUrl`. Accessibility: file inputs get labels/aria without visual change.

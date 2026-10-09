@@ -19,7 +19,9 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | POST /api/recipes/:id/duplicate | recipe.create | check | Duplicated card |
 | POST /api/recipes/:id/lock | recipe.lock | check | Locked card (body: approvedBy, optional overrideReason GM only; refused 422 if null-price/missing-conv lines) |
 | POST /api/recipes/:id/unlock | recipe.unlock | check | Unlocked card |
-| PUT /api/recipes/:id/photo, DELETE | recipe.edit; rejected if LOCKED | check | Added a dish photo / Removed the dish photo |
+| GET /api/recipes/:id/photo | any | check (404 if out of scope) | – (bytes + `ETag`, `Cache-Control: private, immutable`, `nosniff`; 404 if none) |
+| PUT /api/recipes/:id/photo | recipe.edit; rejected 422 if LOCKED | check | Added a dish photo (code · w×h · KB) |
+| DELETE /api/recipes/:id/photo | recipe.edit; rejected 422 if LOCKED | check | Removed the dish photo |
 | GET /api/recipes/:id/cost | any | check | – (returns full `_cost` result + `complete`/`issues[]`) |
 | POST /api/recipes/bulk {action: lock\|unlock\|delete} | per-action perm | all ids checked, all-or-nothing | one entry: Locked cards / Unlocked cards / Deleted cards |
 | GET /api/recipes/export (CSV/XLSX data) | export | scoped | – |
@@ -42,7 +44,12 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | GET /api/settings | any | – |
 | PATCH /api/settings | settings.edit (version check) | Settings changed (old→new, cards affected) |
 | GET /api/brands | any (scoped) | – |
-| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand (logo change logged) |
+| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand |
+| GET /api/brands/:id/logo | any (brand in scope, else 404) | – (bytes + `ETag`; 404 if none) |
+| PUT /api/brands/:id/logo | brands.edit | Brand logo changed (set) |
+| DELETE /api/brands/:id/logo | brands.edit | Brand logo changed (removed) |
+
+**Image upload contract (D-49).** `PUT` body = the raw image bytes with `Content-Type` image/png|jpeg|webp (no base64, no multipart). The server ignores the declared type, sniffs magic bytes, parses width/height, enforces the caps (photo ≤ 1.5 MB / 4096 px, logo ≤ 512 KB / 1024 px), stores `{contentType,data,size,width,height,sha256}` and returns `{url, sha256, size, width, height}`. Errors: 400 not an image / unsupported type (SVG, GIF), 413 over cap, 422 locked card, 404 out of scope. DTOs expose `photoUrl`/`logoUrl` = `/api/…/photo|logo?v=<sha8>` (null when none); list endpoints never include bytes. **Add brand in one step:** the UI creates the brand (`POST /api/brands`) then uploads the logo (`PUT …/logo`); if the second call fails the brand exists without a logo and the UI says so (retry from Edit brand). Same two-step for the optional photo in the New-card dialog.
 | GET /api/users; POST /api/users/invite; PATCH /api/users/:id {role, brandIds, name}; POST /api/users/:id/ban\|unban; DELETE /api/users/:id | users.manage | Invited/Updated/Suspended/Restored/Deleted user |
 
 ## Planning & production

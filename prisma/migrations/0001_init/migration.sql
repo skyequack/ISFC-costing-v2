@@ -22,7 +22,6 @@ CREATE TABLE "Brand" (
     "nameAr" TEXT,
     "color" TEXT NOT NULL DEFAULT '',
     "inkColor" TEXT,
-    "logoUrl" TEXT,
     "locations" TEXT[],
     "active" BOOLEAN NOT NULL DEFAULT true,
 
@@ -132,10 +131,29 @@ CREATE TABLE "Recipe" (
 -- CreateTable
 CREATE TABLE "RecipePhoto" (
     "recipeId" TEXT NOT NULL,
-    "dataUrl" TEXT NOT NULL,
-    "bytes" INTEGER NOT NULL,
+    "contentType" TEXT NOT NULL,
+    "data" BYTEA NOT NULL,
+    "size" INTEGER NOT NULL,
+    "width" INTEGER NOT NULL,
+    "height" INTEGER NOT NULL,
+    "sha256" TEXT NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT "RecipePhoto_pkey" PRIMARY KEY ("recipeId")
+);
+
+-- CreateTable
+CREATE TABLE "BrandLogo" (
+    "brandId" TEXT NOT NULL,
+    "contentType" TEXT NOT NULL,
+    "data" BYTEA NOT NULL,
+    "size" INTEGER NOT NULL,
+    "width" INTEGER NOT NULL,
+    "height" INTEGER NOT NULL,
+    "sha256" TEXT NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "BrandLogo_pkey" PRIMARY KEY ("brandId")
 );
 
 -- CreateTable
@@ -363,6 +381,9 @@ ALTER TABLE "Recipe" ADD CONSTRAINT "Recipe_brandId_fkey" FOREIGN KEY ("brandId"
 ALTER TABLE "RecipePhoto" ADD CONSTRAINT "RecipePhoto_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "BrandLogo" ADD CONSTRAINT "BrandLogo_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "RecipeLine" ADD CONSTRAINT "RecipeLine_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -389,7 +410,8 @@ ALTER TABLE "RecipeLine" ADD CHECK (qty >= 0 AND qty < 'Infinity' AND y > 0);
 ALTER TABLE "UnitConversion" ADD CHECK (factor > 0);
 ALTER TABLE "ProductionEntry" ADD CHECK (portions >= 0);
 ALTER TABLE "MenuPax" ADD CHECK (people >= 0);
-ALTER TABLE "RecipePhoto" ADD CHECK (bytes <= 1500000);
+ALTER TABLE "RecipePhoto" ADD CHECK (size > 0 AND size <= 1500000 AND width BETWEEN 1 AND 4096 AND height BETWEEN 1 AND 4096);
+ALTER TABLE "BrandLogo" ADD CHECK (size > 0 AND size <= 512000 AND width BETWEEN 1 AND 1024 AND height BETWEEN 1 AND 1024);
 ALTER TABLE "MenuCell" ADD CHECK ((kind = 'NONE') = (code IS NULL));
 CREATE FUNCTION audit_immutable() RETURNS trigger AS $$ BEGIN RAISE EXCEPTION 'AuditLog is append-only'; END $$ LANGUAGE plpgsql;
 CREATE TRIGGER audit_no_mutate BEFORE UPDATE OR DELETE ON "AuditLog" FOR EACH ROW EXECUTE FUNCTION audit_immutable();

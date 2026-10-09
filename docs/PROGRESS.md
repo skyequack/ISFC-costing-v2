@@ -31,8 +31,10 @@ Last updated: 2026-10-09. Current phase: **Phase 2 complete (planning deferred t
 - Gate status: typecheck ✅ lint ✅ prettier ✅ 125 tests ✅ coverage 96.8% branches ✅ build ✅.
 
 ## Phase 3 — Data layer, seed, vertical slice ☐
+- Pictures (D-48/D-49) are part of the slice: `src/lib/images` (sniff + caps module and tests already done), `ImageStore` Postgres implementation, `RecipePhoto`/`BrandLogo` tables, seed loads the 9 brand logos, photo/logo routes + images test suite (docs/TESTING.md §3b).
 ## Phase 4 — Authorization & integrity ☐
-## Phase 5 — Full UI port ☐ (order in docs/UI_PORT.md §4)
+## Phase 5 — Full UI port ☐
+- Picture controls: recipe editor Dish Photo, New-card dialog photo, **Add brand logo box**, Edit brand logo (docs/UI_PORT.md §6). (order in docs/UI_PORT.md §4)
 ## Phase 6 — Import/export/XLSX/print flows ☐
 ## Phase 7 — Deploy & verify ☐
 

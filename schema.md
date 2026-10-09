@@ -18,7 +18,7 @@ model Brand {                       // 14 rows
   nameAr String?
   color String @default("")
   inkColor String?
-  logoUrl String?                   // /assets/*.png or data URL after GM upload
+  logo BrandLogo?                   // D-49: uploaded image lives in its own table (never in list queries)
   locations String[]
   active Boolean @default(true)
   recipes Recipe[]  access UserBrandAccess[]  scopes ItemBrandScope[]
@@ -98,9 +98,23 @@ model Recipe {
   createdAt DateTime @default(now()) @db.Timestamptz  updatedAt DateTime @updatedAt @db.Timestamptz
   @@index([brandId, deletedAt])
 }
-model RecipePhoto {                 // separate table: list queries cannot pull blobs. CHECK bytes <= 1500000; client downsizes to ~300KB
-  recipeId String @id  dataUrl String  bytes Int
+model RecipePhoto {                 // D-49: bytes in their own table so list queries cannot pull blobs. CHECK size <= 1500000
+  recipeId String @id
+  contentType String                // image/jpeg | image/png | image/webp (sniffed server-side, never trusted from the client)
+  data Bytes
+  size Int  width Int  height Int
+  sha256 String                     // ETag + cache-busting key in DTO urls
+  updatedAt DateTime @updatedAt @db.Timestamptz
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+model BrandLogo {                   // NEW (D-48/D-49): GM-uploaded brand logo. CHECK size <= 512000
+  brandId String @id
+  contentType String                // image/png | image/jpeg | image/webp (SVG is rasterised client-side to PNG, never stored)
+  data Bytes
+  size Int  width Int  height Int
+  sha256 String
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 model RecipeLine {                  // references by CODE string (no FK): 'CODE NOT FOUND' is a legal legacy state
   id String @id @default(cuid())
@@ -192,7 +206,8 @@ ALTER TABLE "RecipeLine" ADD CHECK (qty >= 0 AND qty < 'Infinity' AND y > 0);
 ALTER TABLE "UnitConversion" ADD CHECK (factor > 0);
 ALTER TABLE "ProductionEntry" ADD CHECK (portions >= 0);
 ALTER TABLE "MenuPax" ADD CHECK (people >= 0);
-ALTER TABLE "RecipePhoto" ADD CHECK (bytes <= 1500000);
+ALTER TABLE "RecipePhoto" ADD CHECK (size > 0 AND size <= 1500000 AND width BETWEEN 1 AND 4096 AND height BETWEEN 1 AND 4096);
+ALTER TABLE "BrandLogo" ADD CHECK (size > 0 AND size <= 512000 AND width BETWEEN 1 AND 1024 AND height BETWEEN 1 AND 1024);
 ALTER TABLE "MenuCell" ADD CHECK ((kind = 'NONE') = (code IS NULL));
 CREATE FUNCTION audit_immutable() RETURNS trigger AS $$ BEGIN RAISE EXCEPTION 'AuditLog is append-only'; END $$ LANGUAGE plpgsql;
 CREATE TRIGGER audit_no_mutate BEFORE UPDATE OR DELETE ON "AuditLog" FOR EACH ROW EXECUTE FUNCTION audit_immutable();
@@ -204,4 +219,4 @@ CREATE TRIGGER audit_no_truncate BEFORE TRUNCATE ON "AuditLog" FOR EACH STATEMEN
 Ingredient and Recipe codes must not collide case-insensitively (legacy `resolve()` is items-first). Enforced in the app inside a serializable transaction (retry on P2034) plus a verification query.
 
 ## Post-seed verification (must all pass)
-Counts: Ingredient 1046 · Recipe 321 · RecipeLine 7321 · UnitConversion 34 · Brand 14 · Menu 8 · MenuRow 146 · MenuCell 1001 · null-price 135 · flagged 161 · ItemBrandScope = sum of `brands[]`. Code sets equal JSON both ways. 0 lower() collisions within and across Ingredient/Recipe. 0 unresolved line codes; 0 lines pointing at MENU recipes; 0 self-referencing recipes; all ITEM/RECIPE menu cells resolve; all PLAN_ALIAS targets exist; no code has leading/trailing whitespace. Float round-trip of 0.006667 (BKR2-2058). All 321 recomputed costs diff to `golden/costs.json` = 0. UPDATE on AuditLog raises. Seed twice → counts unchanged. Prod load aborts if audit rows already exist.
+Counts: BrandLogo 9 (one per brand with a seeded logo file; sha256 matches `public/assets/*`) · Ingredient 1046 · Recipe 321 · RecipeLine 7321 · UnitConversion 34 · Brand 14 · Menu 8 · MenuRow 146 · MenuCell 1001 · null-price 135 · flagged 161 · ItemBrandScope = sum of `brands[]`. Code sets equal JSON both ways. 0 lower() collisions within and across Ingredient/Recipe. 0 unresolved line codes; 0 lines pointing at MENU recipes; 0 self-referencing recipes; all ITEM/RECIPE menu cells resolve; all PLAN_ALIAS targets exist; no code has leading/trailing whitespace. Float round-trip of 0.006667 (BKR2-2058). All 321 recomputed costs diff to `golden/costs.json` = 0. UPDATE on AuditLog raises. Seed twice → counts unchanged. Prod load aborts if audit rows already exist.
