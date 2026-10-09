@@ -5,7 +5,7 @@ import { normalizeConnectionString } from './conn';
 
 /** Anything that can run a query: the pool, a transaction client, or a test fake. */
 export interface Queryable {
-  query<R extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<{ rows: R[] }>;
+  query<R extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<{ rows: R[]; rowCount?: number | null }>;
 }
 
 const g = globalThis as unknown as { __pool?: Pool };
