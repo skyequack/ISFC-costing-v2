@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useEffect } from 'react';
 
 /** Legacy used the browser's own clock for "today". The server cannot know the user's time zone, so a page that needs it

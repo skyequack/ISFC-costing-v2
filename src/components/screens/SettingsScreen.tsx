@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useEffect, useRef, useState } from 'react';
 import { api, ClientApiError, errText, uploadImage } from '@/components/shared/api-client';
 import { createStore, useStore, type Store } from '@/components/shared/form-store';

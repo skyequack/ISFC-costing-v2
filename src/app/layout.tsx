@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import '@/styles/legacy.css';
+import '@/styles/loading.css';
 import { db } from '@/lib/db/client';
 import { palette } from '@/lib/brand/palette';
 import { pageCtx, pageSession } from '@/lib/page';

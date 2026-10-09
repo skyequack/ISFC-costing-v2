@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useCallback } from 'react';
 import { api, ClientApiError, errText } from '@/components/shared/api-client';
 import { createStore, useStore, type Store } from '@/components/shared/form-store';

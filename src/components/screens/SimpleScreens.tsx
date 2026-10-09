@@ -10,7 +10,7 @@ import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { SEED_ISSUES, YIELD_REF } from '@/data';
 import type { HealthRow, Severity } from '@/lib/screens/health';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import type { AuditRow } from '@/lib/services/audit';
 import { ROLES, isRole } from '@/lib/permissions';
 

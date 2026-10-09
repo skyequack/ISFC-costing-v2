@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { NewRecipeButton } from '@/components/recipes/NewRecipeButton';
 import { Acts } from '@/components/shell/Shell';
 import { s } from '@/components/ui';

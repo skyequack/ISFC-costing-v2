@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useMemo, useState } from 'react';
 import { useRecipeIO } from '@/components/io/recipes-io';
 import { NewRecipeButton } from '@/components/recipes/NewRecipeButton';

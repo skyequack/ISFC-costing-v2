@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Acts, PageTitle } from '@/components/shell/Shell';
 import { api, ClientApiError, errText, uploadImage } from '@/components/shared/api-client';

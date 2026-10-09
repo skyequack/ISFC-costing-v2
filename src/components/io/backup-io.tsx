@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useCallback } from 'react';
 import { api, errText } from '@/components/shared/api-client';
 import { useModal } from '@/components/shared/Modal';

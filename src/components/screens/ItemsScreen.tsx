@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/components/shell/nav-progress';
 import { useMemo, useState } from 'react';
 import { useItemIO } from '@/components/io/items-io';
 import { Acts } from '@/components/shell/Shell';
