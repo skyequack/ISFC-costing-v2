@@ -1,0 +1,13 @@
+.next
+node_modules
+legacy
+golden
+tools
+prisma/seed-data
+prisma/migrations
+src/styles/legacy.css
+src/styles/print.css
+ISFC_Costing_System_v8.7.html
+package-lock.json
+*.md
+docs

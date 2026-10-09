@@ -1,0 +1,43 @@
+{
+  "name": "isfc",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "prisma:validate": "prisma validate",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.39.7",
+    "@prisma/client": "^6.19.3",
+    "next": "^15.5.27",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "eslint": "^9.36.0",
+    "eslint-config-next": "^15.5.27",
+    "fast-check": "^4.0.0",
+    "pixelmatch": "^7.0.0",
+    "prettier": "^3.6.0",
+    "prisma": "^6.19.3",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

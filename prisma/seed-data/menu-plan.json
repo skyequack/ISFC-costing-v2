@@ -1,0 +1,5858 @@
+[
+ {
+  "menu": "ARABIC - SENIOR",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "OMLETE/ FRIED EGG /BOILED EGG",
+      "c": "MNU-0001",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "FOUL JARRAH",
+      "c": "MNU-0002",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "HOMUS BALILA",
+      "c": "MNU-0003",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "EGG SHAKSHOKA",
+      "c": "MNU-0004",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "FOUL",
+      "c": "MNU-0005",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FOUL MODAMAS",
+      "c": "MNU-0006",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "EIDAM KHUDAR",
+      "c": "MNU-0007",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FOUL TAHINA",
+      "c": "MNU-0008",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "CORN FLAKES",
+      "c": "DRS1-1545",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "CHICKEN BALL STEW",
+      "c": "MNU-0016",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "Meat green peas stew",
+      "c": "MNU-0017",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Fish Sayadieh",
+      "c": "MNU-0018",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Meat Daoud Bacha",
+      "c": "MNU-0019",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "Chicken Shish Taouk",
+      "c": "MNU-0020",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "KOFTA BIL FOREN",
+      "c": "MNU-0021",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "MEAT KOFTA",
+      "c": "MNU-0023",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "MACCARONI CHICKEN BECHAMEL",
+      "c": "MNU-0024",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN BEANS & MEAT STEW",
+      "c": "MNU-0025",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CHICKEN FAJJITA",
+      "c": "MNU-0026",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BEEF GOLASH",
+      "c": "MNU-0027",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GRILLED FISH",
+      "c": "MNU-0028",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "MEAT BALL STEW",
+      "c": "MNU-0029",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "SAUTE VEGETABLE",
+      "c": "MNU-0030",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PRASLEY POTATO",
+      "c": "MNU-0031",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "STEAMED VEGETABLE",
+      "c": "MNU-0032",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "MASHED POTATO",
+      "c": "MNU-0033",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BUTTERD VEGETABLE",
+      "c": "MNU-0034",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ROSEMARY POTATO",
+      "c": "MNU-0035",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "POTATO WEDGES",
+      "c": "MNU-0036",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PULAO RICE",
+      "c": "MNU-0038",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "MANDI RICE",
+      "c": "MNU-0039",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BUKARI RICE",
+      "c": "MNU-0040",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD W & B",
+      "c": "MNU-0042",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WATER / SOFT DRINK / LABAN",
+      "c": "MNU-0045",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "KOUSHARI",
+      "c": "MNU-0046",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Meat Kofta",
+      "c": "MNU-0023",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Roasted Chicken with Lemon",
+      "c": "MNU-0047",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "MEAT BALL BBQ SAUCE",
+      "c": "MNU-0048",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHICKEN MAQLOBA",
+      "c": "MNU-0049",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "Meat Daoud Bacha",
+      "c": "MNU-0019",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE BEANS&TOMATO STEW",
+      "c": "MNU-0050",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "Moulkhieh Chicken",
+      "c": "MNU-0051",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Meat Okra Stew",
+      "c": "MNU-0052",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Meat Mosaka Eggplant",
+      "c": "MNU-0053",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "veg mix stew",
+      "c": "MNU-0054",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "Moulkhieh Chicken",
+      "c": "MNU-0051",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN BEANS STEW",
+      "c": "MNU-0055",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "LASAGNA BOLOGANISE",
+      "c": "MNU-0056",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SPAGHETTI NAPOLETAN",
+      "c": "MNU-0057",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "PENNE ALFREDO SAUCE",
+      "c": "MNU-0058",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "MEAT MACCARONI GRATIN",
+      "c": "MNU-0059",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SPAGHETTI WITH PINK SAUCE",
+      "c": "MNU-0060",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "PENNE ARABIATTA",
+      "c": "MNU-0061",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ASIAN SPAGHETTINI",
+      "c": "MNU-0062",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "VERMICEELI RICE",
+      "c": "MNU-0064",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "KABSSA RICE",
+      "c": "MNU-0065",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "VERMICEELI RICE",
+      "c": "MNU-0064",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "ARABIC JUNIOR",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "FOUL JARRAH",
+      "c": "MNU-0002",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "HOMUS BALILA",
+      "c": "MNU-0003",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "EGG SHAKSHOKA",
+      "c": "MNU-0004",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "FOUL",
+      "c": "MNU-0005",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FOUL MODAMAS",
+      "c": "MNU-0006",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "EIDAM KHUDAR",
+      "c": "MNU-0007",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FOUL TAHINA",
+      "c": "MNU-0008",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE CHEESE",
+      "c": "MNU-0009",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "HALLAWA TAHINA",
+      "c": "MNU-0010",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TEA & COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "CHICKEN BALL STEW",
+      "c": "MNU-0016",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "Meat green peas stew",
+      "c": "MNU-0017",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Fish Sayadieh",
+      "c": "MNU-0018",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Meat Daoud Bacha",
+      "c": "MNU-0019",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "Chicken Shish Taouk",
+      "c": "MNU-0020",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "KOFTA BIL FOREN",
+      "c": "MNU-0021",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "SAUTE VEGETABLE",
+      "c": "MNU-0030",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PRASLEY POTATO",
+      "c": "MNU-0031",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "STEAMED VEGETABLE",
+      "c": "MNU-0032",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "MASHED POTATO",
+      "c": "MNU-0033",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BUTTERD VEGETABLE",
+      "c": "MNU-0034",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ROSEMARY POTATO",
+      "c": "MNU-0035",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "POTATO WEDGES",
+      "c": "MNU-0036",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PULAO RICE",
+      "c": "MNU-0038",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "MANDI RICE",
+      "c": "MNU-0039",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BUKARI RICE",
+      "c": "MNU-0040",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "KOUSHARI",
+      "c": "MNU-0046",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Meat Kofta",
+      "c": "MNU-0023",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Roasted Chicken with Lemon",
+      "c": "MNU-0047",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "MEAT BALL BBQ SAUCE",
+      "c": "MNU-0048",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHICKEN MAQLOBA",
+      "c": "MNU-0049",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "Meat Daoud Bacha",
+      "c": "MNU-0019",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE BEANS&TOMATO STEW",
+      "c": "MNU-0050",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "Moulkhieh Chicken",
+      "c": "MNU-0051",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Meat Okra Stew",
+      "c": "MNU-0052",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Meat Mosaka Eggplant",
+      "c": "MNU-0053",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "veg mix stew",
+      "c": "MNU-0054",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "Moulkhieh Chicken",
+      "c": "MNU-0051",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN BEANS STEW",
+      "c": "MNU-0055",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "VERMICEELI RICE",
+      "c": "MNU-0064",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "KABSSA RICE",
+      "c": "MNU-0065",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "VERMICEELI RICE",
+      "c": "MNU-0064",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK & MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SUNDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MOUHALABIA",
+      "c": "SSEM-MN-0035",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "JELLO",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "ASIAN - SENIOR",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "PARATHA / SLICED BREAD",
+      "c": "MNU-0067",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "OMLETE / FRIED EGG",
+      "c": "MNU-0068",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BUTTER / HONEY / JAM PORTIONS",
+      "c": "MNU-0069",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ALOO BAGI",
+      "c": "MNU-0071",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHANA",
+      "c": "MNU-0072",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "UPMA",
+      "c": "SSEM-MN-0018",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN PEAS MASALAH",
+      "c": "SSEM-MN-0024",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK CHANA",
+      "c": "MNU-0073",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "SHAKSHOKA",
+      "c": "MNU-0075",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "EGG BURJI",
+      "c": "SSEM-MN-0020",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "MILK OR BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "KEMMA MUTTAR",
+      "c": "MNU-0080",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "CHICKEN BIRYANI MASALA",
+      "c": "SSEM-MN-0009",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CHICKEN BALL CURRY",
+      "c": "SSEM-MN-0011",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BEEF CURRY",
+      "c": "SSEM-MN-0001",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "EGG CURRY",
+      "c": "SSEM-MN-0021",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MEAT BALL CURRY",
+      "c": "SSEM-MN-0013",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN CURRY",
+      "c": "SSEM-MN-0003",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "BEEF KOFTA",
+      "c": "MNU-0083",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "MIXED VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CHICKEN KOFTA",
+      "c": "MNU-0085",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "EGG CURRY",
+      "c": "SSEM-MN-0021",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MIXED VEGETABLE CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "CHICKEN BROAST",
+      "c": "MNU-0086",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FRESH FRUITS",
+      "c": "MNU-0087",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "VEGGI",
+    "d": {
+     "SATURDAY": {
+      "n": "ALOO PALAK",
+      "c": "MNU-0088",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "VEGETABLES BIRYANI",
+      "c": "SSEM-MN-0010",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "ALOO BAINGAN",
+      "c": "MNU-0089",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CABBAGE MASALA",
+      "c": "SSEM-MN-0002",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO GOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "ALOO MUTTER",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "VEGETABLE CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ALOO GOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CURRY CHANA WITH POTATO",
+      "c": "SSEM-MN-0022",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO MUTTAR",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "VEGGI BIRYANI MASALA",
+      "c": "MNU-0093",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BEEF CHILLY",
+      "c": "MNU-0094",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "QEEMA",
+      "c": "MNU-0095",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "CHICKEN BROAST",
+      "c": "MNU-0086",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "POTATO & GEEN PEAS MASALA",
+      "c": "MNU-0096",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SEEKH KABAB",
+      "c": "MNU-0097",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "QEEMA",
+      "c": "MNU-0095",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "HALEEM",
+      "c": "MNU-0098",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHANA DAL",
+      "c": "MNU-0099",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SALAD BAR",
+      "c": "MNU-0014",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "ROTI / CHIPATI",
+      "c": "SSEM-MN-0032",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WATER / SOFT DRINK",
+      "c": "MNU-0092",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SWEET",
+      "c": "MNU-0066",
+      "k": "item"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "ASIAN - JUNIOR",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ALOO BAGI",
+      "c": "MNU-0071",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHANA",
+      "c": "MNU-0072",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "UPMA",
+      "c": "SSEM-MN-0018",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN PEAS MASALAH",
+      "c": "SSEM-MN-0024",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK CHANA",
+      "c": "MNU-0073",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "SHAKSHOKA",
+      "c": "MNU-0075",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "EGG BURJI",
+      "c": "SSEM-MN-0020",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "MILK OR BLACK TEA/COFFEE",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WATER",
+      "c": "DRS1-9001",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "KEMMA MUTTAR",
+      "c": "MNU-0080",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "CHICKEN BIRYANI MASALA",
+      "c": "SSEM-MN-0009",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CHICKEN BALL CURRY",
+      "c": "SSEM-MN-0011",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BEEF CURRY",
+      "c": "SSEM-MN-0001",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "EGG CURRY",
+      "c": "SSEM-MN-0021",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MEAT BALL CURRY",
+      "c": "SSEM-MN-0013",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN CURRY",
+      "c": "SSEM-MN-0003",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "VEGGI",
+    "d": {
+     "SATURDAY": {
+      "n": "ALOO PALAK",
+      "c": "MNU-0088",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "VEGETABLES BIRYANI",
+      "c": "SSEM-MN-0010",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "ALOO BAINGAN",
+      "c": "MNU-0089",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CABBAGE MASALA",
+      "c": "SSEM-MN-0002",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO GOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "ALOO MUTTER",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SALAD",
+      "c": "MNU-0103",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SALAD",
+      "c": "MNU-0103",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SALAD",
+      "c": "MNU-0103",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "VEGETABLE CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ALOO GOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CURRY CHANA WITH POTATO",
+      "c": "SSEM-MN-0022",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO MUTTAR",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "VEGGI BIRYANI MASALA",
+      "c": "MNU-0093",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHANA DAL",
+      "c": "MNU-0099",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK TEA / COFFEE",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SUNDAY": {
+      "n": "VERMICELLI KHAIR",
+      "c": "MNU-0104",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "RICE MILK PUDDING",
+      "c": "MNU-0105",
+      "k": "item"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "ASIAN WORKER",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ALOO BAGI",
+      "c": "MNU-0071",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHANA",
+      "c": "MNU-0072",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "UPMA",
+      "c": "SSEM-MN-0018",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN PEAS MASALAH",
+      "c": "SSEM-MN-0024",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK CHANA",
+      "c": "MNU-0073",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "EGG BURJI",
+      "c": "SSEM-MN-0020",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH Muslim",
+    "d": {
+     "SATURDAY": {
+      "n": "KEMMA MUTTAR",
+      "c": "MNU-0080",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "CHICKEN BIRYANI MASALA",
+      "c": "SSEM-MN-0009",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CHICKEN BALL CURRY",
+      "c": "SSEM-MN-0011",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BEEF CURRY",
+      "c": "SSEM-MN-0001",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "EGG CURRY",
+      "c": "SSEM-MN-0021",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MEAT BALL CURRY",
+      "c": "SSEM-MN-0013",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN CURRY",
+      "c": "SSEM-MN-0003",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "VEGETABLE CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CURRY CHANA WITH POTATO",
+      "c": "SSEM-MN-0022",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO MUTTAR",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "VEGGI BIRYANI MASALA",
+      "c": "MNU-0093",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHANA DAL WHITE",
+      "c": "SSEM-MN-0007",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SUNDAY": {
+      "n": "VERMICELLI KHAIR",
+      "c": "MNU-0104",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "Jello",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "ASIAN WORKER - Indian Vegeterian ASIAN WORKER",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "PARATHA",
+      "c": "MNU-0101",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ALOO BAGI",
+      "c": "MNU-0071",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE CHANA",
+      "c": "MNU-0072",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "UPMA",
+      "c": "SSEM-MN-0018",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BOILED EGGS",
+      "c": "MNU-0070",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN PEAS MASALAH",
+      "c": "SSEM-MN-0024",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK CHANA",
+      "c": "MNU-0073",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "SHAKSHOKA",
+      "c": "MNU-0075",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "EGG BURJI",
+      "c": "SSEM-MN-0020",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BIRYANI RICE",
+      "c": "SSEM-MN-0016",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "VEGGI  Hindos",
+    "d": {
+     "SATURDAY": {
+      "n": "ALOO PALAK",
+      "c": "MNU-0088",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "VEGETABLES BIRYANI",
+      "c": "SSEM-MN-0010",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "ALOO BAINGAN",
+      "c": "MNU-0089",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CABBAGE MASALA",
+      "c": "SSEM-MN-0002",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "ALOO MUTTER",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "YELLOW RICE",
+      "c": "MNU-0063",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "VEGETABLE CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "CURRY CHANA WITH POTATO",
+      "c": "SSEM-MN-0022",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "VEGETABLES CURRY",
+      "c": "SSEM-MN-0004",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "ALOO MUTTAR",
+      "c": "SSEM-MN-0023",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "ALOO GHOBHI",
+      "c": "SSEM-MN-0019",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "VEGGI BIRYANI MASALA",
+      "c": "MNU-0093",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "MUNG DAL",
+      "c": "MNU-0076",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "RED LENTIL DAL",
+      "c": "SSEM-MN-0026",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "DAL MASH",
+      "c": "SSEM-MN-0027",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "MIX DAL",
+      "c": "MNU-0091",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "DAL PALAK",
+      "c": "MNU-0090",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "CHANA DAL WHITE",
+      "c": "SSEM-MN-0007",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "TOUR DAL",
+      "c": "SSEM-MN-0028",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SUNDAY": {
+      "n": "VERMICELLI KHAIR",
+      "c": "MNU-0104",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "Jello",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "FILIPINO-JUNIOR",
+  "days": [
+   "SATURDAY",
+   "SUNDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SHAKSHOKA",
+      "c": "MNU-0075",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "CORN BEEF",
+      "c": "MNU-0107",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SCRUMBLED EGG",
+      "c": "MNU-0108",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SARDINES",
+      "c": "MNU-0109",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "NOODLES",
+      "c": "MNU-0110",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TUNA",
+      "c": "MNU-0111",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN CONGEE",
+      "c": "MNU-0112",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "BOILED EGG",
+      "c": "MNU-0114",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SCRAMBLED",
+      "c": "MNU-0115",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "BOILED EGG",
+      "c": "MNU-0114",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SHAKSHOKA",
+      "c": "MNU-0075",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SCARMBLED EGG",
+      "c": "",
+      "k": "none"
+     },
+     "THURSDAY": {
+      "n": "BOILED EGG",
+      "c": "MNU-0114",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SCRAMBLED EGG",
+      "c": "MNU-0115",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TRINAGLE CHEESE / JAM",
+      "c": "MNU-0116",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TEA / TEA MILK / COFFEE",
+      "c": "MNU-0117",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "CHICKEN TINOLA",
+      "c": "MNU-0118",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GINISANG MUNGO WITH FRIED FISH",
+      "c": "MNU-0119",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ADOBBO CHICKEN WITH POTATO",
+      "c": "MNU-0120",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Beef Picadilo",
+      "c": "MNU-0121",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "Meat Balls In Tomato",
+      "c": "MNU-0122",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BEEF SINIGANG",
+      "c": "MNU-0123",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SOUP OF THE DAY",
+      "c": "MNU-0124",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "GREEN SALAD",
+      "c": "MNU-0043",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "FRESH FRUIT",
+      "c": "MNU-0044",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "ARABIC BREAD",
+      "c": "MNU-0011",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "Fish Sinigang",
+      "c": "MNU-0125",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "Chicken with Vegetables",
+      "c": "MNU-0126",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Hotdog Sweet & Sour",
+      "c": "MNU-0127",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Fish Sinigang",
+      "c": "MNU-0125",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "CHICKEN CARE CARE",
+      "c": "MNU-0128",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "BBQ CHICKEN",
+      "c": "MNU-0129",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN ADOBO WITH POTATO",
+      "c": "MNU-0130",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "SWEET SOUR VEGETABLES",
+      "c": "MNU-0131",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "ASIAN VEGETABLES",
+      "c": "MNU-0132",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "POTATO WEDGES",
+      "c": "MNU-0036",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SWEET SOUR VEGETABLES",
+      "c": "MNU-0131",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SAUTEED VEGETABLES",
+      "c": "MNU-0133",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "POTATO WEDGES",
+      "c": "MNU-0036",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SAUTEED VEGETABLES",
+      "c": "MNU-0133",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "SUNDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "WATER / TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "SUNDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TEA / COFFEE",
+      "c": "MNU-0015",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "JELLO",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "JELLO",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "menu": "FILIPINO LABOUR",
+  "days": [
+   "SATURDAY",
+   "MONDAY",
+   "TUESDAY",
+   "WEDNESDAY",
+   "THURSDAY",
+   "FRIDAY"
+  ],
+  "rows": [
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "Boiled Egg",
+      "c": "MNU-0114",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Boiled Egg",
+      "c": "MNU-0114",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SARDINES",
+      "c": "MNU-0109",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "NOODLES",
+      "c": "MNU-0110",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "TUNA",
+      "c": "MNU-0111",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN CONGEE",
+      "c": "MNU-0112",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "SLICE BREAD",
+      "c": "MNU-0012",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "TRINAGLE CHEESE",
+      "c": "MNU-0134",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "TRINAGLE CHEESE",
+      "c": "MNU-0134",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "JAM",
+      "c": "MNU-0135",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "TRINAGLE CHEESE",
+      "c": "MNU-0134",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "JAM",
+      "c": "MNU-0135",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "TRINAGLE CHEESE",
+      "c": "MNU-0134",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "BREAKFAST",
+    "d": {
+     "SATURDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "MILK TEA",
+      "c": "SSEM-MN-0040",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "CHICKEN TINOLA",
+      "c": "MNU-0118",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "ADOBBO CHICKEN WITH POTATO",
+      "c": "MNU-0120",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Beef Picadilo",
+      "c": "MNU-0121",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "ROASTED CHICKEN",
+      "c": "MNU-0022",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "Meat Balls In Tomato",
+      "c": "MNU-0122",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "BEEF SINIGANG",
+      "c": "MNU-0123",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "LUNCH",
+    "d": {
+     "SATURDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "TANG JUICE",
+      "c": "SSEM-MN-0038",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "Fish Sinigang",
+      "c": "MNU-0125",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "Hotdog Sweet & Sour",
+      "c": "MNU-0127",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "Fish Sinigang",
+      "c": "MNU-0125",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "CHICKEN CARE CARE",
+      "c": "MNU-0128",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "BBQ CHICKEN",
+      "c": "MNU-0129",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "CHICKEN ADOBO WITH POTATO",
+      "c": "MNU-0130",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "MONDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "TUESDAY": {
+      "n": "STEAMED RICE",
+      "c": "MNU-0113",
+      "k": "item"
+     },
+     "WEDNESDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "THURSDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     },
+     "FRIDAY": {
+      "n": "WHITE RICE",
+      "c": "MNU-0037",
+      "k": "item"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "SATURDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "MONDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "TUESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "WEDNESDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     },
+     "FRIDAY": {
+      "n": "BLACK TEA",
+      "c": "SSEM-MN-0039",
+      "k": "card"
+     }
+    }
+   },
+   {
+    "m": "DINNER",
+    "d": {
+     "TUESDAY": {
+      "n": "CUSTARD",
+      "c": "SSEM-MN-0033",
+      "k": "card"
+     },
+     "THURSDAY": {
+      "n": "Jello",
+      "c": "SSEM-MN-0034",
+      "k": "card"
+     }
+    }
+   }
+  ]
+ }
+]

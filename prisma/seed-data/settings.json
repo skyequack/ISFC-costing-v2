@@ -1,0 +1,11 @@
+{
+ "currency": "SAR",
+ "pkg": 0.1,
+ "del": 0.1,
+ "lab": 0.25,
+ "ops": 0.05,
+ "buffer": 0.15,
+ "target": 0.3,
+ "vat": 0.15,
+ "priceDate": "2026-10-09"
+}

@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum RecipeType {
+  MENU
+  SUB
+}
+enum RecipeStatus {
+  DRAFT
+  LOCKED
+}
+enum HistoryAction {
+  LOCK
+  UNLOCK
+}
+enum MenuCellKind {
+  ITEM
+  RECIPE
+  NONE
+}
+
+model Brand {  // 14 rows
+  id String @id @default(cuid())
+  legacyId String @unique  // bnc, b1..b12, bssem
+  code String @unique  // NC, GRM ... SSEM (recipe-code prefix)
+  name String @unique
+  nameAr String?
+  color String @default("")
+  inkColor String?
+  logoUrl String?  // /assets/*.png or data URL after GM upload
+  locations String[]
+  active Boolean @default(true)
+  recipes Recipe[]
+  access UserBrandAccess[]
+  scopes ItemBrandScope[]
+}
+
+model User {  // lazily provisioned (upsert on clerkUserId) on first authenticated request
+  id String @id @default(cuid())
+  clerkUserId String @unique
+  email String?
+  name String
+  active Boolean @default(true)  // backstop for Clerk ban; checked on EVERY request
+  lastRoleSeen String?  // diagnostics only — never used for authorization
+  createdAt DateTime @default(now()) @db.Timestamptz
+  brandAccess UserBrandAccess[]
+}
+model UserBrandAccess {
+  id String @id @default(cuid())
+  userId String
+  brandId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id])
+  @@unique([userId, brandId])
+  @@index([brandId])
+}
+
+model Ingredient {  // 1046 rows, case-sensitive unique code
+  id String @id @default(cuid())
+  code String @unique
+  name String
+  uom String  // CHECK IN ('Gram','Ml','Each','Slice') — importer may add units later
+  price Float?  // NULL = PRICE MISSING (135) — never coerce to 0
+  priceUpdatedAt DateTime? @db.Timestamptz
+  category String
+  subcategory String
+  flag String @default("")
+  version Int @default(0)
+  scopes ItemBrandScope[]
+  conversion UnitConversion?
+  priceHistory IngredientPriceHistory[]
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+}
+model ItemBrandScope {  // visibility scope (empty = Shared)
+  ingredientId String
+  brandId String
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id])
+  @@id([ingredientId, brandId])
+}
+model UnitConversion {  // line cost = qty / factor, only if stored unit == line unit
+  ingredientId String @id
+  recipeUnit String
+  factor Float  // CHECK factor > 0
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
+model IngredientPriceHistory {  // NEW (D-26): append-only
+  id String @id @default(cuid())
+  ingredientId String
+  oldPrice Float?
+  newPrice Float?
+  source String  // MANUAL | IMPORT | MENU_PLAN | SEED
+  userId String?
+  userNameSnapshot String
+  createdAt DateTime @default(now()) @db.Timestamptz
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  @@index([ingredientId, createdAt])
+}
+
+model Recipe {
+  id String @id @default(cuid())
+  code String  // NO @unique: partial unique index on lower(code) WHERE deletedAt IS NULL (raw SQL)
+  name String
+  category String
+  type RecipeType
+  brandId String  // REQUIRED (D-27): no recipe without a brand
+  brand Brand @relation(fields: [brandId], references: [id])
+  output Float @default(1)
+  subQty Float @default(0)
+  subUom String @default("Gram")
+  batchOut Float @default(0)
+  batchUom String @default("Gram")
+  sellingPrice Float @default(0)  // legacy `price`; ex-VAT
+  buffer Float?
+  status RecipeStatus @default(DRAFT)
+  lockedBy String?
+  lockedAt DateTime? @db.Timestamptz
+  lockedByUserId String?
+  costAtLock Json?  // NEW (D-26): {food,totalCost,sellingPrice,fcPct,settings,priceDate,overrideReason?}
+  version Int @default(0)
+  deletedAt DateTime? @db.Timestamptz
+  deletedBy String?
+  photo RecipePhoto?
+  lines RecipeLine[]
+  method RecipeMethodStep[]
+  history RecipeHistoryEntry[]
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  @@index([brandId, deletedAt])
+}
+model RecipePhoto {  // separate table: list queries cannot pull blobs. CHECK bytes <= 1500000; client downsizes to ~300KB
+  recipeId String @id
+  dataUrl String
+  bytes Int
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+model RecipeLine {  // references by CODE string (no FK): 'CODE NOT FOUND' is a legal legacy state
+  id String @id @default(cuid())
+  recipeId String
+  sortOrder Int
+  code String  // '' allowed (blank row)
+  qty Float
+  unit String  // CHECK qty >= 0 AND finite
+  y Float @default(1)  // CHECK y > 0
+  yp Float?  // NULL ≠ 0 (null falls back to card buffer)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  @@unique([recipeId, sortOrder])
+  @@index([code])
+}
+model RecipeMethodStep {
+  id String @id @default(cuid())
+  recipeId String
+  stepNumber Int
+  text String
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  @@unique([recipeId, stepNumber])
+}
+model RecipeHistoryEntry {
+  id String @id @default(cuid())
+  recipeId String
+  action HistoryAction
+  who String
+  userId String?
+  createdAt DateTime @default(now()) @db.Timestamptz
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  @@index([recipeId, createdAt])
+}
+
+model CostSettings {  // singleton id=1, NOT brand scoped. Legacy names, fractions.
+  id Int @id @default(1)
+  currency String @default("SAR")
+  pkg Float @default(0.10)
+  del Float @default(0.10)
+  lab Float @default(0.25)
+  ops Float @default(0.05)
+  buffer Float @default(0.15)
+  target Float @default(0.30)
+  vat Float @default(0.15)
+  priceDate DateTime @db.Date
+  version Int @default(0)
+}
+
+model AuditLog {  // append-only: DB trigger blocks UPDATE/DELETE/TRUNCATE; app role has no such grants
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @db.Timestamptz
+  userId String?
+  userNameSnapshot String
+  roleSnapshot String  // role taken from the fresh Clerk read at write time
+  action String
+  detail String @default("")
+  @@index([createdAt])
+  @@index([userId])
+  @@index([action, createdAt])
+}
+
+  // ---- Editable menus (D-05) — seeded from legacy MENU_PLAN (8 menus, 146 rows, 1001 cells) ----
+model Menu {
+  id String @id @default(cuid())
+  legacyIndex Int? @unique  // seed order; translates legacy 'LOC|menuIndex' pax keys on restore
+  name String @unique  // 'ARABIC - SENIOR' …
+  sortOrder Int
+  days String[]  // FILIPINO LABOUR has 6 days
+  active Boolean @default(true)  // deactivate rather than delete (pax rows cascade)
+  version Int @default(0)
+  rows MenuRow[]
+  pax MenuPax[]
+  updatedAt DateTime @updatedAt @db.Timestamptz
+}
+model MenuRow {  // meal label NOT unique (BREAKFAST x8)
+  id String @id @default(cuid())
+  menuId String
+  sortOrder Int
+  meal String
+  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  cells MenuCell[]
+  @@unique([menuId, sortOrder])
+}
+model MenuCell {  // absent day = no row (23 in seed)
+  id String @id @default(cuid())
+  rowId String
+  day String
+  kind MenuCellKind  // ITEM -> Ingredient.code (710), RECIPE -> Recipe.code (290), NONE (1)
+  code String?
+  label String  // CHECK (kind='NONE') = (code IS NULL)
+  row MenuRow @relation(fields: [rowId], references: [id], onDelete: Cascade)
+  @@unique([rowId, day])
+  @@index([code])
+}
+model MenuPax {
+  month String
+  day String
+  location String @default("")
+  menuId String
+  people Int  // CHECK >= 0
+  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  @@id([month, day, location, menuId])
+}
+model ProductionEntry {  // brand scoping via join Recipe(code).brandId
+  month String
+  day String
+  location String @default("")
+  recipeCode String
+  portions Int  // CHECK >= 0
+  @@id([month, day, location, recipeCode])
+  @@index([recipeCode])
+}
+
+model SeedRun {
+  id String @id @default(cuid())
+  version String
+  checksum String
+  at DateTime @default(now()) @db.Timestamptz
+}
+

@@ -1,0 +1,123 @@
+[
+ {
+  "id": "bnc",
+  "name": "National Catering",
+  "code": "NC",
+  "color": "#004945",
+  "nameAr": "ناشونال كاترينغ",
+  "logoFile": "nc-mark.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b1",
+  "name": "Gourmet 360",
+  "code": "GRM",
+  "color": "#471729",
+  "logoFile": "gourmet-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b2",
+  "name": "Salus",
+  "code": "SLS",
+  "color": "#F5E608",
+  "ink": "#141414",
+  "logoFile": "salus-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b3",
+  "name": "FRSH",
+  "code": "FRS",
+  "color": "",
+  "logoFile": null,
+  "hadLogo": false
+ },
+ {
+  "id": "b4",
+  "name": "Diet World",
+  "code": "DTW",
+  "color": "#21274C",
+  "logoFile": "dietworld-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b5",
+  "name": "Golyv",
+  "code": "GLV",
+  "color": "#1F2A4C",
+  "logoFile": "golyv-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b6",
+  "name": "Mashwi Kiwi",
+  "code": "MKW",
+  "color": "",
+  "logoFile": null,
+  "hadLogo": false
+ },
+ {
+  "id": "b7",
+  "name": "SMC Hospital",
+  "code": "SMC",
+  "color": "#206038",
+  "logoFile": "smc-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b8",
+  "name": "VIP",
+  "code": "VIP",
+  "color": "",
+  "logoFile": null,
+  "hadLogo": false
+ },
+ {
+  "id": "b9",
+  "name": "Sidra",
+  "code": "SDR",
+  "color": "",
+  "logoFile": null,
+  "hadLogo": false
+ },
+ {
+  "id": "b10",
+  "name": "Madhghout AlSidrah",
+  "code": "MAS",
+  "color": "#0AC878",
+  "nameAr": "مَضْغوط السِدرة",
+  "logoFile": "madhghout-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b11",
+  "name": "So-Lite",
+  "code": "SOL",
+  "color": "#7A3483",
+  "logoFile": "solite-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "b12",
+  "name": "Sugar Batch",
+  "code": "SGB",
+  "color": "#F0A2AE",
+  "logoFile": "sugarbatch-logo.png",
+  "hadLogo": true
+ },
+ {
+  "id": "bssem",
+  "name": "SSEM",
+  "code": "SSEM",
+  "color": "#2E5E4E",
+  "locs": [
+   "NIC",
+   "NEOM",
+   "JUBAIL",
+   "YANBU"
+  ],
+  "logoFile": null,
+  "hadLogo": false
+ }
+]

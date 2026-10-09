@@ -1,0 +1,164 @@
+[
+ [
+  "NOTE",
+  "Brought forward from the National Catering work",
+  "10 raw materials added. Heading spacing fixed. The item importer now accepts Meter, Roll, KG, Box and Packet, which were being rejected and losing the row, and reads a Pack Qty column so purchase size is a field rather than something buried in the item name.",
+  "Recipes were deliberately not touched: this file ships demo cards only, so the real ones live in your browser and anything added here would fight them."
+ ],
+ [
+  "CRITICAL",
+  "National Catering prices differ on 30 shared codes",
+  "46 National Catering ingredients were added so the NC cards can be costed. Codes already in this library kept the ISFC price, because changing them would reprice the ISFC and Madhghout cards that use the same ingredient. 30 of those shared codes carry a different price at National Catering, so an NC card costed here will not match the NC build.",
+  "Butter DRY2-1008 is the widest gap: 0.001248 here against 0.031200 at NC. Decide which figure is right before costing anything off the shared codes, or keep National Catering in its own file."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-3600 Tea Biscuits",
+  "Price cell in the source contained a division error, so there is no valid price.",
+  "Divide the pack cost by 160 g and enter the result."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-1805 Maggi Chicken Cubes",
+  "UOM Gram at 0.897 per gram, which is 897 per kilo. A 4 g cube would cost 3.59 instead of about 0.04.",
+  "Change UOM to Each with the price of one cube."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-688 Honey Portion",
+  "UOM Gram at 0.520 per gram. Clearly a per-portion price.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-1186 Jam Apricot Portion",
+  "UOM Gram at 0.325 per gram. DRS1-5003 is the same product, already correct as Each.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-4990 Jam Strawberry Portion",
+  "UOM Gram at 0.380 per gram.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-1507 Salt sachet",
+  "UOM Gram at 0.035 per gram, so 35 per kilo of salt. Overstates salt 18x against DRS1-795.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-1224 Mayonnaise Sachet",
+  "UOM Gram at 0.0957 per gram. Bulk mayonnaise DRS1-58 is 0.006481 per gram.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRS1-4220 Sushi Nori Sheets",
+  "UOM Gram at 1.149 per gram, so 1,149 per kilo. A sheet weighs about 3 g.",
+  "Change UOM to Each."
+ ],
+ [
+  "CRITICAL",
+  "DRY2-5247 Milk UHT Chocolate",
+  "19.75 per Each, roughly 20x the strawberry equivalent. Looks like a case price.",
+  "Divide by units per case, or confirm."
+ ],
+ [
+  "CRITICAL",
+  "DRY2-5248 Milk UHT Strawberry",
+  "UOM Ml at 1.0967, so 197 for one 180 ml carton.",
+  "Change to Each with the carton price."
+ ],
+ [
+  "CRITICAL",
+  "DRY2-1008 Butter 82% Unsalted",
+  "0.001248 per gram, so 31.20 for a 25 kg block. Cheaper than white flour.",
+  "Almost certainly a decimal error - recheck the invoice."
+ ],
+ [
+  "HIGH",
+  "DRS1-4621 Dark Chocolate 55%",
+  "0.440 per gram against 0.058 for the 52% Icam coins - an eightfold gap.",
+  "Verify which is right."
+ ],
+ [
+  "HIGH",
+  "DRS5-40 Flour White",
+  "0.000778 per gram, so 0.78 per kilo. Below the brown and cake flours.",
+  "Confirm against the last invoice."
+ ],
+ [
+  "HIGH",
+  "Lemon Salt",
+  "No item code in the source. Coded NOCODE-001.",
+  "Assign a real DRS6 code."
+ ],
+ [
+  "HIGH",
+  "Water 330 ML (Nova)",
+  "No item code in the source. Coded NOCODE-002.",
+  "Assign a real BVG3 code."
+ ],
+ [
+  "HIGH",
+  "Frz Calamari Tube",
+  "No item code in the source. Coded NOCODE-003.",
+  "Assign a real SFD2 code."
+ ],
+ [
+  "MEDIUM",
+  "PKG-5000 Plastic Container 24OZ",
+  "UOM column was blank.",
+  "Set to Each on import - confirm."
+ ],
+ [
+  "MEDIUM",
+  "BVG2 juice block, BVG3-3724",
+  "The whole juice group and Glass Water appeared twice. Duplicate codes break lookups.",
+  "De-duplicated on import. Fix your source file too."
+ ],
+ [
+  "MEDIUM",
+  "SFD2-5320 Shrimps",
+  "Description said 16/20, item name said 11/15 - two grades, two prices.",
+  "Decide which you actually buy."
+ ],
+ [
+  "MEDIUM",
+  "PLT2-1844 Frz Chicken Whole",
+  "Description said 1200 Gram, name said 1100 Gram.",
+  "Confirm the pack weight."
+ ],
+ [
+  "MEDIUM",
+  "Category spellings",
+  "'Fozen' for Frozen, 'Coffe & Tea' for Coffee & Tea.",
+  "Corrected on import."
+ ],
+ [
+  "MEDIUM",
+  "Trailing spaces",
+  "'Fresh ', 'Cheese ', 'Nuts ', 'Pasta ' each carried a trailing space, so Excel saw two categories.",
+  "Trimmed on import."
+ ],
+ [
+  "LOW",
+  "DRS1-5266 Cheddar Cheese Sauce",
+  "Categorised Dairy/Cheese but carries a DRS1 dry-store code.",
+  "Recode or recategorise."
+ ],
+ [
+  "LOW",
+  "PLT1-1785 Fresh Chicken Whole",
+  "Named Fresh but main category says Frozen.",
+  "Pick one."
+ ],
+ [
+  "LOW",
+  "Each-items used by weight",
+  "No gram equivalent recorded, so a gram recipe cannot cost an Each item.",
+  "34 starter conversions loaded - weigh and confirm each."
+ ]
+]

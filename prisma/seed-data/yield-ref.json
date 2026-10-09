@@ -1,0 +1,260 @@
+[
+ [
+  "Vegetables",
+  "Onion, peeled",
+  0.85,
+  "Skin, root, top"
+ ],
+ [
+  "Vegetables",
+  "Garlic, peeled from bulb",
+  0.75,
+  "Skin and root plate"
+ ],
+ [
+  "Vegetables",
+  "Garlic, purchased peeled",
+  0.95,
+  "Bruised cloves only"
+ ],
+ [
+  "Vegetables",
+  "Tomato, diced",
+  0.9,
+  "Core and soft ends"
+ ],
+ [
+  "Vegetables",
+  "Cucumber, peeled",
+  0.8,
+  "Skin and ends"
+ ],
+ [
+  "Vegetables",
+  "Lettuce iceberg, trimmed",
+  0.75,
+  "Outer leaves and core"
+ ],
+ [
+  "Vegetables",
+  "Lettuce romaine, trimmed",
+  0.8,
+  "Butt and outer leaves"
+ ],
+ [
+  "Vegetables",
+  "Cabbage, shredded",
+  0.8,
+  "Core and outer leaves"
+ ],
+ [
+  "Vegetables",
+  "Carrot, peeled",
+  0.8,
+  "Skin and tops"
+ ],
+ [
+  "Vegetables",
+  "Potato, peeled",
+  0.8,
+  "Skin and eyes"
+ ],
+ [
+  "Vegetables",
+  "Beetroot, cooked and peeled",
+  0.75,
+  "Skin and cooking loss"
+ ],
+ [
+  "Vegetables",
+  "Sweet pepper, deseeded",
+  0.82,
+  "Core, seeds, stalk"
+ ],
+ [
+  "Vegetables",
+  "Eggplant, trimmed",
+  0.9,
+  "Stalk"
+ ],
+ [
+  "Vegetables",
+  "Broccoli, florets",
+  0.65,
+  "Stalk"
+ ],
+ [
+  "Vegetables",
+  "Cauliflower, florets",
+  0.6,
+  "Stalk and leaves"
+ ],
+ [
+  "Vegetables",
+  "Mushroom, trimmed",
+  0.95,
+  "Stem base"
+ ],
+ [
+  "Herbs",
+  "Parsley, picked leaves",
+  0.7,
+  "Stalks"
+ ],
+ [
+  "Herbs",
+  "Coriander, picked leaves",
+  0.65,
+  "Stalks"
+ ],
+ [
+  "Herbs",
+  "Mint, picked leaves",
+  0.55,
+  "Stalks"
+ ],
+ [
+  "Herbs",
+  "Rocket / baby leaves, washed",
+  0.95,
+  "Damaged leaves"
+ ],
+ [
+  "Fruit",
+  "Lemon, juiced",
+  0.4,
+  "Skin, pith, pips"
+ ],
+ [
+  "Fruit",
+  "Pineapple, peeled and cored",
+  0.55,
+  "Skin, crown, core"
+ ],
+ [
+  "Fruit",
+  "Avocado, flesh",
+  0.7,
+  "Skin and stone"
+ ],
+ [
+  "Fruit",
+  "Orange, segmented",
+  0.6,
+  "Skin, pith, membrane"
+ ],
+ [
+  "Poultry",
+  "Chicken whole, meat off bone raw",
+  0.55,
+  "Bone, skin, trim"
+ ],
+ [
+  "Poultry",
+  "Chicken breast, grilled",
+  0.75,
+  "Cooking loss"
+ ],
+ [
+  "Poultry",
+  "Chicken shawarma on the spit",
+  0.7,
+  "Cooking and drip loss"
+ ],
+ [
+  "Poultry",
+  "Chicken leg quarter, off the bone",
+  0.6,
+  "Bone and skin"
+ ],
+ [
+  "Meat",
+  "Beef topside, roasted",
+  0.7,
+  "Cooking loss"
+ ],
+ [
+  "Meat",
+  "Beef tenderloin, trimmed raw",
+  0.85,
+  "Silverskin and chain"
+ ],
+ [
+  "Meat",
+  "Beef steak, grilled medium",
+  0.8,
+  "Cooking loss"
+ ],
+ [
+  "Meat",
+  "Beef cubes, stewed",
+  0.65,
+  "Cooking loss"
+ ],
+ [
+  "Meat",
+  "Lamb leg boneless, roasted",
+  0.7,
+  "Cooking loss"
+ ],
+ [
+  "Meat",
+  "Minced beef, cooked",
+  0.75,
+  "Fat and water loss"
+ ],
+ [
+  "Seafood",
+  "Frozen shrimp, thawed",
+  0.85,
+  "Glaze and drip loss"
+ ],
+ [
+  "Seafood",
+  "Salmon fillet, portioned",
+  0.9,
+  "Trim and pin bones"
+ ],
+ [
+  "Seafood",
+  "White fish fillet, cooked",
+  0.8,
+  "Cooking loss"
+ ],
+ [
+  "Dry goods",
+  "Rice, dry to cooked",
+  2.7,
+  "Absorbs water"
+ ],
+ [
+  "Dry goods",
+  "Pasta, dry to cooked",
+  2.2,
+  "Absorbs water"
+ ],
+ [
+  "Dry goods",
+  "Lentils, dry to cooked",
+  2.3,
+  "Absorbs water"
+ ],
+ [
+  "Dry goods",
+  "Chickpeas, soaked and cooked",
+  2.5,
+  "Absorbs water"
+ ],
+ [
+  "Sauces",
+  "Stock, reduced by one third",
+  0.67,
+  "Evaporation"
+ ],
+ [
+  "Sauces",
+  "Tomato sauce, simmered",
+  0.8,
+  "Evaporation"
+ ]
+]

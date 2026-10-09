@@ -1,0 +1,10376 @@
+[
+ {
+  "code": "BKR1-1917",
+  "name": "Bran Bread Brown (Diet)",
+  "uom": "Each",
+  "price": 0.95,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-3695",
+  "name": "Bread Arabic Brown (6 each) 400211",
+  "uom": "Each",
+  "price": 0.166667,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-3694",
+  "name": "Bread Arabic White(7 Each) 400210",
+  "uom": "Each",
+  "price": 0.142857,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-3791",
+  "name": "Bread Burger Bun Brown(Each)",
+  "uom": "Each",
+  "price": 1,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-4011",
+  "name": "Bread Crumb IMP(Packet)",
+  "uom": "Gram",
+  "price": 0.022,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-1328",
+  "name": "Bread Jumbo Sandwich White 400007",
+  "uom": "Each",
+  "price": 1,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-4332",
+  "name": "Bread Potato Burger Plain",
+  "uom": "Each",
+  "price": 0.558333,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-1575",
+  "name": "Bread Shawarma",
+  "uom": "Each",
+  "price": 0.12,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-1327",
+  "name": "Bread Sliced Brown Med-400001",
+  "uom": "Slice",
+  "price": 0.222222,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-1326",
+  "name": "Bread Sliced White Med-400000",
+  "uom": "Slice",
+  "price": 0.166667,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-4274",
+  "name": "Bread Tortilla White,20cm(Fonte)",
+  "uom": "Each",
+  "price": 0.625,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-4275",
+  "name": "Bread Tortilla White,30cm(Fonte)",
+  "uom": "Each",
+  "price": 0.833333,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-3428",
+  "name": "Fresh Bread Baguette Long Brown",
+  "uom": "Each",
+  "price": 4.78,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-2058",
+  "name": "Frz Bread Baguette French (40080009)",
+  "uom": "Gram",
+  "price": 0.006667,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-2059",
+  "name": "Frz Bread Baguette Multicereal (40080109)",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-5081",
+  "name": "Frz Bread Jumbo Sandwich 400017",
+  "uom": "Each",
+  "price": 0.966667,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-4596",
+  "name": "Frz Bread Panini (90 Gram)",
+  "uom": "Each",
+  "price": 0.96,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-4961",
+  "name": "Frz Bread Tortilla,Keto,8 Inch",
+  "uom": "Each",
+  "price": 3,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-1910",
+  "name": "Frz Kunafa Dough",
+  "uom": "Gram",
+  "price": 0.01366,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-5137",
+  "name": "Frz Sambusak Leaves (1 kg)",
+  "uom": "Gram",
+  "price": 0.01413,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-1104",
+  "name": "Frz Spring Roll Dough(160 Gram)",
+  "uom": "Gram",
+  "price": 0.0255,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR2-3658",
+  "name": "Frz.Puff Pastry Sheets(400Gram)",
+  "uom": "Gram",
+  "price": 0.019175,
+  "cat": "Frozen",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-2125",
+  "name": "Milk Bread Mini 9Pcs",
+  "uom": "Each",
+  "price": 0.444444,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-4717",
+  "name": "Qursan",
+  "uom": "Gram",
+  "price": 0.013,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "BKR1-4132",
+  "name": "Tart Shell Round Mini 3.7 Cm,Sweet",
+  "uom": "Each",
+  "price": 0.84127,
+  "cat": "Fresh",
+  "sub": "Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5155",
+  "name": "Ajinomoto (MSG) 454 gm",
+  "uom": "Gram",
+  "price": 0.019824,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4227",
+  "name": "Apple Vinegar",
+  "uom": "Ml",
+  "price": 0.005814,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3813",
+  "name": "Beef Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.044442,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3696",
+  "name": "Biscuit Digestive (150 Gram)",
+  "uom": "Gram",
+  "price": 0.009467,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4103",
+  "name": "Butter Peanuts(794 Gram)",
+  "uom": "Gram",
+  "price": 0.026763,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3948",
+  "name": "Can Apple Pie Filling",
+  "uom": "Gram",
+  "price": 0.024038,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4234",
+  "name": "Can Artichoke Bottoms",
+  "uom": "Gram",
+  "price": 0.0456,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4772",
+  "name": "Can Baked Beans(420 Gram)",
+  "uom": "Gram",
+  "price": 0.0064,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1359",
+  "name": "Can Beans Red Kidney (425 Gram)",
+  "uom": "Gram",
+  "price": 0.0139,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3595",
+  "name": "Can Beetroot Sliced",
+  "uom": "Gram",
+  "price": 0.0086,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4840",
+  "name": "Can Chopped Tomato",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3865",
+  "name": "Can Condensed Milk",
+  "uom": "Gram",
+  "price": 0.02063,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-444",
+  "name": "Can Foul Medammes",
+  "uom": "Gram",
+  "price": 0.0089,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4765",
+  "name": "Can Ghee(1600 Gram)",
+  "uom": "Gram",
+  "price": 0.050644,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3680",
+  "name": "Can Grape Leaves(Stuffed)",
+  "uom": "Gram",
+  "price": 0.013125,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-455",
+  "name": "Can Mushroom Sliced (2840 Gram)",
+  "uom": "Gram",
+  "price": 0.0072,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-456",
+  "name": "Can Mushroom Whole (2840 Gram)",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-824",
+  "name": "Can Oats(500 Gram)",
+  "uom": "Gram",
+  "price": 0.01292,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1768",
+  "name": "Can Olives Black Sliced",
+  "uom": "Gram",
+  "price": 0.0129,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1140",
+  "name": "Can Olives Green Sliced",
+  "uom": "Gram",
+  "price": 0.0129,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4815",
+  "name": "Can Olives Green Whole Pitted",
+  "uom": "Gram",
+  "price": 0.0145,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1461",
+  "name": "Can Red Kidney Beans (2500 GM)",
+  "uom": "Gram",
+  "price": 0.005882,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-928",
+  "name": "Can Syrup Fruit Cocktail Light(2500 Gram)",
+  "uom": "Ml",
+  "price": 0.0068,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3358",
+  "name": "Can Tomato Coulis",
+  "uom": "Gram",
+  "price": 0.012777,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1747",
+  "name": "Can Tomato Paste (4500 Gram)",
+  "uom": "Gram",
+  "price": 0.005185,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-607",
+  "name": "Can Tomato Peeled",
+  "uom": "Gram",
+  "price": 0.005882,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3886",
+  "name": "Can White Kidney Beans(400 gram)",
+  "uom": "Gram",
+  "price": 0.0068,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-2121",
+  "name": "Can Young Baby Corn",
+  "uom": "Gram",
+  "price": 0.0204,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1463",
+  "name": "Can sweet corn (2950gram)",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3811",
+  "name": "Chicken Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.028475,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-167",
+  "name": "Cucumber Pickles (3.2 Kg)",
+  "uom": "Gram",
+  "price": 0.0129,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4979",
+  "name": "Date Portion (Ramadan)",
+  "uom": "Each",
+  "price": 0.35,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-41",
+  "name": "Flower Water(Blossom)",
+  "uom": "Ml",
+  "price": 0.019709,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-304",
+  "name": "Food Color Yellow(Saffron)",
+  "uom": "Gram",
+  "price": 0.0208,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1599",
+  "name": "Ghee Vegetable(15 KG)",
+  "uom": "Gram",
+  "price": 0.012667,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4213",
+  "name": "Ginger Pickles(Bottle)",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-96",
+  "name": "Grape Leaves / Vine Leaves",
+  "uom": "Gram",
+  "price": 0.0377,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3911",
+  "name": "Grape Leaves,Stuffed(1950 Gram)",
+  "uom": "Gram",
+  "price": 0.0239,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5164",
+  "name": "Green Curry Paste 400 gm",
+  "uom": "Gram",
+  "price": 0.075,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4111",
+  "name": "Green Pepper,Vinegar(Bottle)",
+  "uom": "Gram",
+  "price": 0.084,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS-977",
+  "name": "Hazel Nut Paste",
+  "uom": "Gram",
+  "price": 0.0094,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1780",
+  "name": "Honey Jar (3 KG)",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-688",
+  "name": "Honey Portion",
+  "uom": "Gram",
+  "price": 0.52,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.52/gram; likely price per PORTION"
+ },
+ {
+  "code": "DRS1-4463",
+  "name": "Jalapeno Pepper 2.8 kg",
+  "uom": "Gram",
+  "price": 0.0178,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1186",
+  "name": "Jam Apricot Portion",
+  "uom": "Gram",
+  "price": 0.325,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.325/gram; likely price per PORTION"
+ },
+ {
+  "code": "DRS1-5003",
+  "name": "Jam Apricot Portion(100 Each)",
+  "uom": "Each",
+  "price": 0.38,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4990",
+  "name": "Jam Strawberry Portion(100 Each)",
+  "uom": "Gram",
+  "price": 0.38,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.38/gram; likely price per PORTION"
+ },
+ {
+  "code": "DRS1-5395",
+  "name": "Lupin Beans in Brine 600 gm",
+  "uom": "Gram",
+  "price": 0.0238,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1805",
+  "name": "Maggi Chicken Cubes (24 each)",
+  "uom": "Gram",
+  "price": 0.897083,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.897/gram; likely price per CUBE, not per gram"
+ },
+ {
+  "code": "DRS1-5269",
+  "name": "Maple Syrup Amber 375 ml",
+  "uom": "Ml",
+  "price": 0.106667,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1224",
+  "name": "Mayonnaise Sachet",
+  "uom": "Gram",
+  "price": 0.09565,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.0957/gram; likely price per SACHET"
+ },
+ {
+  "code": "DRS1-1549",
+  "name": "Mustard Yellow Cream (JAR)",
+  "uom": "Gram",
+  "price": 0.007597,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4754",
+  "name": "Nacho Cheese Sauce",
+  "uom": "Gram",
+  "price": 0.037298,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4809",
+  "name": "Oats White Whole(900 Gram)",
+  "uom": "Gram",
+  "price": 0.011578,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1914",
+  "name": "Pancake Syrup Regular (Freshly)",
+  "uom": "Ml",
+  "price": 0.019746,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1787",
+  "name": "Pepper Paste (4 KG)",
+  "uom": "Gram",
+  "price": 0.01125,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5043",
+  "name": "Pesto Basil Sauce 4 kg",
+  "uom": "Gram",
+  "price": 0.06875,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-927",
+  "name": "Pineapple Sliced (3050Gram)",
+  "uom": "Gram",
+  "price": 0.007649,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4460",
+  "name": "Pistachio Filling(5 Kg)",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5103",
+  "name": "Potato Chips , Forno 43 gm",
+  "uom": "Gram",
+  "price": 0.057674,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4435",
+  "name": "Ranch Dressing",
+  "uom": "Gram",
+  "price": 0.009193,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3275",
+  "name": "Rice Cakes (Packet)",
+  "uom": "Gram",
+  "price": 0.066667,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-795",
+  "name": "Salt Bottles",
+  "uom": "Gram",
+  "price": 0.0007,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1507",
+  "name": "Salt sachet (1000)",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 0.035/gram; likely price per SACHET"
+ },
+ {
+  "code": "DRS1-446",
+  "name": "Sauce Barbecue",
+  "uom": "Gram",
+  "price": 0.012987,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3357",
+  "name": "Sauce Demi Glace(1.2Kg)",
+  "uom": "Gram",
+  "price": 0.06844,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4933",
+  "name": "Sauce Hot Buffalo,Chicken wings(354Ml)",
+  "uom": "Gram",
+  "price": 0.045333,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-114",
+  "name": "Sea Salt(737 Gram)",
+  "uom": "Gram",
+  "price": 0.004749,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4220",
+  "name": "Sushi Roasted Laver Sheets(NORI)",
+  "uom": "Gram",
+  "price": 1.149,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "UNIT CHECK - 1.149/gram; likely price per SHEET"
+ },
+ {
+  "code": "DRS1-472",
+  "name": "Tom Yum Paste",
+  "uom": "Gram",
+  "price": 0.088106,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4781",
+  "name": "Tuna Flakes In Oil",
+  "uom": "Gram",
+  "price": 0.0253,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4417",
+  "name": "Vegetable Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.036755,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1907",
+  "name": "Breakfast Cream Firm,Ashta,5Kg",
+  "uom": "Gram",
+  "price": 0.0136,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5266",
+  "name": "Cheddar Cheese Sauce 3kg",
+  "uom": "Gram",
+  "price": 0.015557,
+  "cat": "Dairy",
+  "sub": "Cheese",
+  "flag": "CATEGORY - Dairy/Cheese but code is DRS1 (dry store)"
+ },
+ {
+  "code": "DRY1-3385",
+  "name": "Cheese Cheddar Block,Yellow(KG)",
+  "uom": "Gram",
+  "price": 0.031,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-4303",
+  "name": "Cheese Cheddar Sliced Low Fat (200 Gram)",
+  "uom": "Gram",
+  "price": 0.0375,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-3344",
+  "name": "Cheese Cheddar Sliced Red(KG)",
+  "uom": "Gram",
+  "price": 0.023,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-3874",
+  "name": "Cheese Cream (1100 Gram)",
+  "uom": "Gram",
+  "price": 0.028009,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-1717",
+  "name": "Cheese Cream Philadelphia (1360 GR)",
+  "uom": "Gram",
+  "price": 0.037,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-965",
+  "name": "Cheese Mozzarella Blocks",
+  "uom": "Gram",
+  "price": 0.023,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-1801",
+  "name": "Cheese Mozzarella Grated (KG)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-1701",
+  "name": "Cheese Mozzarella Mini",
+  "uom": "Gram",
+  "price": 0.065,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-602",
+  "name": "Cheese Parmesan Grated",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-342",
+  "name": "Cheese Parmesan Padano 1 KG (permegano)",
+  "uom": "Gram",
+  "price": 0.053,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-5114",
+  "name": "Cheese Triangles,Al Marai,360 Gm",
+  "uom": "Each",
+  "price": 0.43343,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-5345",
+  "name": "Frz Paneer (Cottage Cheese) 500 gm",
+  "uom": "Gram",
+  "price": 0.039,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-1794",
+  "name": "Goat Cheese (KG)",
+  "uom": "Gram",
+  "price": 0.07162,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3863",
+  "name": "American Coffee Powder (Filter Coffee)",
+  "uom": "Gram",
+  "price": 0.05566,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-5300",
+  "name": "Arabic Coffee Instant Sachet",
+  "uom": "Each",
+  "price": 0.696,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4830",
+  "name": "Cappuccino Caramel Powder,Nestle",
+  "uom": "Gram",
+  "price": 0.10176,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4825",
+  "name": "Cocoa Powder, Nestle Alegria",
+  "uom": "Gram",
+  "price": 0.07546,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-4832",
+  "name": "Coffee Beans,Espresso,1 Kg(Nestle)",
+  "uom": "Gram",
+  "price": 0.131,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3155",
+  "name": "Coffee Mate Creamer,Single Serve",
+  "uom": "Each",
+  "price": 0.21425,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5431",
+  "name": "Coffee Powder Regular ,Mastercafe",
+  "uom": "Gram",
+  "price": 0.0771,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5126",
+  "name": "Delicate Pouch Alegria Nestle",
+  "uom": "Gram",
+  "price": 0.35048,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4401",
+  "name": "Fresh Turkish coffee Powder",
+  "uom": "Gram",
+  "price": 0.06087,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4831",
+  "name": "Karak Tea,Cardamom Premix Nestle",
+  "uom": "Gram",
+  "price": 0.08745,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4824",
+  "name": "Milk Powder,Nestle",
+  "uom": "Gram",
+  "price": 0.07546,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3713",
+  "name": "Nescafe Classic (3 in 1)",
+  "uom": "Each",
+  "price": 1.132,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3153",
+  "name": "Nescafe Red Mug Stick",
+  "uom": "Each",
+  "price": 0.5748,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1159",
+  "name": "Nescafe Regular in Bottle",
+  "uom": "Gram",
+  "price": 0.08495,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5303",
+  "name": "Nespresso Capsules,Professional,Flavors",
+  "uom": "Each",
+  "price": 3.2,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5169",
+  "name": "Tea Anise Herbal 2G",
+  "uom": "Each",
+  "price": 0.3445,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1042",
+  "name": "Tea Lipton Bag",
+  "uom": "Each",
+  "price": 0.0944,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5226",
+  "name": "Tea Lipton Cammomile",
+  "uom": "Each",
+  "price": 0.5668,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5228",
+  "name": "Tea Lipton Earlgrey",
+  "uom": "Each",
+  "price": 0.5668,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5321",
+  "name": "Tea Lipton English Breakfast",
+  "uom": "Each",
+  "price": 0.5668,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5322",
+  "name": "Tea Lipton Green & Intense Mint",
+  "uom": "Each",
+  "price": 0.5668,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-5369",
+  "name": "Butter ,Vegetable Blend 25 kg",
+  "uom": "Gram",
+  "price": 0.0116,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1008",
+  "name": "Butter 82% Fat(Unsalted) 25 kg",
+  "uom": "Gram",
+  "price": 0.001248,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": "PRICE CHECK - 0.001248/g butter is below flour; likely decimal error"
+ },
+ {
+  "code": "DRY2-149",
+  "name": "Butter Margarine Vegetable for Pastry",
+  "uom": "Gram",
+  "price": 0.011,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1510",
+  "name": "Butter Portion(Unsalted) Lurpak",
+  "uom": "Each",
+  "price": 0.333333,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1508",
+  "name": "Butter portion(almarai 400 each)",
+  "uom": "Each",
+  "price": 0.4426,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1858",
+  "name": "Cooking Cream 1 Ltr",
+  "uom": "Ml",
+  "price": 0.00988,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-4896",
+  "name": "Dairy Whipping Cream 38% (Millac Blue)",
+  "uom": "Ml",
+  "price": 0.02083,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1235",
+  "name": "Ice Cream Strawberry Cup",
+  "uom": "Each",
+  "price": 0.83,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-1233",
+  "name": "Ice Cream Vanilla Cup",
+  "uom": "Each",
+  "price": 0.83,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-4199",
+  "name": "Jameed Liquid",
+  "uom": "Ml",
+  "price": 0.02175,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-3401",
+  "name": "Labneh Full Fat(2750 Gram)",
+  "uom": "Gram",
+  "price": 0.012273,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-4304",
+  "name": "Milk Portion Evaporated(15 Gram)",
+  "uom": "Each",
+  "price": 0.56,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-5247",
+  "name": "Milk UHT Chocolate Flavoured, 180 ml",
+  "uom": "Each",
+  "price": 19.75,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": "PRICE CHECK - 19.75 per Each looks like a case price"
+ },
+ {
+  "code": "DRY2-1388",
+  "name": "Milk UHT Full Fat(1 Liter)",
+  "uom": "Ml",
+  "price": 0.00425,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-5248",
+  "name": "Milk UHT Strawberry Flavoured, 180 ml",
+  "uom": "Ml",
+  "price": 1.096667,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": "UNIT CHECK - 1.0967 per Ml; sister item DRY2-5247 is priced per Each"
+ },
+ {
+  "code": "DRY2-1160",
+  "name": "Yogurt Plain big 10 KG",
+  "uom": "Gram",
+  "price": 0.0044,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "DRY2-589",
+  "name": "Zabadi FF 170GR (Almarai)",
+  "uom": "Each",
+  "price": 1.65,
+  "cat": "Fresh",
+  "sub": "Dairy",
+  "flag": ""
+ },
+ {
+  "code": "NOCODE-003",
+  "name": "Frz Calamari Tube",
+  "uom": "Gram",
+  "price": 0.039711,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": "NO CODE in source (Frz Calamari Tube) - assign a real code"
+ },
+ {
+  "code": "SFD2-4238",
+  "name": "Frz Crab Sticks(500 Gram)",
+  "uom": "Gram",
+  "price": 0.04309,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-312",
+  "name": "Frz Fish Fillet Pangasus",
+  "uom": "Gram",
+  "price": 0.032787,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-1101",
+  "name": "Frz Fish Hamour/Nile Perch Fillet",
+  "uom": "Gram",
+  "price": 0.031,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-321",
+  "name": "Frz Fish Salmon Filet",
+  "uom": "Gram",
+  "price": 0.093199,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-1757",
+  "name": "Frz Lobster Tail 6/8",
+  "uom": "Gram",
+  "price": 0.145,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-4528",
+  "name": "Frz Shrimp PD (50/60) Without Tail",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-5320",
+  "name": "Frz Shrimps (11/15) Without Tail",
+  "uom": "Gram",
+  "price": 0.115,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-1578",
+  "name": "Frz Shrimps PD (26/30) Without Tail",
+  "uom": "Gram",
+  "price": 0.0775,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-1344",
+  "name": "Frz Smoked Salmon P / Sliced",
+  "uom": "Gram",
+  "price": 0.095,
+  "cat": "Frozen",
+  "sub": "Fish & Seafood",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4222",
+  "name": "Chick Peas Powder(Kg)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-2176",
+  "name": "Coconut Milk Powder (1 KG)",
+  "uom": "Gram",
+  "price": 0.06077,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-3619",
+  "name": "Coconut Powder (7 Kg)",
+  "uom": "Gram",
+  "price": 0.012857,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-806",
+  "name": "Flour Brown",
+  "uom": "Gram",
+  "price": 0.001,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-980",
+  "name": "Flour Cake Special (all purpose)",
+  "uom": "Gram",
+  "price": 0.001,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-21",
+  "name": "Flour Corn",
+  "uom": "Gram",
+  "price": 0.00208,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-40",
+  "name": "Flour White",
+  "uom": "Gram",
+  "price": 0.000778,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": "PRICE CHECK - 0.000778/g flour; verify"
+ },
+ {
+  "code": "DRS5-979",
+  "name": "Icing Sugar Powder(20 Kg)",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-3866",
+  "name": "Mashed Potato Flakes",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-59",
+  "name": "Milk Powder",
+  "uom": "Gram",
+  "price": 0.01228,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-2618",
+  "name": "Rice powder (500 Gram)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-820",
+  "name": "Semolina Fine",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1782",
+  "name": "Semolina Large",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-5262",
+  "name": "Tempura Flour (Batter Mix)",
+  "uom": "Gram",
+  "price": 0.019,
+  "cat": "Dry",
+  "sub": "Flours & Powders",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-2174",
+  "name": "Fresh Juice Assorted Flavours (1 Liter)",
+  "uom": "Ml",
+  "price": 0.01826,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-4822",
+  "name": "Juice Apple 185 ML (al rabie)",
+  "uom": "Each",
+  "price": 1.11,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-3437",
+  "name": "Juice Apple,180 ML(KDD)",
+  "uom": "Each",
+  "price": 0.98,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-4852",
+  "name": "Juice Cocktail 185 ML (al rabie)",
+  "uom": "Each",
+  "price": 1.24,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-3467",
+  "name": "Juice Cocktail,180 ML(KDD)",
+  "uom": "Each",
+  "price": 0.98,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-4839",
+  "name": "Juice Mango 185 ML (al rabie)",
+  "uom": "Each",
+  "price": 1.31,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-3685",
+  "name": "Juice Mango,180 ML(KDD)",
+  "uom": "Each",
+  "price": 0.98,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-3438",
+  "name": "Juice Orange,180 ML(KDD)",
+  "uom": "Each",
+  "price": 0.98,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-4828",
+  "name": "Juice Pineapple 185 ML (al rabie)",
+  "uom": "Each",
+  "price": 1.17,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-3581",
+  "name": "Juice Pineapple,180 ML(KDD)",
+  "uom": "Each",
+  "price": 1.16,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-4611",
+  "name": "Juice,Flavors,300 ML",
+  "uom": "Each",
+  "price": 2.24,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "BVG2-1409",
+  "name": "Juice,Mixed Flavors,200 ML",
+  "uom": "Each",
+  "price": 1.57,
+  "cat": "Beverage",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1272",
+  "name": "Chick Peas Split (15 KG)",
+  "uom": "Gram",
+  "price": 0.0052,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1025",
+  "name": "Dry Beans White Small",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-483",
+  "name": "Dry Chick Peas NO.12",
+  "uom": "Gram",
+  "price": 0.007,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1788",
+  "name": "Dry Mung Whole Beans (Green)",
+  "uom": "Gram",
+  "price": 0.0048,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-5111",
+  "name": "Dry Red Kidney Beans",
+  "uom": "Gram",
+  "price": 0.008333,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-490",
+  "name": "Lentil Brown",
+  "uom": "Gram",
+  "price": 0.008333,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-50",
+  "name": "Lentil Peeled (Red)",
+  "uom": "Gram",
+  "price": 0.004267,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "MET1-1864",
+  "name": "Chilled Beef Bresola",
+  "uom": "Gram",
+  "price": 0.2,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-3808",
+  "name": "Frz Beef Brisket",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-1053",
+  "name": "Frz Beef Eye round",
+  "uom": "Gram",
+  "price": 0.029,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4316",
+  "name": "Frz Beef ForeQuarter",
+  "uom": "Gram",
+  "price": 0.020556,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4960",
+  "name": "Frz Beef Hot Dog",
+  "uom": "Gram",
+  "price": 0.02611,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4734",
+  "name": "Frz Beef Sausage(2.5 Kg)",
+  "uom": "Gram",
+  "price": 0.0275,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-1051",
+  "name": "Frz Beef Tendrloin Brazil",
+  "uom": "Gram",
+  "price": 0.084706,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-585",
+  "name": "Frz Beef Topside",
+  "uom": "Gram",
+  "price": 0.04263,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4959",
+  "name": "Frz Beef,Lamb Cubes",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4838",
+  "name": "Frz Kibbeh Mini(Each)",
+  "uom": "Each",
+  "price": 1.04,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4771",
+  "name": "Frz Lamb Liver(Kg)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-2075",
+  "name": "Frz Lamb Rack",
+  "uom": "Gram",
+  "price": 0.062,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-3262",
+  "name": "Frz Leg Boneless (Lamb Leg)",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-3558",
+  "name": "Frz Leg Boneless (Veal)",
+  "uom": "Gram",
+  "price": 0.087273,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4655",
+  "name": "Frz Meat Ball",
+  "uom": "Gram",
+  "price": 0.0237,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET1-1705",
+  "name": "Smoked Roast Beef",
+  "uom": "Gram",
+  "price": 0.05,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET1-5468",
+  "name": "Veal Tenderloin Chilled",
+  "uom": "Gram",
+  "price": 0.15,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-969",
+  "name": "Almond Powder(KG)",
+  "uom": "Gram",
+  "price": 0.043,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-971",
+  "name": "Almond Sliced Flakes",
+  "uom": "Gram",
+  "price": 0.043,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3787",
+  "name": "Almond Strips",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-970",
+  "name": "Almond Whole(KG)",
+  "uom": "Gram",
+  "price": 0.03122,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-926",
+  "name": "Cashew Nuts",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-815",
+  "name": "Hazelnut",
+  "uom": "Gram",
+  "price": 0.10924,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3371",
+  "name": "Pecan Nuts",
+  "uom": "Gram",
+  "price": 0.095,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-1000",
+  "name": "Pine Nut's",
+  "uom": "Gram",
+  "price": 0.175,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-560",
+  "name": "Pistachio Nuts",
+  "uom": "Gram",
+  "price": 0.069,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-4356",
+  "name": "Pistachio Strips/Silvered (kg)",
+  "uom": "Gram",
+  "price": 0.155,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3343",
+  "name": "Raw Peanuts (KG)",
+  "uom": "Gram",
+  "price": 0.00665,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-569",
+  "name": "Walnuts",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-1813",
+  "name": "Corn Oil (18 Liter)",
+  "uom": "Ml",
+  "price": 0.008056,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-1615",
+  "name": "Olive Oil (CAN)",
+  "uom": "Ml",
+  "price": 0.012,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-1415",
+  "name": "Sesame Oil(320 ML)",
+  "uom": "Ml",
+  "price": 0.036719,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-5364",
+  "name": "Sunflower oil 18 Ltr",
+  "uom": "Ml",
+  "price": 0.006889,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-4207",
+  "name": "Truffle Oil White in Bottle",
+  "uom": "Ml",
+  "price": 0.176,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "DRS3-71",
+  "name": "Vegetable Oil (17 Liter)",
+  "uom": "Ml",
+  "price": 0.007353,
+  "cat": "Dry",
+  "sub": "Oils",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5148",
+  "name": "Aluminum Container 1 Comp 831160 (800pcs)",
+  "uom": "Each",
+  "price": 0.30625,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-741",
+  "name": "Aluminum Container 2 Comp W/Lid",
+  "uom": "Each",
+  "price": 0.241667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-743",
+  "name": "Aluminum Container Round 5047 (Kunafa)",
+  "uom": "Each",
+  "price": 0.25,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5120",
+  "name": "Aluminum Container With Lid 8342",
+  "uom": "Each",
+  "price": 0.11,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1576",
+  "name": "Aluminum Paper Sandwich For Beef Burger(500)",
+  "uom": "Each",
+  "price": 0.1375,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1577",
+  "name": "Aluminum Paper Sandwich For Chicken Burger(500)",
+  "uom": "Each",
+  "price": 0.1075,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5144",
+  "name": "Bamboo Flag Skewer 9 CM",
+  "uom": "Each",
+  "price": 0.059,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5145",
+  "name": "Bamboo Knotted Skewer 15 cm",
+  "uom": "Each",
+  "price": 0.0675,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5146",
+  "name": "Bamboo Ring Skewer 12 cm",
+  "uom": "Each",
+  "price": 0.1325,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4090",
+  "name": "Bamboo Skewers(15 Cm)",
+  "uom": "Each",
+  "price": 0.00645,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4278",
+  "name": "Burger Butter Paper,10cm",
+  "uom": "Each",
+  "price": 0.053333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4277",
+  "name": "Burger Butter Paper,13 cm",
+  "uom": "Each",
+  "price": 0.065333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-639",
+  "name": "Butter Paper (60*40)",
+  "uom": "Each",
+  "price": 0.19,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4807",
+  "name": "Cake Box Medium,Brown,Gourmet,371x370x90",
+  "uom": "Each",
+  "price": 1.9,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5185",
+  "name": "Cutlery Set VIP Black,3 Pcs 250 pcs",
+  "uom": "Each",
+  "price": 0.32,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5291",
+  "name": "Cutlery Set for Diet World Logo 250Set",
+  "uom": "Each",
+  "price": 0.36,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1258",
+  "name": "Cutlery Set for SMC Logo",
+  "uom": "Each",
+  "price": 0.466667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4952",
+  "name": "Cutlery Set for Salus Logo",
+  "uom": "Each",
+  "price": 0.4,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5292",
+  "name": "Cutlery Set,FRSH Logo 250 Set",
+  "uom": "Each",
+  "price": 0.4,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5104",
+  "name": "Cutlery Set,Gourmet Logo 250 Set",
+  "uom": "Each",
+  "price": 0.36,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1613",
+  "name": "Dolly Paper Tray (48x50)",
+  "uom": "Each",
+  "price": 0.115,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1612",
+  "name": "EXP Stickers Roll",
+  "uom": "Each",
+  "price": 0.005889,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5221",
+  "name": "Eco Friendly,Dessert Container 8oz with Lid(1000Pcs)",
+  "uom": "Each",
+  "price": 0.32,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4779",
+  "name": "Eco Friendly,Food Cont.Rect,750ML,1Comp,W/Lid",
+  "uom": "Each",
+  "price": 0.58,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5209",
+  "name": "Eco Friendly,Food Cont.Rect. 1000ml With Lid",
+  "uom": "Each",
+  "price": 0.933333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4940",
+  "name": "Eco Friendly,Food Plate,Round,10 Inch",
+  "uom": "Each",
+  "price": 0.38,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4939",
+  "name": "Eco Friendly,Food Plate,Round,9 Inch",
+  "uom": "Each",
+  "price": 0.43,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5222",
+  "name": "Eco Friendly,Salad Container 12oz with Lid",
+  "uom": "Each",
+  "price": 0.46,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5392",
+  "name": "Eco Friendly,Soup Container 8oz",
+  "uom": "Each",
+  "price": 0.18,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5270",
+  "name": "Fabric Bag 30x30x17 CM Laminated with FRSH logo",
+  "uom": "Each",
+  "price": 0.85,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5023",
+  "name": "Fabric Bag 31x37x17 CM Laminated with Diet World logo",
+  "uom": "Each",
+  "price": 0.65,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5183",
+  "name": "Fabric Bag 36x31x17 CM Laminated with SALUS logo",
+  "uom": "Each",
+  "price": 0.78,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5267",
+  "name": "Fabric Bag 37x30x7.5 CM Laminated Diet World logo(Small)",
+  "uom": "Each",
+  "price": 0.8,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5394",
+  "name": "Flat Lid For Deli Container 12oz/8oz",
+  "uom": "Each",
+  "price": 0.18,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5195",
+  "name": "Gourmet Club Sandwich Box 101x45x104",
+  "uom": "Each",
+  "price": 0.35,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5198",
+  "name": "Gourmet Croissant/Sandwich Box 150x110x80",
+  "uom": "Each",
+  "price": 0.35,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5199",
+  "name": "Gourmet Jumbo Sandwich Sleeves 175x261",
+  "uom": "Each",
+  "price": 0.31,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5197",
+  "name": "Gourmet Panini Sandwich Box 80x55x190",
+  "uom": "Each",
+  "price": 0.38,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5200",
+  "name": "Gourmet Sleeves DC200 &16 Oz",
+  "uom": "Each",
+  "price": 0.31,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5196",
+  "name": "Gourmet Tortilla Sandwich Box 82x60x120",
+  "uom": "Each",
+  "price": 0.31,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5044",
+  "name": "Kraft Soup Container 12oz with PP Lid",
+  "uom": "Each",
+  "price": 0.26,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4462",
+  "name": "Kraft Soup Container,16oz",
+  "uom": "Each",
+  "price": 0.21,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5098",
+  "name": "Kraft White Container Square 30oz",
+  "uom": "Each",
+  "price": 0.733333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5122",
+  "name": "Kraft White Container Square 400 ml",
+  "uom": "Each",
+  "price": 0.5,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5123",
+  "name": "Kraft White Container Square 600 ml",
+  "uom": "Each",
+  "price": 0.633333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5188",
+  "name": "Kraft White Salad Container,Round,32oz W/Lid",
+  "uom": "Each",
+  "price": 0.516667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5275",
+  "name": "Menu Cards FRSH (Various Sizes)",
+  "uom": "Each",
+  "price": 0.17,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5075",
+  "name": "Paper Bag Brown W/Gourmet Logo 29x15x30 cm",
+  "uom": "Each",
+  "price": 0.75,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5112",
+  "name": "Paper Bag Brown,Sandwich,W/Window 12x30 (1x50) S",
+  "uom": "Each",
+  "price": 0.8,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5011",
+  "name": "Paper Bag Brown,Sandwich,W/Window 20x29(1x100)M",
+  "uom": "Each",
+  "price": 0.6,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4757",
+  "name": "Paper Bag Brown,Sandwich,W/Window 21x35 L",
+  "uom": "Each",
+  "price": 0.8,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5234",
+  "name": "Paper Bag Brown,Sandwich,W/Window 34x15x7.5",
+  "uom": "Each",
+  "price": 0.215,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5076",
+  "name": "Paper Bag White W/Gourmet Logo 29x15x30 cm",
+  "uom": "Each",
+  "price": 0.75,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5230",
+  "name": "Paper Bag With Golyv Logo 32x16x31",
+  "uom": "Each",
+  "price": 0.86,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5191",
+  "name": "Paper Cake Base With Pet Lid 27x27 130pcs",
+  "uom": "Each",
+  "price": 2.038462,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4740",
+  "name": "Paper Club Sandwich Cont,W/Window(250 Each)",
+  "uom": "Each",
+  "price": 0.58,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1608",
+  "name": "Paper Cup Brown for Muffin (11.5cm)",
+  "uom": "Each",
+  "price": 0.01719,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3178",
+  "name": "Paper Cup White For Muffin (7 Cm)",
+  "uom": "Each",
+  "price": 0.0055,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1923",
+  "name": "Paper Cup White For Muffin (9.5 Cm)",
+  "uom": "Each",
+  "price": 0.024,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5010",
+  "name": "Paper Cup White For Muffin 15 Cm",
+  "uom": "Each",
+  "price": 0.058,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5257",
+  "name": "Paper Cup,4oz With SMC Logo (Espresso)",
+  "uom": "Each",
+  "price": 0.076,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4088",
+  "name": "Paper Cup,4oz(Nespresso)",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4424",
+  "name": "Paper Cup,VIP,7oz W/Lids",
+  "uom": "Each",
+  "price": 0.035,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1010",
+  "name": "Paper Cups",
+  "uom": "Each",
+  "price": 0.075,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5285",
+  "name": "Paper Cups 32Oz (Pop Corn)",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5154",
+  "name": "Paper Cups 8oz,Double Wall,Gourmet Logo & Lids(500 Each)",
+  "uom": "Each",
+  "price": 0.234,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4708",
+  "name": "Paper Cups 8oz,VIP,Double,Logo&Lids(1000)",
+  "uom": "Each",
+  "price": 0.34,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5121",
+  "name": "Paper Cups,VIP, 8oz w/Lids Double Wall (1x500)",
+  "uom": "Each",
+  "price": 0.185,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3681",
+  "name": "Paper Cups,VIP,9oz w/Lids",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1155",
+  "name": "Paper Pkt Big Size for French Fries",
+  "uom": "Each",
+  "price": 0.165,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4746",
+  "name": "Paper Sandwich Container,Long,5x10.5x20cm,W/Window",
+  "uom": "Each",
+  "price": 0.775,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4739",
+  "name": "Paper Sandwich Container,Long,6x27cm,W/Window",
+  "uom": "Each",
+  "price": 0.832,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4766",
+  "name": "Paper Sandwich Container,Square,10.55x10.5cm,W/Window",
+  "uom": "Each",
+  "price": 0.34,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4814",
+  "name": "Paper Sandwich Container,Tortilla,W/Window",
+  "uom": "Each",
+  "price": 0.672,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5231",
+  "name": "Paper Sleeve with Golyv Logo 75x176",
+  "uom": "Each",
+  "price": 0.32,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5274",
+  "name": "Paper Sleeves FRSH (Various Sizes)",
+  "uom": "Each",
+  "price": 0.29,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5071",
+  "name": "Paper Sleeves with Dietworld Logo",
+  "uom": "Each",
+  "price": 0.21,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5202",
+  "name": "Paper Sleeves with Mashwi Kiwi Logo",
+  "uom": "Each",
+  "price": 0.28,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4858",
+  "name": "Paper Sleeves,38x7.5,2Colors (Salus)",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-882",
+  "name": "Piping Bag",
+  "uom": "Each",
+  "price": 0.9,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5378",
+  "name": "Plastic Bag With Handle and Ziplock 32x26 cm(KG)",
+  "uom": "Each",
+  "price": 0.5,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5204",
+  "name": "Plastic Black Microwave 10 oz Container Lid MCB250BHP",
+  "uom": "Each",
+  "price": 0.224,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1555",
+  "name": "Plastic Clear 10oz Container With Lid",
+  "uom": "Each",
+  "price": 0.187,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4870",
+  "name": "Plastic Clear Cont,Square,12oz,W/Lid",
+  "uom": "Each",
+  "price": 0.26,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4929",
+  "name": "Plastic Clear Cont,Square,8oz,W/Lid",
+  "uom": "Each",
+  "price": 0.392,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1287",
+  "name": "Plastic Clear Dessert Cup With Lid(500 each)",
+  "uom": "Each",
+  "price": 0.27,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1254",
+  "name": "Plastic Clear Microwave 10 oz Container",
+  "uom": "Each",
+  "price": 0.224,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1849",
+  "name": "Plastic Clear Salad Container Medium OPS (300 Each)",
+  "uom": "Each",
+  "price": 0.25,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1293",
+  "name": "Plastic Clear Salad Container Medium OPS(8oz 240 Each)",
+  "uom": "Each",
+  "price": 0.35,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-650",
+  "name": "Plastic Club Sandwich Box,Clear",
+  "uom": "Each",
+  "price": 0.155,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5152",
+  "name": "Plastic Cocktail Fork",
+  "uom": "Each",
+  "price": 0.2125,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5151",
+  "name": "Plastic Cocktail Spoon",
+  "uom": "Each",
+  "price": 0.2125,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4649",
+  "name": "Plastic Cont,1Comp,05AH08PBK(300 Each)",
+  "uom": "Each",
+  "price": 0.3,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5102",
+  "name": "Plastic Cont,1Comp,08oz White, with Lid",
+  "uom": "Each",
+  "price": 0.3,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5000",
+  "name": "Plastic Cont,Rect,Injection, White 24OZ With Lid",
+  "uom": "Each",
+  "price": 0.533333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4998",
+  "name": "Plastic Cont,Rect,Injection, White 28OZ With Lid",
+  "uom": "Each",
+  "price": 0.666667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4999",
+  "name": "Plastic Cont,Rect,Injection,2Comp.White 32OZ With Lid",
+  "uom": "Each",
+  "price": 0.58,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5203",
+  "name": "Plastic Cont,Rect,Injection,Black,48oz,W/Lid BBRE48",
+  "uom": "Each",
+  "price": 0.87,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5192",
+  "name": "Plastic Cont,Rect,Injection,Black,58oz,W/Lid BBRE58",
+  "uom": "Each",
+  "price": 1.166667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1543",
+  "name": "Plastic Container 1Compartment (05AH24PBK) W/Lid",
+  "uom": "Each",
+  "price": 0.433333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5190",
+  "name": "Plastic Container 20oz Red & Black with Lid 300 pcs",
+  "uom": "Each",
+  "price": 0.65,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5189",
+  "name": "Plastic Container 32oz Red & Black with Lid 300 pcs",
+  "uom": "Each",
+  "price": 0.866667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-3583",
+  "name": "Plastic Container Black (05AH16PBK) W/Lid",
+  "uom": "Each",
+  "price": 0.316667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-3212",
+  "name": "Plastic Container Clear (05AH16WT) W/Lid",
+  "uom": "Each",
+  "price": 0.316667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4127",
+  "name": "Plastic Container Clear,05AH12WT(300 Each)",
+  "uom": "Each",
+  "price": 0.233333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4129",
+  "name": "Plastic Container Clear,05AH16T(300 Each)",
+  "uom": "Each",
+  "price": 0.296667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1455",
+  "name": "Plastic Container OPS 207(500pcs)",
+  "uom": "Each",
+  "price": 0.17,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5095",
+  "name": "Plastic Container White (PP16DEF) W/Lid 1x300",
+  "uom": "Each",
+  "price": 0.416667,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5096",
+  "name": "Plastic Container White (PP24DEF) W/Lid 1x300",
+  "uom": "Each",
+  "price": 0.433333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5340",
+  "name": "Plastic Container with Lid,Rect, Medium Sushi (SC02BHP)",
+  "uom": "Each",
+  "price": 0.434,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5304",
+  "name": "Plastic Container, Black Base 10 inch With Clear Lid (Cake)",
+  "uom": "Each",
+  "price": 3.8,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5311",
+  "name": "Plastic Container, Black Base With Clear Lid 3.5 (Cake)",
+  "uom": "Each",
+  "price": 1.85,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4231",
+  "name": "Plastic Container,1 Comp,Black(K-8000) W/Lid",
+  "uom": "Each",
+  "price": 0.396,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5100",
+  "name": "Plastic Container,1 Comp,White(K-8000)",
+  "uom": "Each",
+  "price": 0.5,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4086",
+  "name": "Plastic Container,2 Comp,Black(K-8010) W/Lid",
+  "uom": "Each",
+  "price": 0.5,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-3698",
+  "name": "Plastic Container,2 Comp,Black(K-9010) W/lid",
+  "uom": "Each",
+  "price": 0.44,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5101",
+  "name": "Plastic Container,2 Comp,White(K-8010) W/Lid",
+  "uom": "Each",
+  "price": 0.5,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-5097",
+  "name": "Plastic Container,2 Comp,White(K-9010) W/lid 1x250",
+  "uom": "Each",
+  "price": 0.34,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4437",
+  "name": "Plastic Container,3Comp,Black(K-8020) W/Lid",
+  "uom": "Each",
+  "price": 0.328,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4374",
+  "name": "Plastic Cylindrical Jar,Transparent,230 ML",
+  "uom": "Each",
+  "price": 1.195104,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5009",
+  "name": "Plastic Dessert Cup With 2 Lid,Dome&Flat,Salus",
+  "uom": "Each",
+  "price": 0.37,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1541",
+  "name": "Plastic Dessert Cup w/Lid,DC200 (1000)",
+  "uom": "Each",
+  "price": 0.175,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3876",
+  "name": "Plastic Juice Bottle,250 ML",
+  "uom": "Each",
+  "price": 0.44,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-3893",
+  "name": "Plastic Medium Sauce Cup W/Lid 100ml MC100",
+  "uom": "Each",
+  "price": 0.095,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5313",
+  "name": "Plastic Pastry Tray with Cover, Golden, Large",
+  "uom": "Each",
+  "price": 3.142857,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5314",
+  "name": "Plastic Pastry Tray with Cover, Golden, Small",
+  "uom": "Each",
+  "price": 2.571429,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4153",
+  "name": "Plastic Plate,Disposable,VIP,10.25 inch",
+  "uom": "Each",
+  "price": 1.319444,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4604",
+  "name": "Plastic Salad Cont,Clear,Round,16oz,W/Lid",
+  "uom": "Each",
+  "price": 0.273333,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1639",
+  "name": "Plastic Sauce Container 02oz With Lids (2000)",
+  "uom": "Each",
+  "price": 0.05,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4236",
+  "name": "Plastic Sauce Container,1 Oz W/Lids(2000)",
+  "uom": "Each",
+  "price": 0.176,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4867",
+  "name": "Plastic Sauce Cup,2oz,Microwavable,W/Lid",
+  "uom": "Each",
+  "price": 0.108,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1143",
+  "name": "Plastic Table Fork",
+  "uom": "Each",
+  "price": 0.035,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3432",
+  "name": "Plastic Table Fork,VIP(Black)",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1197",
+  "name": "Plastic Table Knife",
+  "uom": "Each",
+  "price": 0.03,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3434",
+  "name": "Plastic Table Knife,VIP(Black)",
+  "uom": "Each",
+  "price": 0.08,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-777",
+  "name": "Plastic Table Spoon",
+  "uom": "Each",
+  "price": 0.036,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3430",
+  "name": "Plastic Table Spoon,VIP(Black)",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-629",
+  "name": "Plastic Tea Spoon",
+  "uom": "Each",
+  "price": 0.023,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4904",
+  "name": "Plastic Water Cup,White",
+  "uom": "Each",
+  "price": 0.025,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4883",
+  "name": "Sandwich Bag,Clear, 10x18 cm",
+  "uom": "Each",
+  "price": 0.076,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4953",
+  "name": "Sandwich Bag,Clear, 11x11 cm",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1814",
+  "name": "Sandwich Bag,Clear, 13x30 cm",
+  "uom": "Each",
+  "price": 0.076,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-881",
+  "name": "Sandwich Bag,Clear,10x30 CM",
+  "uom": "Each",
+  "price": 0.0345,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1371",
+  "name": "Sandwich Bag,Clear,13x20cm",
+  "uom": "Each",
+  "price": 0.0345,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5073",
+  "name": "Sandwich Wrapping Paper (Gourmet)",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4859",
+  "name": "Sandwich Wrapping Paper (Salus)",
+  "uom": "Each",
+  "price": 0.07,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1707",
+  "name": "Sticker Diet World Breakfast (New)",
+  "uom": "Each",
+  "price": 0.08,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-4261",
+  "name": "Sticker Diet World Main Courses (New)",
+  "uom": "Each",
+  "price": 0.08,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DWS-1712",
+  "name": "Sticker Diet World Soup (New)",
+  "uom": "Each",
+  "price": 0.08,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4075",
+  "name": "Sticker Gourmet Sandwich",
+  "uom": "Each",
+  "price": 0.05,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5419",
+  "name": "Sticker Roll 150x100",
+  "uom": "Each",
+  "price": 0.02782,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5310",
+  "name": "Sticker Roll Plain,Expiry",
+  "uom": "Each",
+  "price": 0.00739,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4923",
+  "name": "Sticker Roll Plain,Salus",
+  "uom": "Each",
+  "price": 0.00739,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-4861",
+  "name": "Sticker Round,2 Colors,5cm(Salus)",
+  "uom": "Each",
+  "price": 0.09,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5236",
+  "name": "Sticker Round,Golyv Logo 6cm",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5235",
+  "name": "Sticker Round,Golyv Logo 7cm",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3509",
+  "name": "Sticker Round,Gourmet Logo,3cm",
+  "uom": "Each",
+  "price": 0.15,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5220",
+  "name": "Sticker Round,Mashwi Kiwi Logo 7cm",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5343",
+  "name": "Sticker Security Seal, 9x4 Cm,Sidra",
+  "uom": "Each",
+  "price": 0.15,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5237",
+  "name": "Sticker Security Seal,Golyv",
+  "uom": "Each",
+  "price": 0.4,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-3940",
+  "name": "Sticker,Gourmet Logo,7cm",
+  "uom": "Each",
+  "price": 0.2,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-1546",
+  "name": "Straw With Paper Wrapped (40x250)",
+  "uom": "Each",
+  "price": 0.016,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "PKG-5276",
+  "name": "Wet Napkins with FRSH Logo",
+  "uom": "Each",
+  "price": 0.11,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-508",
+  "name": "Chinese Noodle(Pancit Canton)",
+  "uom": "Gram",
+  "price": 0.025022,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-1637",
+  "name": "Frz Pasta Ravioli Cheese",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Frozen",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-1866",
+  "name": "Pasta Cannelloni",
+  "uom": "Gram",
+  "price": 0.0348,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-4516",
+  "name": "Pasta Ditalini Rigate(1 KG)",
+  "uom": "Gram",
+  "price": 0.00803,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-3804",
+  "name": "Pasta Elbows Small #19",
+  "uom": "Gram",
+  "price": 0.009222,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-77",
+  "name": "Pasta Farfalle,N:50(500 Gram)",
+  "uom": "Gram",
+  "price": 0.008911,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-2110",
+  "name": "Pasta Fettuccine (500 Gram)",
+  "uom": "Gram",
+  "price": 0.0207,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-502",
+  "name": "Pasta Fusilli N:36",
+  "uom": "Gram",
+  "price": 0.009267,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-1367",
+  "name": "Pasta Lasagna (500 Gram)",
+  "uom": "Gram",
+  "price": 0.02666,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-4416",
+  "name": "Pasta Lasagna Spinach(500 Gram)",
+  "uom": "Gram",
+  "price": 0.0175,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-4956",
+  "name": "Pasta Linguine",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-3825",
+  "name": "Pasta Orzo #17 (500 Gram)",
+  "uom": "Gram",
+  "price": 0.009222,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-4321",
+  "name": "Pasta Penne Rigate (1 Kg)",
+  "uom": "Gram",
+  "price": 0.00803,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-3284",
+  "name": "Pasta Shell #18",
+  "uom": "Gram",
+  "price": 0.008911,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-81",
+  "name": "Pasta Spaghetti Regular N:20",
+  "uom": "Gram",
+  "price": 0.008911,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-3622",
+  "name": "Pasta Spaghettini N:21",
+  "uom": "Gram",
+  "price": 0.008822,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-3628",
+  "name": "Pasta Vermicelli-Cuts,N:61",
+  "uom": "Gram",
+  "price": 0.011067,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1476",
+  "name": "Rice Sticks",
+  "uom": "Gram",
+  "price": 0.02348,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-1325",
+  "name": "Bread Improver K2",
+  "uom": "Gram",
+  "price": 0.0117,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-5001",
+  "name": "Brownies Mix Powder(10 kg)",
+  "uom": "Gram",
+  "price": 0.0119,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-5476",
+  "name": "Cake Mix Powder,Red Velvet (10 kg)",
+  "uom": "Gram",
+  "price": 0.0085,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1427",
+  "name": "Chocolate Dark Compound Backaldarin",
+  "uom": "Gram",
+  "price": 0.0105,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1580",
+  "name": "Chocolate Milk Compound Backaldarin",
+  "uom": "Gram",
+  "price": 0.0105,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1657",
+  "name": "Chocolate White Cold 29% Herco/Dolicy",
+  "uom": "Gram",
+  "price": 0.044,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3958",
+  "name": "Chocolate White Compound Backaldarin",
+  "uom": "Gram",
+  "price": 0.0105,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-1736",
+  "name": "Cocoa Powder (25 KG)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-5427",
+  "name": "Cream Caramel Mix Powder 5 kg",
+  "uom": "Gram",
+  "price": 0.019,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4244",
+  "name": "Cream patissiere Custard Powder",
+  "uom": "Gram",
+  "price": 0.023,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-618",
+  "name": "Custard powder(450 Gram)",
+  "uom": "Gram",
+  "price": 0.015289,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4621",
+  "name": "Dark Chocolate Coins 55%",
+  "uom": "Gram",
+  "price": 0.44,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": "PRICE CHECK - 0.44/g vs 52% coins at 0.058/g"
+ },
+ {
+  "code": "DRS1-4395",
+  "name": "Dark Chocolate Sticks (Croissant),1Kg",
+  "uom": "Gram",
+  "price": 0.02333,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4309",
+  "name": "Dark Chocolate coins,52% Icam",
+  "uom": "Gram",
+  "price": 0.058,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-90",
+  "name": "Dry Yeast(500 Gram)",
+  "uom": "Gram",
+  "price": 0.0145,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-1624",
+  "name": "Easy Muffin Mix Chocolate (10 KG)",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4768",
+  "name": "Feuilletine Flakes",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-3901",
+  "name": "Flour Mix,Bakery,Gluten Free(1020 Gram)",
+  "uom": "Gram",
+  "price": 0.0315,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1396",
+  "name": "Glaze Neutral jelly Hot (7 KG)",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-981",
+  "name": "Jelly Powder,Strawberry,3Kg",
+  "uom": "Gram",
+  "price": 0.012083,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3353",
+  "name": "Liquid Food Color,Green,For Cake",
+  "uom": "Ml",
+  "price": 0.1625,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4624",
+  "name": "Liquid Food Color,Orange,For Cake",
+  "uom": "Ml",
+  "price": 0.120833,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3352",
+  "name": "Liquid Food Color,Red,For Cake",
+  "uom": "Ml",
+  "price": 0.0875,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4623",
+  "name": "Liquid Food Color,Yellow,For Cake",
+  "uom": "Ml",
+  "price": 0.120833,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4060",
+  "name": "Lotus Biscuit Crumble(10 Kg)",
+  "uom": "Gram",
+  "price": 0.0165,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4055",
+  "name": "Lotus Paste (8 Kg)",
+  "uom": "Gram",
+  "price": 0.020375,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4934",
+  "name": "Milk Chocolate Coins,33% Icam",
+  "uom": "Gram",
+  "price": 0.053667,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4403",
+  "name": "Milk Chocolate Drops(Kg)",
+  "uom": "Gram",
+  "price": 0.02955,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3648",
+  "name": "Nutella(750 Gram)",
+  "uom": "Gram",
+  "price": 0.032227,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1912",
+  "name": "Raha Sweet",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3607",
+  "name": "Raspberry Filling In Pail",
+  "uom": "Gram",
+  "price": 0.022333,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-3576",
+  "name": "Ready Mixed Cake Chocolate(25 Kg)",
+  "uom": "Gram",
+  "price": 0.00688,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-3575",
+  "name": "Ready Mixed Cake Vanilla(25 Kg)",
+  "uom": "Gram",
+  "price": 0.00588,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3636",
+  "name": "Strawberry Gel (Cold)",
+  "uom": "Gram",
+  "price": 0.0325,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1468",
+  "name": "Strawberry Pie Filling(Pail 6kg)",
+  "uom": "Gram",
+  "price": 0.027,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-616",
+  "name": "Syrup Chocolate (Hershey's) 680 Gram",
+  "uom": "Gram",
+  "price": 0.024265,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3600",
+  "name": "Tea Biscuits(160 Gram)",
+  "uom": "Gram",
+  "price": null,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": "PRICE MISSING - source price cell contained a division error"
+ },
+ {
+  "code": "DRS1-3634",
+  "name": "Toffee Caramel,Gold(5 Kg)",
+  "uom": "Gram",
+  "price": 0.0186,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1823",
+  "name": "Vanilla Essence (Concentrated)",
+  "uom": "Gram",
+  "price": 0.049,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4358",
+  "name": "White Chocolate Coins 29% (Icam)",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5140",
+  "name": "Xanthan Gum",
+  "uom": "Gram",
+  "price": 0.3,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "PLT1-37",
+  "name": "Eggs",
+  "uom": "Each",
+  "price": 0.483,
+  "cat": "Fresh",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT1-1785",
+  "name": "Fresh Chicken Whole",
+  "uom": "Gram",
+  "price": 0.01373,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": "CATEGORY - Fresh Chicken Whole tagged Frozen in source"
+ },
+ {
+  "code": "PLT2-5475",
+  "name": "Frozen Whole Egg",
+  "uom": "Gram",
+  "price": 0.0145,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-1045",
+  "name": "Frz Boneless Chicken(Shawarma)",
+  "uom": "Gram",
+  "price": 0.021858,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-5309",
+  "name": "Frz Chicken Ball",
+  "uom": "Gram",
+  "price": 0.014167,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-3278",
+  "name": "Frz Chicken Breast Tender (KG)",
+  "uom": "Gram",
+  "price": 0.030357,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-1573",
+  "name": "Frz Chicken Frank (Doux Original)",
+  "uom": "Gram",
+  "price": 0.01095,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-159",
+  "name": "Frz Chicken Leg Quarter",
+  "uom": "Gram",
+  "price": 0.0088,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-1844",
+  "name": "Frz Chicken Whole (1100 Gram)",
+  "uom": "Gram",
+  "price": 0.0143,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-1800",
+  "name": "Frz Whole Turkey(KG)",
+  "uom": "Gram",
+  "price": 0.027,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT2-1475",
+  "name": "Frz.Chicken Breaded Strips",
+  "uom": "Gram",
+  "price": 0.022,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "PLT1-1704",
+  "name": "Smoked Roast Chicken",
+  "uom": "Gram",
+  "price": 0.05,
+  "cat": "Frozen",
+  "sub": "Poultry",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4181",
+  "name": "Avocado Paste",
+  "uom": "Gram",
+  "price": 0.032,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3914",
+  "name": "Corn On The Cob(Whole)",
+  "uom": "Each",
+  "price": 3.73,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5238",
+  "name": "Dried Vegetable Chips",
+  "uom": "Gram",
+  "price": 0.116667,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-1632",
+  "name": "Dry Apricots (1KG)",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-4230",
+  "name": "Dry Cranberry(Kg)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-1675",
+  "name": "Dry Lemon Black(1 Kg)",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-3878",
+  "name": "Dry Mint (Kg)",
+  "uom": "Gram",
+  "price": 0.03,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-1661",
+  "name": "Dry Mix Fruits(1 Kg)",
+  "uom": "Gram",
+  "price": 0.039,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-457",
+  "name": "Dry Mouloukhia",
+  "uom": "Gram",
+  "price": 0.06,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-1842",
+  "name": "Dry Mushroom Set (Jar)",
+  "uom": "Gram",
+  "price": 0.3,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-4849",
+  "name": "Dry Prunes Pitted(Barkouk)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5339",
+  "name": "Dry Rosemary Leaves(500 gm)",
+  "uom": "Gram",
+  "price": 0.03,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-1653",
+  "name": "Dry Sun Tomatoes In Oil",
+  "uom": "Gram",
+  "price": 0.0531,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-374",
+  "name": "Fresh Apple Red",
+  "uom": "Gram",
+  "price": 0.007,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4787",
+  "name": "Fresh Avocado",
+  "uom": "Gram",
+  "price": 0.078624,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3546",
+  "name": "Fresh Baby Carrot",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3794",
+  "name": "Fresh Baby Marrow",
+  "uom": "Gram",
+  "price": 0.004938,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4600",
+  "name": "Fresh Baby Rocca",
+  "uom": "Gram",
+  "price": 0.07717,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4601",
+  "name": "Fresh Baby Spinach",
+  "uom": "Gram",
+  "price": 0.074227,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-376",
+  "name": "Fresh Bananas",
+  "uom": "Gram",
+  "price": 0.005862,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-179",
+  "name": "Fresh Basil",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-709",
+  "name": "Fresh Beetroot",
+  "uom": "Gram",
+  "price": 0.004779,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4389",
+  "name": "Fresh Blackberry",
+  "uom": "Gram",
+  "price": 0.104,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4390",
+  "name": "Fresh Blueberry(125 Gram)",
+  "uom": "Gram",
+  "price": 0.104,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-182",
+  "name": "Fresh Brocoli",
+  "uom": "Gram",
+  "price": 0.017789,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-189",
+  "name": "Fresh Cabbage Red",
+  "uom": "Gram",
+  "price": 0.004493,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-185",
+  "name": "Fresh Cabbage White",
+  "uom": "Gram",
+  "price": 0.004458,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-186",
+  "name": "Fresh Carrot Imported",
+  "uom": "Gram",
+  "price": 0.005814,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-187",
+  "name": "Fresh Cauliflower",
+  "uom": "Gram",
+  "price": 0.006142,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-191",
+  "name": "Fresh Celery Branch(Imported)",
+  "uom": "Gram",
+  "price": 0.024972,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-245",
+  "name": "Fresh Cherry Tomato(Local)",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-194",
+  "name": "Fresh Chives (Ciboulettes)",
+  "uom": "Gram",
+  "price": 0.11,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-195",
+  "name": "Fresh Coriander",
+  "uom": "Gram",
+  "price": 0.009368,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-196",
+  "name": "Fresh Cucumber",
+  "uom": "Gram",
+  "price": 0.004147,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-199",
+  "name": "Fresh Dill",
+  "uom": "Gram",
+  "price": 0.011429,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-380",
+  "name": "Fresh Dragin Fruit",
+  "uom": "Gram",
+  "price": 0.048409,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-201",
+  "name": "Fresh Eggplant",
+  "uom": "Gram",
+  "price": 0.004286,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4327",
+  "name": "Fresh Garlic Peeled",
+  "uom": "Gram",
+  "price": 0.013,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-204",
+  "name": "Fresh Ginger",
+  "uom": "Gram",
+  "price": 0.008434,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-385",
+  "name": "Fresh Grapes Red",
+  "uom": "Gram",
+  "price": 0.012592,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-591",
+  "name": "Fresh Green Chili Spic",
+  "uom": "Gram",
+  "price": 0.007059,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3374",
+  "name": "Fresh Kale",
+  "uom": "Gram",
+  "price": 0.053846,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-390",
+  "name": "Fresh Kiwi",
+  "uom": "Gram",
+  "price": 0.016418,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4019",
+  "name": "Fresh Leek (Imported)",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-209",
+  "name": "Fresh Lemon",
+  "uom": "Gram",
+  "price": 0.010088,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4179",
+  "name": "Fresh Lemon Grass(Imported)",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-213",
+  "name": "Fresh Lettuce Iceberg (Local)",
+  "uom": "Gram",
+  "price": 0.012162,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3956",
+  "name": "Fresh Lettuce Lollo Rosso(Local)",
+  "uom": "Gram",
+  "price": 0.057416,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-216",
+  "name": "Fresh Lettuce Romain",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-1289",
+  "name": "Fresh Mandarin",
+  "uom": "Gram",
+  "price": 0.010465,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-221",
+  "name": "Fresh Mint",
+  "uom": "Gram",
+  "price": 0.006885,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-223",
+  "name": "Fresh Mushroom",
+  "uom": "Gram",
+  "price": 0.023231,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3182",
+  "name": "Fresh Mushroom (Brown)",
+  "uom": "Gram",
+  "price": 0.033684,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-395",
+  "name": "Fresh Orange-Table",
+  "uom": "Gram",
+  "price": 0.009346,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-227",
+  "name": "Fresh Parsley",
+  "uom": "Gram",
+  "price": 0.01585,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-401",
+  "name": "Fresh Pineapple",
+  "uom": "Gram",
+  "price": 0.014981,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-403",
+  "name": "Fresh Pomegranate",
+  "uom": "Gram",
+  "price": 0.019432,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-230",
+  "name": "Fresh Potato",
+  "uom": "Gram",
+  "price": 0.003374,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-231",
+  "name": "Fresh Potato Sweet",
+  "uom": "Gram",
+  "price": 0.009662,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-232",
+  "name": "Fresh Pumpkin",
+  "uom": "Gram",
+  "price": 0.004444,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-234",
+  "name": "Fresh Radish",
+  "uom": "Gram",
+  "price": 0.005022,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4391",
+  "name": "Fresh Raspberry",
+  "uom": "Gram",
+  "price": 0.104,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-235",
+  "name": "Fresh Rocket",
+  "uom": "Gram",
+  "price": 0.012384,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-564",
+  "name": "Fresh Rosemary",
+  "uom": "Gram",
+  "price": 0.09,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-236",
+  "name": "Fresh Spinach",
+  "uom": "Gram",
+  "price": 0.011429,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-573",
+  "name": "Fresh Spring Onion Green",
+  "uom": "Gram",
+  "price": 0.005479,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-406",
+  "name": "Fresh Strawberry(Imported)",
+  "uom": "Gram",
+  "price": 0.065531,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-1315",
+  "name": "Fresh Sweet Melon",
+  "uom": "Gram",
+  "price": 0.006456,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-239",
+  "name": "Fresh Sweet Pepper Green",
+  "uom": "Gram",
+  "price": 0.006686,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-240",
+  "name": "Fresh Sweet Pepper Red",
+  "uom": "Gram",
+  "price": 0.013294,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-241",
+  "name": "Fresh Sweet Pepper Yellow",
+  "uom": "Gram",
+  "price": 0.013196,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-243",
+  "name": "Fresh Thyme",
+  "uom": "Gram",
+  "price": 0.09,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-572",
+  "name": "Fresh Tomato",
+  "uom": "Gram",
+  "price": 0.004535,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-3929",
+  "name": "Fresh Watercress",
+  "uom": "Gram",
+  "price": 0.005714,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4265",
+  "name": "Fresh onion Yellow(Imported)",
+  "uom": "Gram",
+  "price": 0.003529,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD3-5038",
+  "name": "Fried Onions",
+  "uom": "Gram",
+  "price": 0.026,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-4183",
+  "name": "Frozen Avocado,Pulp",
+  "uom": "Gram",
+  "price": 0.032,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3989",
+  "name": "Frz Broad Beans (900 Gram)",
+  "uom": "Gram",
+  "price": 0.021756,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-5241",
+  "name": "Frz Broccoli 2.5 kg",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-4377",
+  "name": "Frz Cranberry",
+  "uom": "Gram",
+  "price": 0.022457,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-4987",
+  "name": "Frz Edamame Beans",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3544",
+  "name": "Frz Eggplant Pulp",
+  "uom": "Gram",
+  "price": 0.0045,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-871",
+  "name": "Frz French Fries",
+  "uom": "Gram",
+  "price": 0.0054,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3566",
+  "name": "Frz Green Beans Cut(800 Gram)",
+  "uom": "Gram",
+  "price": 0.008225,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3567",
+  "name": "Frz Green Peas(800 Gram)",
+  "uom": "Gram",
+  "price": 0.0045,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-5344",
+  "name": "Frz Mixed Vegetables (2.5 kg)",
+  "uom": "Gram",
+  "price": 0.0035,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-3671",
+  "name": "Frz Moulokhia (400Gram)",
+  "uom": "Gram",
+  "price": 0.00625,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-5006",
+  "name": "Frz Mushroom Whole",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-366",
+  "name": "Frz Okra Zero(400 Gram)",
+  "uom": "Gram",
+  "price": 0.013125,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-4092",
+  "name": "Frz Peas&Carrots(800 Gram)",
+  "uom": "Gram",
+  "price": 0.014063,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-4713",
+  "name": "Frz Raspberry",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD2-363",
+  "name": "Frz Spinach(400 Gram)",
+  "uom": "Gram",
+  "price": 0.0035,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1",
+  "name": "Burgul Brown (Fine)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3299",
+  "name": "Burgul Brown (Large)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-4519",
+  "name": "Burgul Brown Large (KG)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3",
+  "name": "Burgul White (Fine)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-4473",
+  "name": "Burgul White Large",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1668",
+  "name": "Dry Freekeh (1 KG)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1654",
+  "name": "Jarish Seeds",
+  "uom": "Gram",
+  "price": 0.0036,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3662",
+  "name": "Rice American 10 kg(Meera)",
+  "uom": "Gram",
+  "price": 0.0065,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-498",
+  "name": "Rice Basmati",
+  "uom": "Gram",
+  "price": 0.004625,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1457",
+  "name": "Rice Egypt",
+  "uom": "Gram",
+  "price": 0.0065,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3663",
+  "name": "Rice Jasmine(5 Kg)",
+  "uom": "Gram",
+  "price": 0.00475,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-5194",
+  "name": "Rice,Brown Basmati",
+  "uom": "Gram",
+  "price": 0.01239,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-1283",
+  "name": "Black Seed",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3986",
+  "name": "Chia seeds (Kg)",
+  "uom": "Gram",
+  "price": 0.024,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3802",
+  "name": "Mustard Seeds",
+  "uom": "Gram",
+  "price": 0.01,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1911",
+  "name": "Pop Corn Raw(Kg)",
+  "uom": "Gram",
+  "price": 0.005,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-3884",
+  "name": "Pumpkin Seeds Peeled",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-4394",
+  "name": "Quinoa Black seeds (1 Kg)",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3157",
+  "name": "Quinoa Red Seeds (1 KG)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-3332",
+  "name": "Quinoa White Seeds (1 KG)",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS-305",
+  "name": "Sesame Seeds ,kg",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3287",
+  "name": "Spices Sunflower Seeds",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-5281",
+  "name": "Can Kinza Cola 320 ml",
+  "uom": "Each",
+  "price": 2.39,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-5282",
+  "name": "Can Kinza Cola Diet 320 ml",
+  "uom": "Each",
+  "price": 2.39,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-5280",
+  "name": "Can Kinza Lemon 320 ml",
+  "uom": "Each",
+  "price": 2.39,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-5283",
+  "name": "Can Kinza Lemon Zero 320 ml",
+  "uom": "Each",
+  "price": 2.39,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-781",
+  "name": "Drink 7-Up",
+  "uom": "Each",
+  "price": 2.17,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-782",
+  "name": "Drink 7-Up Light",
+  "uom": "Each",
+  "price": 1.63,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-1168",
+  "name": "Drink Mirinda Orange",
+  "uom": "Each",
+  "price": 1.95,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "BVG1-779",
+  "name": "Drink Pepsi",
+  "uom": "Each",
+  "price": 1.95,
+  "cat": "Beverage",
+  "sub": "Soda & Soft drinks",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-255",
+  "name": "Bicarbonate(bi-carbonate powder)",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3844",
+  "name": "Chili Red Powder",
+  "uom": "Gram",
+  "price": 0.009353,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1570",
+  "name": "Dried Oregano",
+  "uom": "Gram",
+  "price": 0.009353,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5265",
+  "name": "Dry Parsley Flakes 453 gm",
+  "uom": "Gram",
+  "price": 0.193157,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5376",
+  "name": "Dry Thyme 500gm",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1269",
+  "name": "Green Zaatar",
+  "uom": "Gram",
+  "price": 0.03,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1016",
+  "name": "Pepper Black Sachet(1000)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5418",
+  "name": "Seven Spices Powder 200 gm",
+  "uom": "Gram",
+  "price": 0.05,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3850",
+  "name": "Spice Biryani Masala (Mahran)",
+  "uom": "Gram",
+  "price": 0.079636,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5088",
+  "name": "Spice Cajun (2 Kg)",
+  "uom": "Gram",
+  "price": 0.08,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1035",
+  "name": "Spice Carawya Powder",
+  "uom": "Gram",
+  "price": 0.03269,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3608",
+  "name": "Spice Curry Powder(Kg)",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4418",
+  "name": "Spice Garam Masala(KG)",
+  "uom": "Gram",
+  "price": 0.032,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4482",
+  "name": "Spice Garlic Powder(Kg)",
+  "uom": "Gram",
+  "price": 0.0104,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4769",
+  "name": "Spice Hibiscus Leaves",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1650",
+  "name": "Spice Kabsa Mix",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4420",
+  "name": "Spice Kashmiri Chilli(KG)",
+  "uom": "Gram",
+  "price": 0.026,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3848",
+  "name": "Spice Kasuri Mathi (Mahran)",
+  "uom": "Gram",
+  "price": 0.048,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5264",
+  "name": "Spice Lemon Pepper Seasoning 2.27 kg",
+  "uom": "Gram",
+  "price": 0.03304,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1557",
+  "name": "Spice Meat Shawarma",
+  "uom": "Gram",
+  "price": 0.085,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1727",
+  "name": "Spice Paprika Sweet (KG)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-309",
+  "name": "Spice Pepper White Powder",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5338",
+  "name": "Spice Red Pepper Crushed,Flakes(500 gm)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4770",
+  "name": "Spice Sausage,Sujuk",
+  "uom": "Gram",
+  "price": 0.087,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5039",
+  "name": "Spice Smoked Sweet Paprika (Kg)",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1674",
+  "name": "Spice Turmeric Powder (1 Kg)",
+  "uom": "Gram",
+  "price": 0.0125,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3854",
+  "name": "Spice tandoori Masala (Mahran)",
+  "uom": "Gram",
+  "price": 0.0792,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3538",
+  "name": "Spices Anise Seeds",
+  "uom": "Gram",
+  "price": 0.02174,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-539",
+  "name": "Spices Cardamon Seeds",
+  "uom": "Gram",
+  "price": 0.12,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-260",
+  "name": "Spices Cinnamon Powder",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1020",
+  "name": "Spices Cloves Seeds",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-266",
+  "name": "Spices Coriander Powder",
+  "uom": "Gram",
+  "price": 0.007333,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-267",
+  "name": "Spices Coriander Seeds",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-733",
+  "name": "Spices Cumin Powder",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-269",
+  "name": "Spices Cumin Seeds",
+  "uom": "Gram",
+  "price": 0.03,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3288",
+  "name": "Spices Flax Seeds",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-549",
+  "name": "Spices Ginger Powder(1 Kg)",
+  "uom": "Gram",
+  "price": 0.036,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-537",
+  "name": "Spices Pepper Black Powder(1 Kg)",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-307",
+  "name": "Spices Sumac",
+  "uom": "Gram",
+  "price": 0.008,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-298",
+  "name": "Spices Sweet Pepper Powder(1 KG)",
+  "uom": "Gram",
+  "price": 0.0211,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4212",
+  "name": "Wasabi Powder",
+  "uom": "Gram",
+  "price": 0.008139,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-311",
+  "name": "Zaatar Mix(green)",
+  "uom": "Gram",
+  "price": 0.03,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-978",
+  "name": "Sugar Fine(50 KG)",
+  "uom": "Gram",
+  "price": 0.0022,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1471",
+  "name": "Sugar In The Raw (Turbinado)",
+  "uom": "Gram",
+  "price": 0.021411,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-687",
+  "name": "Sugar Sachet White(1000)",
+  "uom": "Each",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1556",
+  "name": "Sugar Sachet With Logo",
+  "uom": "Each",
+  "price": 0.035,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-686",
+  "name": "Sugar Sachet,Low Calorie(Tropicana Slim)",
+  "uom": "Each",
+  "price": 0.2042,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4257",
+  "name": "Sugar Sweetener Powder(Steviana)",
+  "uom": "Gram",
+  "price": 0.07085,
+  "cat": "Dry",
+  "sub": "Sugar",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4469",
+  "name": "Dressing,1000 Island",
+  "uom": "Gram",
+  "price": 0.009193,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1039",
+  "name": "Ketchup Gallon (5 Kg)",
+  "uom": "Gram",
+  "price": 0.0035,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-685",
+  "name": "Ketchup Sachet",
+  "uom": "Each",
+  "price": 0.048,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-58",
+  "name": "Mayonnaise Regular",
+  "uom": "Gram",
+  "price": 0.006481,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5258",
+  "name": "Rice Vinegar 500 ml Mizkan",
+  "uom": "Ml",
+  "price": 0.02866,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-115",
+  "name": "Rose Water",
+  "uom": "Ml",
+  "price": 0.019709,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1256",
+  "name": "Sauce Hot Small(88 ML)",
+  "uom": "Ml",
+  "price": 0.012045,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-873",
+  "name": "Sauce Hot(474 ML)",
+  "uom": "Ml",
+  "price": 0.005802,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-110",
+  "name": "Sauce Oyster",
+  "uom": "Ml",
+  "price": 0.01805,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1753",
+  "name": "Sauce Sweet Chili (Pinoy)",
+  "uom": "Ml",
+  "price": 0.014886,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1790",
+  "name": "Sauce Teriyaki",
+  "uom": "Ml",
+  "price": 0.039548,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5273",
+  "name": "Sauce Worcester L&P 3.78 Ltr",
+  "uom": "Ml",
+  "price": 0.018519,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1142",
+  "name": "Soya Sauce Kikkoman(Liter)",
+  "uom": "Ml",
+  "price": 0.02358,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3667",
+  "name": "Soya Sauce Sweet (630Ml)",
+  "uom": "Ml",
+  "price": 0.023143,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3912",
+  "name": "Soya Sauce,Sempio (930 Mliter)",
+  "uom": "Ml",
+  "price": 0.014732,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5477",
+  "name": "Steak Sauce 295 ml",
+  "uom": "Ml",
+  "price": 0.036723,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1551",
+  "name": "Syrup Molasses(700 ML)",
+  "uom": "Ml",
+  "price": 0.017143,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-103",
+  "name": "Tahina Liquid(10Kg)",
+  "uom": "Gram",
+  "price": 0.011,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4268",
+  "name": "Tamarind Pulp(400 Gram)",
+  "uom": "Gram",
+  "price": 0.0325,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5208",
+  "name": "Truffle Sauce 500 gm",
+  "uom": "Gram",
+  "price": 0.14,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-95",
+  "name": "Vinegar Balsamic",
+  "uom": "Ml",
+  "price": 0.02834,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5153",
+  "name": "Vinegar White (30 Ltr Gallon)",
+  "uom": "Ml",
+  "price": 0.001681,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1547",
+  "name": "Vinegar White (Gallon)",
+  "uom": "Ml",
+  "price": 0.002303,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "BVG3-3724",
+  "name": "Glass Water 250 Ml (Nova)",
+  "uom": "Each",
+  "price": 1.79,
+  "cat": "Beverage",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "BVG3-4744",
+  "name": "Sparkling Water 250 ml",
+  "uom": "Each",
+  "price": 2.08,
+  "cat": "Beverage",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "BVG3-4131",
+  "name": "Water 200 ML (Nova)",
+  "uom": "Each",
+  "price": 0.38,
+  "cat": "Beverage",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "BVG3-5312",
+  "name": "Water 200 ml",
+  "uom": "Each",
+  "price": 0.172083,
+  "cat": "Beverage",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "NOCODE-002",
+  "name": "Water 330 ML (Nova)",
+  "uom": "Each",
+  "price": 0.3875,
+  "cat": "Beverage",
+  "sub": "Water",
+  "flag": "NO CODE in source (Water 330ml Nova) - assign a real code"
+ },
+ {
+  "code": "DRS1-1545",
+  "name": "Corn Flakes",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-1909",
+  "name": "Marshmallows",
+  "uom": "Gram",
+  "price": 0.02222,
+  "cat": "Dry",
+  "sub": "Pastry",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3448",
+  "name": "Lemon Salt (Kg)",
+  "uom": "Gram",
+  "price": 0.005,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3480",
+  "name": "Date Paste",
+  "uom": "Gram",
+  "price": 0.0040666,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3839",
+  "name": "Black Salt",
+  "uom": "Gram",
+  "price": 21,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4104",
+  "name": "Fish Stock Powder Haco",
+  "uom": "Gram",
+  "price": 0.04888,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-4613",
+  "name": "Can Chickpeas",
+  "uom": "Gram",
+  "price": 0.005668,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-465",
+  "name": "Chili Sauce ABC",
+  "uom": "Ml",
+  "price": 0.01715,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5578",
+  "name": "Tomato Powder",
+  "uom": "Gram",
+  "price": 0.06,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9001",
+  "name": "Water",
+  "uom": "Ml",
+  "price": 0.0002,
+  "cat": "Non Food",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9002",
+  "name": "Charcoal Cubes",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Non Food",
+  "sub": "Consumables",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9003",
+  "name": "Can Sardine In Tomato Sauce",
+  "uom": "Gram",
+  "price": 0.01960784,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9004",
+  "name": "Can Pineapple Diced",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9005",
+  "name": "Can Sweet Corn",
+  "uom": "Gram",
+  "price": 0.0052169,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9006",
+  "name": "Demi Glace Powder",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-9007",
+  "name": "Food Color Red",
+  "uom": "Gram",
+  "price": 0.1458333,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-4907",
+  "name": "Dry Lentil Yellow",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-54365",
+  "name": "Cous Cous",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-9001",
+  "name": "Egyptian Rice",
+  "uom": "Gram",
+  "price": 0.0065,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-9002",
+  "name": "Jasmine Rice",
+  "uom": "Gram",
+  "price": 0.004625,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-9003",
+  "name": "American Rice",
+  "uom": "Gram",
+  "price": 0.0062,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-1620",
+  "name": "Easy Muffin Mix Vanilla (10 KG)",
+  "uom": "Gram",
+  "price": 0.0078,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-4380",
+  "name": "Dry Lemon Black Powder (1 Kg)",
+  "uom": "Gram",
+  "price": 0.013,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "DRS5-5489",
+  "name": "Vanilla Powder",
+  "uom": "Gram",
+  "price": 0.05,
+  "cat": "Dry",
+  "sub": "Pastry & Bakery",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1533",
+  "name": "Spices Cardamon Powder",
+  "uom": "Gram",
+  "price": 0.13,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1754",
+  "name": "Spice Asfur",
+  "uom": "Gram",
+  "price": 0.125,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1865",
+  "name": "Spice Meat Masala",
+  "uom": "Gram",
+  "price": 0.04687,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-256",
+  "name": "Spice Carawya Seeds",
+  "uom": "Gram",
+  "price": 0.03269,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-261",
+  "name": "Spices Cinnamon Sticks",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-290",
+  "name": "Spice Nutmeg Powder",
+  "uom": "Gram",
+  "price": 0.185,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-3593",
+  "name": "Spices Bay Leaves",
+  "uom": "Gram",
+  "price": 0.008,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-4285",
+  "name": "Spice Qorma Masala",
+  "uom": "Gram",
+  "price": 0.04687,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-538",
+  "name": "Spices Black Pepper Corn",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5571",
+  "name": "Star Anise",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-9001",
+  "name": "Spice Ajwan",
+  "uom": "Gram",
+  "price": 0.024,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-1601",
+  "name": "Almond Halves",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "Dry",
+  "sub": "Nuts",
+  "flag": ""
+ },
+ {
+  "code": "DRY1-9001",
+  "name": "Cheese Cheddar Grated",
+  "uom": "Gram",
+  "price": 0.021,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-1202",
+  "name": "Fresh onion Red",
+  "uom": "Gram",
+  "price": 0.003,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-4468",
+  "name": "Fresh Lime Leaves",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-9001",
+  "name": "Fresh Galangal",
+  "uom": "Gram",
+  "price": 0.035,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "SFD1-5366",
+  "name": "Frz Fish Fillet Seabass",
+  "uom": "Gram",
+  "price": 0.041,
+  "cat": "Frozen",
+  "sub": "Fish",
+  "flag": ""
+ },
+ {
+  "code": "SUB1-9001",
+  "name": "Ginger Garlic Paste",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "Dry",
+  "sub": "Prepared Base",
+  "flag": ""
+ },
+ {
+  "code": "SUB1-9002",
+  "name": "Lamb Kofta 55 g",
+  "uom": "Gram",
+  "price": 0.55,
+  "cat": "Dry",
+  "sub": "Prepared Base",
+  "flag": ""
+ },
+ {
+  "code": "SUB1-9003",
+  "name": "Meat Ball 15 g",
+  "uom": "Gram",
+  "price": 0.55,
+  "cat": "Dry",
+  "sub": "Prepared Base",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5519",
+  "name": "Tea Powder CTC Loose",
+  "uom": "Gram",
+  "price": 0.017333,
+  "cat": "Dry",
+  "sub": "Coffee & Tea",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-1748",
+  "name": "Dry Chick Peas Black (Black Channa)",
+  "uom": "Gram",
+  "price": 0.004533,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-4383",
+  "name": "Dry Mung Lentil",
+  "uom": "Gram",
+  "price": 0.006333,
+  "cat": "Dry",
+  "sub": "Lentils",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5221",
+  "name": "Juice Powder, asstd favors",
+  "uom": "Gram",
+  "price": 0.015333,
+  "cat": "Dry",
+  "sub": "Juice",
+  "flag": ""
+ },
+ {
+  "code": "MET2-5518",
+  "name": "Frz Meat Ball Catering",
+  "uom": "Gram",
+  "price": 0.0125,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "MET2-4993",
+  "name": "Frz Minced Meat Catering",
+  "uom": "Gram",
+  "price": 0.005,
+  "cat": "Frozen",
+  "sub": "Meat",
+  "flag": ""
+ },
+ {
+  "code": "DRS7-4542",
+  "name": "Dry Raisins",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "Dry",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "PRD1-1028",
+  "name": "Fresh Curry Leaves",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": ""
+ },
+ {
+  "code": "WAT-001",
+  "name": "Tap Water-Cooking",
+  "uom": "Ml",
+  "price": 0.00008,
+  "cat": "Non Food",
+  "sub": "Water",
+  "flag": ""
+ },
+ {
+  "code": "DRS4-5548",
+  "name": "Rice Mazza SSEM",
+  "uom": "Gram",
+  "price": 0.00325,
+  "cat": "Dry",
+  "sub": "Rice & Grains",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-4408",
+  "name": "Vermicelli Mehran",
+  "uom": "Gram",
+  "price": 0.0095835,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "MNU-0001",
+  "name": "OMLETE/ FRIED EGG /BOILED EGG",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0002",
+  "name": "FOUL JARRAH",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0003",
+  "name": "HOMUS BALILA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0004",
+  "name": "EGG SHAKSHOKA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0005",
+  "name": "FOUL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0006",
+  "name": "FOUL MODAMAS",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0007",
+  "name": "EIDAM KHUDAR",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0008",
+  "name": "FOUL TAHINA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0009",
+  "name": "WHITE CHEESE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0010",
+  "name": "HALLAWA TAHINA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0011",
+  "name": "ARABIC BREAD",
+  "uom": "Each",
+  "price": 0.36,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0012",
+  "name": "SLICE BREAD",
+  "uom": "Each",
+  "price": null,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0013",
+  "name": "CORN FLAKES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Cereal",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0014",
+  "name": "SALAD BAR",
+  "uom": "Each",
+  "price": null,
+  "cat": "Salad",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0015",
+  "name": "TEA & COFFEE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0016",
+  "name": "CHICKEN BALL STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0017",
+  "name": "GREEN PEAS & MEA STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0018",
+  "name": "FISH SAYADEYA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0019",
+  "name": "DAWOOD BASHA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0020",
+  "name": "CHICKEN TAWOUK",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0021",
+  "name": "KOFTA BIL FOREN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0022",
+  "name": "ROASTED CHICKEN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0023",
+  "name": "MEAT KOFTA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0024",
+  "name": "MACCARONI CHICKEN BECHAMEL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0025",
+  "name": "GREEN BEANS & MEAT STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0026",
+  "name": "CHICKEN FAJJITA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0027",
+  "name": "BEEF GOLASH",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0028",
+  "name": "GRILLED FISH",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0029",
+  "name": "MEAT BALL STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0030",
+  "name": "SAUTE VEGETABLE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0031",
+  "name": "PRASLEY POTATO",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0032",
+  "name": "STEAMED VEGETABLE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0033",
+  "name": "MASHED POTATO",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0034",
+  "name": "BUTTERD VEGETABLE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0035",
+  "name": "ROSEMARY POTATO",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0036",
+  "name": "POTATO WEDGES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0037",
+  "name": "WHITE RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0038",
+  "name": "PULAO RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0039",
+  "name": "MANDI RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0040",
+  "name": "BUKARI RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0041",
+  "name": "BIRYANI RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0042",
+  "name": "ARABIC BREAD W & B",
+  "uom": "Each",
+  "price": null,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0043",
+  "name": "GREEN SALAD",
+  "uom": "Each",
+  "price": null,
+  "cat": "Salad",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0044",
+  "name": "FRESH FRUIT",
+  "uom": "Each",
+  "price": null,
+  "cat": "Fruit",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0045",
+  "name": "WATER / SOFT DRINK / LABAN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0046",
+  "name": "KOUSHARI",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0047",
+  "name": "CHICKEN BIL FOREN WITH LEMON",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0048",
+  "name": "MEAT BALL BBQ SAUCE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0049",
+  "name": "CHICKEN MAQLOBA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0050",
+  "name": "WHITE BEANS&TOMATO STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0051",
+  "name": "MOLOKEYA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0052",
+  "name": "OKRA TOMATO STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0053",
+  "name": "EGGPLANT MOSSAKA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0054",
+  "name": "VEGETABLES STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0055",
+  "name": "GREEN BEANS STEW",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0056",
+  "name": "LASAGNA BOLOGANISE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0057",
+  "name": "SPAGHETTI NAPOLETAN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0058",
+  "name": "PENNE ALFREDO SAUCE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0059",
+  "name": "MEAT MACCARONI GRATIN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0060",
+  "name": "SPAGHETTI WITH PINK SAUCE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0061",
+  "name": "PENNE ARABIATTA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0062",
+  "name": "ASIAN SPAGHETTINI",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0063",
+  "name": "YELLOW RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0064",
+  "name": "VERMICEELI RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0065",
+  "name": "KABSSA RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0066",
+  "name": "SWEET",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0067",
+  "name": "PARATHA / SLICED BREAD",
+  "uom": "Each",
+  "price": null,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0068",
+  "name": "OMLETE / FRIED EGG",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0069",
+  "name": "BUTTER / HONEY / JAM PORTIONS",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0070",
+  "name": "BOILED EGGS",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0071",
+  "name": "ALOO BAGI",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0072",
+  "name": "WHITE CHANA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0073",
+  "name": "BLACK CHANA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0074",
+  "name": "RED LENTIL DAL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0075",
+  "name": "SHAKSHOKA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0076",
+  "name": "MUNG DAL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0077",
+  "name": "EGG BURJI",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0078",
+  "name": "MILK OR BLACK TEA / COFFEE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0079",
+  "name": "WATER",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0080",
+  "name": "KEMMA MUTTAR",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0081",
+  "name": "CHICKEN BALL CURRY",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0082",
+  "name": "MEAT BALL CURRY",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0083",
+  "name": "BEEF KOFTA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0084",
+  "name": "MIXED VEGETABLES CURRY",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0085",
+  "name": "CHICKEN KOFTA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0086",
+  "name": "CHICKEN BROAST",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0087",
+  "name": "FRESH FRUITS",
+  "uom": "Each",
+  "price": null,
+  "cat": "Fruit",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0088",
+  "name": "ALOO PALAK",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0089",
+  "name": "ALOO BAINGAN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0090",
+  "name": "DAL PALAK",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0091",
+  "name": "MIX DAL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0092",
+  "name": "WATER / SOFT DRINK",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0093",
+  "name": "VEGGI BIRYANI MASALA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0094",
+  "name": "BEEF CHILLY",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0095",
+  "name": "QEEMA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0096",
+  "name": "POTATO & GEEN PEAS MASALA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0097",
+  "name": "SEEKH KABAB",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0098",
+  "name": "HALEEM",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0099",
+  "name": "CHANA DAL",
+  "uom": "Each",
+  "price": null,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0100",
+  "name": "BLACK TEA / COFFEE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0101",
+  "name": "PARATHA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0102",
+  "name": "WATER / TANG JUICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0103",
+  "name": "SALAD",
+  "uom": "Each",
+  "price": null,
+  "cat": "Salad",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0104",
+  "name": "VERMICELLI KHAIR",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0105",
+  "name": "RICE MILK PUDDING",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0106",
+  "name": "MILK TEA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0107",
+  "name": "CORN BEEF",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0108",
+  "name": "SCRUMBLED EGG",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0109",
+  "name": "SARDINES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0110",
+  "name": "NOODLES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Pasta",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0111",
+  "name": "TUNA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0112",
+  "name": "CHICKEN CONGEE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Soup",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0113",
+  "name": "STEAMED RICE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0114",
+  "name": "BOILED EGG",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0115",
+  "name": "SCRAMBLED",
+  "uom": "Each",
+  "price": null,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0116",
+  "name": "TRINAGLE CHEESE / JAM",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0117",
+  "name": "TEA / TEA MILK / COFFEE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0118",
+  "name": "CHICKEN TINOLA",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0119",
+  "name": "GINISANG MUNGO WITH FRIED FISH",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0120",
+  "name": "ADOBBO CHICKEN WITH POTATO",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0121",
+  "name": "Beef Picadilo",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0122",
+  "name": "Meat Balls In Tomato",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0123",
+  "name": "BEEF SINIGANG",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0124",
+  "name": "SOUP OF THE DAY",
+  "uom": "Each",
+  "price": null,
+  "cat": "Soup",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0125",
+  "name": "Fish Sinigang",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0126",
+  "name": "Chicken with Vegetables",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0127",
+  "name": "Hotdog Sweet & Sour",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0128",
+  "name": "CHICKEN CARE CARE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0129",
+  "name": "BBQ CHICKEN",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0130",
+  "name": "CHICKEN ADOBO WITH POTATO",
+  "uom": "Each",
+  "price": null,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0131",
+  "name": "SWEET SOUR VEGETABLES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0132",
+  "name": "ASIAN VEGETABLES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0133",
+  "name": "SAUTEED VEGETABLES",
+  "uom": "Each",
+  "price": null,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0134",
+  "name": "TRINAGLE CHEESE",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0135",
+  "name": "JAM",
+  "uom": "Each",
+  "price": null,
+  "cat": "Dairy & Spreads",
+  "sub": "Menu Portion",
+  "flag": "PRICE MISSING - menu portion, price it before costing",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "BKRI-5080",
+  "name": "Arabic Bread",
+  "uom": "Each",
+  "price": 0.36,
+  "cat": "Bakary",
+  "sub": "Bread",
+  "flag": ""
+ },
+ {
+  "code": "MNU-0136",
+  "name": "Tea -Black with Milk",
+  "uom": "Each",
+  "price": 0.23176,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0137",
+  "name": "Custard",
+  "uom": "Each",
+  "price": 0.774586,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0138",
+  "name": "Mouhalabia",
+  "uom": "Each",
+  "price": 0.684321,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0139",
+  "name": "Jello",
+  "uom": "Each",
+  "price": 0.36889,
+  "cat": "Dessert",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0140",
+  "name": "UPMA",
+  "uom": "Each",
+  "price": 0.259869,
+  "cat": "Cereal",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0141",
+  "name": "Green Peas Massala",
+  "uom": "Each",
+  "price": 0.432418,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0142",
+  "name": "Dal Mash",
+  "uom": "Each",
+  "price": 0.4446,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0143",
+  "name": "Tour Dal",
+  "uom": "Each",
+  "price": 0.25461,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0144",
+  "name": "Chicken Biryani Masala",
+  "uom": "Each",
+  "price": 1.495265,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0145",
+  "name": "Beef Curry",
+  "uom": "Each",
+  "price": 2.499193,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0146",
+  "name": "Egg Curry",
+  "uom": "Each",
+  "price": 0.921044,
+  "cat": "Eggs",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0147",
+  "name": "Chicken Curry",
+  "uom": "Each",
+  "price": 1.323593,
+  "cat": "Main Course",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0148",
+  "name": "VEG Biryani",
+  "uom": "Each",
+  "price": 0.91755,
+  "cat": "Rice",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0149",
+  "name": "Cabbage Massala",
+  "uom": "Each",
+  "price": 0.759085,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0150",
+  "name": "Aloo Ghabi",
+  "uom": "Each",
+  "price": 1.050869,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0151",
+  "name": "Vegetables Curry",
+  "uom": "Each",
+  "price": 0.804072,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0152",
+  "name": "Aloo Muttar",
+  "uom": "Each",
+  "price": 0.809908,
+  "cat": "Vegetables",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0153",
+  "name": "Chapati Roti",
+  "uom": "Each",
+  "price": 0.083913,
+  "cat": "Bread",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0154",
+  "name": "Curry Chana With Potato",
+  "uom": "Each",
+  "price": 0.617943,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0155",
+  "name": "Tea -Black",
+  "uom": "Each",
+  "price": 0.161999,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0156",
+  "name": "Tang Juice",
+  "uom": "Each",
+  "price": 0.100833,
+  "cat": "Beverage",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "MNU-0157",
+  "name": "Ghana Dhal White",
+  "uom": "Each",
+  "price": 0.3283,
+  "cat": "Lentils & Pulses",
+  "sub": "Menu Portion",
+  "flag": "",
+  "brands": [
+   "bssem"
+  ]
+ },
+ {
+  "code": "DRY1-1846",
+  "name": "Feta Cheese",
+  "uom": "Gram",
+  "price": 0.008625,
+  "cat": "Dairy",
+  "sub": "Cheese",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "DRY1-353",
+  "name": "Cheese Halloumi",
+  "uom": "Gram",
+  "price": 0.0245,
+  "cat": "Fresh",
+  "sub": "Cheese",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "DRS6-1781",
+  "name": "Dry Basil",
+  "uom": "Gram",
+  "price": 0.065,
+  "cat": "Dry",
+  "sub": "Seeds",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "PRD2-1166",
+  "name": "Frz Potato Wedges",
+  "uom": "Gram",
+  "price": 0.0105,
+  "cat": "Frozen",
+  "sub": "Produce",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "PRD1-1358",
+  "name": "Fresh Chili Red",
+  "uom": "Gram",
+  "price": 0.007,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "PRD1-4279",
+  "name": "Fresh Curry Leaves",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "Fresh",
+  "sub": "Produce",
+  "flag": "",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "DRS1-3880",
+  "name": "Salt",
+  "uom": "Gram",
+  "price": 0.0005,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": "SMC copy - the shared library already carries this item as DRS1-795",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "TAP-00001",
+  "name": "Tap Water-Cooking",
+  "uom": "Ml",
+  "price": 0.00008,
+  "cat": "Water",
+  "sub": "Water",
+  "flag": "SMC copy - the shared library already carries this item as WAT-001",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "DRS6-258",
+  "name": "Spices Cardamon Powder",
+  "uom": "Gram",
+  "price": 0.13,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": "SMC copy - the shared library already carries this item as DRS6-1533",
+  "brands": [
+   "b7"
+  ]
+ },
+ {
+  "code": "DRS1-102",
+  "name": "Can Tomato Paste",
+  "uom": "Gram",
+  "price": 0.0087,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-5516",
+  "name": "Can Sardine in Tomato Sauce",
+  "uom": "Gram",
+  "price": 0.0196,
+  "cat": "Dry",
+  "sub": "Canned Item",
+  "flag": ""
+ },
+ {
+  "code": "DRS1-3842",
+  "name": "Sauce Oyster Mama Sita",
+  "uom": "Ml",
+  "price": 0.0343,
+  "cat": "Dry",
+  "sub": "Vinegar & Sauces",
+  "flag": ""
+ },
+ {
+  "code": "CAS-1921",
+  "name": "Charcoal",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "Non Food",
+  "sub": "Packaging",
+  "flag": ""
+ },
+ {
+  "code": "WAT-0012",
+  "name": "Tap Water For Cooking",
+  "uom": "Ml",
+  "price": 0.00008,
+  "cat": "Non Food",
+  "sub": "Utility",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-5513",
+  "name": "Spice Pepper White Powder",
+  "uom": "Gram",
+  "price": 0.0165,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-1369",
+  "name": "Spices Pepper Black Powder",
+  "uom": "Gram",
+  "price": 0.0165,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "DRS6-638",
+  "name": "Spice Black Pepper Seeds",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "Dry",
+  "sub": "Spices",
+  "flag": ""
+ },
+ {
+  "code": "SFD2-5213",
+  "name": "Frz Fish Mackarel",
+  "uom": "Gram",
+  "price": 0.0055,
+  "cat": "Frozen",
+  "sub": "Seafood",
+  "flag": ""
+ },
+ {
+  "code": "DRS2-5557",
+  "name": "Pasta Spaghetti Catering",
+  "uom": "Gram",
+  "price": 0.002994,
+  "cat": "Dry",
+  "sub": "Pasta",
+  "flag": ""
+ },
+ {
+  "code": "NC-PLT2-5475",
+  "name": "Frozen Whole Egg",
+  "uom": "Gram",
+  "price": 0.0145,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY2-1858",
+  "name": "Cooking Cream 1 Ltr",
+  "uom": "Ml",
+  "price": 0.0108669,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-795",
+  "name": "Salt",
+  "uom": "Gram",
+  "price": 0.0015,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-309",
+  "name": "Spice Pepper White Powder",
+  "uom": "Gram",
+  "price": 0.032,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PKG-5404",
+  "name": "CPET Trays 030-01 compartment (B/F)",
+  "uom": "Each",
+  "price": 0.38,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PKG-00001",
+  "name": "Stationary Cost",
+  "uom": "Each",
+  "price": 0.7,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1615",
+  "name": "Olive Oil (CAN)",
+  "uom": "Ml",
+  "price": 0.012,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-4265",
+  "name": "Fresh onion Yellow",
+  "uom": "Gram",
+  "price": 0.003,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-4327",
+  "name": "Fresh Garlic Peeled",
+  "uom": "Gram",
+  "price": 0.013,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-239",
+  "name": "Fresh Sweet Pepper Green",
+  "uom": "Gram",
+  "price": 0.005,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-733",
+  "name": "Spices Cumin Powder",
+  "uom": "Gram",
+  "price": 0.028,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-266",
+  "name": "Spices Coriander Powder",
+  "uom": "Gram",
+  "price": 0.014,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-572",
+  "name": "Fresh Tomato",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-607",
+  "name": "Can Tomato Peeled",
+  "uom": "Gram",
+  "price": 0.007333,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-102",
+  "name": "Can Tomato Paste",
+  "uom": "Gram",
+  "price": 0.008712,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-WAT-001",
+  "name": "Tap Water",
+  "uom": "Ml",
+  "price": 0.00008,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-444",
+  "name": "Can Foul Medammes",
+  "uom": "Gram",
+  "price": 0.0089,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-227",
+  "name": "Fresh Parsley",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-103",
+  "name": "Tahina Liquid(10Kg)",
+  "uom": "Gram",
+  "price": 0.011,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-209",
+  "name": "Fresh Lemon",
+  "uom": "Gram",
+  "price": 0.008,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-5153",
+  "name": "Vinegar White (30 Ltr Gallon)",
+  "uom": "Ml",
+  "price": 0.0018333,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-SUB-1001",
+  "name": "Fresh Lemon Juice",
+  "uom": "Ml",
+  "price": 0.025,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3448",
+  "name": "Lemon Salt (Kg)",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-483",
+  "name": "Dry Chick Peas NO.12",
+  "uom": "Gram",
+  "price": 0.007,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-4907",
+  "name": "Dry Lentil Yellow",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-255",
+  "name": "Baking Soda (Bi-Carbonate)",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1674",
+  "name": "Spice Turmeric Powder (1 Kg)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY2-1008",
+  "name": "Butter 82% Fat(Unsalted) 25 kg",
+  "uom": "Gram",
+  "price": 0.0312,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-269",
+  "name": "Spices Cumin Seeds",
+  "uom": "Gram",
+  "price": 0.026,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-591",
+  "name": "Fresh Green Chili Spic",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4268",
+  "name": "Tamarind Pulp(400 Gram)",
+  "uom": "Gram",
+  "price": 0.0325,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-195",
+  "name": "Fresh Coriander",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-50",
+  "name": "Lentil Peeled (Red)",
+  "uom": "Gram",
+  "price": 0.0042666667,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PLT2-3278",
+  "name": "Frz Chicken Breast",
+  "uom": "Gram",
+  "price": 0.0185,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-1457",
+  "name": "Rice Calrose, Egyptian",
+  "uom": "Gram",
+  "price": 0.00766,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3811",
+  "name": "Chicken Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.0381944444,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-573",
+  "name": "Fresh Spring Onion Green",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-WAT-002",
+  "name": "Ice Cube",
+  "uom": "Gram",
+  "price": 0.00016,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-204",
+  "name": "Fresh Ginger",
+  "uom": "Gram",
+  "price": 0.007,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4417",
+  "name": "Vegetable Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.0367545455,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-3794",
+  "name": "Fresh Baby Marrow",
+  "uom": "Gram",
+  "price": 0.0045,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-4092",
+  "name": "Frz Peas&Carrots(800 Gram)",
+  "uom": "Gram",
+  "price": 0.01354,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-191",
+  "name": "Fresh Celery Branch(Imported)",
+  "uom": "Gram",
+  "price": 0.022,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-538",
+  "name": "Spices Black Pepper Corn",
+  "uom": "Gram",
+  "price": 0.058,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4781",
+  "name": "Tuna Flakes In Oil",
+  "uom": "Gram",
+  "price": 0.0253,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3842",
+  "name": "Sauce Oyster Mama Sita",
+  "uom": "Ml",
+  "price": 0.034313,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3912",
+  "name": "Soya Sauce,Sempio (930 Mliter)",
+  "uom": "Ml",
+  "price": 0.0147317073,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-5516",
+  "name": "Can Sardine in Tomato Sauce",
+  "uom": "Gram",
+  "price": 0.0196,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4104",
+  "name": "Fish Stock Powder Haco",
+  "uom": "Gram",
+  "price": 0.04888,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1650",
+  "name": "Spice Kabsa Mix",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4809",
+  "name": "Oats White Whole(900 Gram)",
+  "uom": "Gram",
+  "price": 0.0115777778,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PKG-5405",
+  "name": "CPET Trays 030-01 compartment (Soup)",
+  "uom": "Each",
+  "price": 0.31,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-MET2-3262",
+  "name": "Frz Lamb Leg Boneless",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-186",
+  "name": "Fresh Carrot Imported",
+  "uom": "Gram",
+  "price": 0.00475,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-549",
+  "name": "Spices Ginger Powder(1 Kg)",
+  "uom": "Gram",
+  "price": 0.022,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-260",
+  "name": "Spices Cinnamon Powder",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1727",
+  "name": "Spice Paprika Sweet (KG)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3813",
+  "name": "Beef Stock Powder(Packet)",
+  "uom": "Gram",
+  "price": 0.0444416667,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-490",
+  "name": "Lentil Brown",
+  "uom": "Gram",
+  "price": 0.0083333333,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4613",
+  "name": "Can Chickpeas",
+  "uom": "Gram",
+  "price": 0.005668,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS2-3628",
+  "name": "Pasta Vermicelli-Cuts,N:61",
+  "uom": "Gram",
+  "price": 0.0110666667,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS5-980",
+  "name": "Flour Cake Special (all purpose)",
+  "uom": "Gram",
+  "price": 0.001,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-230",
+  "name": "Fresh Potato",
+  "uom": "Gram",
+  "price": 0.0025,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-232",
+  "name": "Fresh Pumpkin",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-241",
+  "name": "Fresh Sweet Pepper Yellow",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-185",
+  "name": "Fresh Cabbage White",
+  "uom": "Gram",
+  "price": 0.003,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1570-B",
+  "name": "Dried Oregano",
+  "uom": "Gram",
+  "price": 0.0093526667,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-1654",
+  "name": "Jarish Seeds",
+  "uom": "Gram",
+  "price": 0.0036,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-1668",
+  "name": "Dry Freekeh (1 KG)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-4019",
+  "name": "Fresh Leek (Imported)",
+  "uom": "Gram",
+  "price": 0.02,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3593",
+  "name": "Spices Bay Leaves",
+  "uom": "Gram",
+  "price": 0.0105,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-243",
+  "name": "Fresh Thyme",
+  "uom": "Gram",
+  "price": 0.008,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1533",
+  "name": "Spices Cardamon Seeds",
+  "uom": "Gram",
+  "price": 0.16,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1020",
+  "name": "Spices Cloves Seeds",
+  "uom": "Gram",
+  "price": 0.055,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1813",
+  "name": "Corn Oil (18 Liter)",
+  "uom": "Ml",
+  "price": 0.0085555556,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1533-B",
+  "name": "Spices Cardamon Powder",
+  "uom": "Gram",
+  "price": 0.13,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-261",
+  "name": "Spices Cinnamon Sticks",
+  "uom": "Gram",
+  "price": 0.022,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-498",
+  "name": "Rice Basmati",
+  "uom": "Gram",
+  "price": 0.00575,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-CAS-1921",
+  "name": "Charcoal",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-3673",
+  "name": "Frz Mix Vegetables",
+  "uom": "Gram",
+  "price": 0.0071296,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PKG-5400",
+  "name": "CPET Trays 005- 03Compartment(deep)",
+  "uom": "Each",
+  "price": 0.74,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1570",
+  "name": "Dried Oregano",
+  "uom": "Gram",
+  "price": 0.046,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-240",
+  "name": "Fresh Sweet Pepper Red",
+  "uom": "Gram",
+  "price": 0.009,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-5338",
+  "name": "Spice Red Pepper Crushed,Flakes(500 gm)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-41",
+  "name": "Flower Water(Blossom)",
+  "uom": "Ml",
+  "price": 0.0197090909,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-MET-3808",
+  "name": "Frz Beef Brisket",
+  "uom": "Gram",
+  "price": 0.044,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-298",
+  "name": "Spices Sweet Pepper Powder(1 KG)",
+  "uom": "Gram",
+  "price": 0.058,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-1202",
+  "name": "Fresh onion Red",
+  "uom": "Gram",
+  "price": 0.003,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1551",
+  "name": "Syrup Molasses(700 ML)",
+  "uom": "Ml",
+  "price": 0.0171428571,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS5-21",
+  "name": "Flour Corn",
+  "uom": "Gram",
+  "price": 0.00208,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS2-3804",
+  "name": "Pasta Elbows Small #19",
+  "uom": "Gram",
+  "price": 0.0092222222,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS5-59",
+  "name": "Milk Powder",
+  "uom": "Gram",
+  "price": 0.01432,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY1-342",
+  "name": "Cheese Parmesan Padano1 KG (permegano)",
+  "uom": "Gram",
+  "price": 0.053,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-363",
+  "name": "Frz Spinach(400 Gram)",
+  "uom": "Gram",
+  "price": 0.00587,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1463",
+  "name": "Can Sweet Corn",
+  "uom": "Gram",
+  "price": 0.005367,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-201",
+  "name": "Fresh Eggplant",
+  "uom": "Gram",
+  "price": 0.003,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-3566",
+  "name": "Frz Green Beans Cut(800 Gram)",
+  "uom": "Gram",
+  "price": 0.01354167,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-BKR1-4717",
+  "name": "Qursan",
+  "uom": "Gram",
+  "price": 0.013,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-4482",
+  "name": "Spice Garlic Powder(Kg)",
+  "uom": "Gram",
+  "price": 0.015,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1754",
+  "name": "Spice Asfur",
+  "uom": "Gram",
+  "price": 0.125,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4650",
+  "name": "Lemon Pickle",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1140",
+  "name": "Can Olives Green Sliced",
+  "uom": "Gram",
+  "price": 0.00928,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-54365",
+  "name": "Cous Cous",
+  "uom": "Gram",
+  "price": 0.018,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1035",
+  "name": "Spice Carawya Powder",
+  "uom": "Gram",
+  "price": 0.03269,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-3",
+  "name": "Burgul White (Fine)",
+  "uom": "Gram",
+  "price": 0.006,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-3567",
+  "name": "Frz Green Peas",
+  "uom": "Gram",
+  "price": 0.01375,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-366",
+  "name": "Frz Okra Zero(400 Gram)",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-5571",
+  "name": "Star Anise",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4765",
+  "name": "Can Ghee(1600 Gram)",
+  "uom": "Gram",
+  "price": 0.05064375,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-115",
+  "name": "Rose Water",
+  "uom": "Ml",
+  "price": 0.0197090909,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-304",
+  "name": "Food Color Yellow(Saffron)",
+  "uom": "Gram",
+  "price": 0.0208,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-221",
+  "name": "Fresh Mint",
+  "uom": "Gram",
+  "price": 0.004,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-4418",
+  "name": "Spice Garam Masala(KG)",
+  "uom": "Gram",
+  "price": 0.038,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3850",
+  "name": "Spice Biryani Masala (Mahran)",
+  "uom": "Gram",
+  "price": 0.0796363636,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS7-926",
+  "name": "Cashew Nuts",
+  "uom": "Gram",
+  "price": 0.042,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3844",
+  "name": "Chili Red Powder",
+  "uom": "Gram",
+  "price": 0.035416,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY2-1160-B",
+  "name": "Yogurt Plain big 10 KG",
+  "uom": "Gram",
+  "price": 0.0044,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-MET2-3558",
+  "name": "Frz Leg Boneless (Veal)",
+  "uom": "Gram",
+  "price": 0.063,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD1-4279",
+  "name": "Fresh Curry Leaves",
+  "uom": "Gram",
+  "price": 0.045,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-4285",
+  "name": "Spice Qorma Masala",
+  "uom": "Gram",
+  "price": 0.04687,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS5-2176",
+  "name": "Coconut Milk Powder (1 KG)",
+  "uom": "Gram",
+  "price": 0.069,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3538",
+  "name": "Spices Anise Seeds",
+  "uom": "Gram",
+  "price": 0.024,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3608",
+  "name": "Spice Curry Powder",
+  "uom": "Gram",
+  "price": 0.016,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1865",
+  "name": "Spice Meat Masala",
+  "uom": "Gram",
+  "price": 0.04687,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-4103",
+  "name": "Butter Peanuts(794 Gram)",
+  "uom": "Gram",
+  "price": 0.02291,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS4-3663",
+  "name": "Jasmine Rice",
+  "uom": "Gram",
+  "price": 0.00465,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1415",
+  "name": "Sesame Oil(320 ML)",
+  "uom": "Ml",
+  "price": 0.03671875,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1787",
+  "name": "Pepper Paste (4 KG)",
+  "uom": "Gram",
+  "price": 0.0184375,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD3-4421",
+  "name": "Lemon Pickles",
+  "uom": "Gram",
+  "price": 0.012,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3296",
+  "name": "Mastica",
+  "uom": "Gram",
+  "price": 0.7898,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3854",
+  "name": "Spice tandoori Masala (Mahran)",
+  "uom": "Gram",
+  "price": 0.0792,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-3848",
+  "name": "Spice Kasuri Mathi / Fenugreek Leaves",
+  "uom": "Gram",
+  "price": 0.048,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3839",
+  "name": "Black Salt",
+  "uom": "Gram",
+  "price": 0.021,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD2-3671",
+  "name": "Frz Moulokhia (400Gram)",
+  "uom": "Gram",
+  "price": 0.008125,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-4420",
+  "name": "Spice Kashmiri Chilli(KG)",
+  "uom": "Gram",
+  "price": 0.026,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-978",
+  "name": "Sugar Fine(50 KG)",
+  "uom": "Gram",
+  "price": 0.0024,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1780",
+  "name": "Honey Jar (3 KG)",
+  "uom": "Gram",
+  "price": 0.04,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1039",
+  "name": "Ketchup Gallon (5 Kg)",
+  "uom": "Gram",
+  "price": 0.0035,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS2-508",
+  "name": "Chinese Noodle(Pancit Canton)",
+  "uom": "Gram",
+  "price": 0.0250220264,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1415-D",
+  "name": "Sesame Oil(320 ML)",
+  "uom": "Ml",
+  "price": 0.05676,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-PRD3-5038",
+  "name": "Fried Onions",
+  "uom": "Gram",
+  "price": 0.026,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-1471",
+  "name": "Sugar In The Raw (Turbinado)",
+  "uom": "Gram",
+  "price": 0.0214112459,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS2-1367",
+  "name": "Pasta Lasagna (500 Gram)",
+  "uom": "Gram",
+  "price": 0.02666,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-290",
+  "name": "Spice Nutmeg Powder",
+  "uom": "Gram",
+  "price": 0.185,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-1570-C",
+  "name": "Dried Oregano",
+  "uom": "Gram",
+  "price": 0.048,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-MET2-585",
+  "name": "Frz Beef Topside",
+  "uom": "Gram",
+  "price": 0.031,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY1-1801",
+  "name": "Cheese Mozzarella Grated (KG)",
+  "uom": "Gram",
+  "price": 0.025,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-MET2-1051",
+  "name": "Frz Beef Tenderloin Brazil",
+  "uom": "Gram",
+  "price": 0.072,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1415-C",
+  "name": "Sesame Oil(320 ML)",
+  "uom": "Ml",
+  "price": 0.05673,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS6-256",
+  "name": "Spice Carawya Seeds",
+  "uom": "Gram",
+  "price": 0.03269,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-SFD1-5366",
+  "name": "Frz Fish Fillet Seabass",
+  "uom": "Gram",
+  "price": 0.041,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS1-3357",
+  "name": "Demi Glace Powder",
+  "uom": "Gram",
+  "price": 0.04444,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRY2-1160",
+  "name": "Yogurt Plain big 10 KG",
+  "uom": "Gram",
+  "price": 0.0045,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "",
+  "brands": [
+   "bnc"
+  ]
+ },
+ {
+  "code": "NC-DRS3-1415-B",
+  "name": "Sesame Oil(320 ML)",
+  "uom": "Ml",
+  "price": 0.0567,
+  "cat": "NC",
+  "sub": "From costing sheets",
+  "flag": "Same item at a second sheet price",
+  "brands": [
+   "bnc"
+  ]
+ }
+]

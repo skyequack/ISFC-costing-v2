@@ -1,0 +1,55 @@
+[
+ [
+  "hot",
+  "Hot Kitchen",
+  "المطبخ الساخن",
+  [
+   "Main Course",
+   "Arabic",
+   "Rice",
+   "Lentils & Pulses",
+   "Pasta",
+   "Vegetables",
+   "Eggs",
+   "Soup",
+   "Breakfast"
+  ]
+ ],
+ [
+  "sal",
+  "Salads",
+  "السلطات",
+  [
+   "Salad"
+  ]
+ ],
+ [
+  "swt",
+  "Desserts",
+  "الحلويات",
+  [
+   "Dessert",
+   "Fruit"
+  ]
+ ],
+ [
+  "bak",
+  "Bakery",
+  "المخبوزات",
+  [
+   "Bread",
+   "Bakary",
+   "Bakery",
+   "Cereal"
+  ]
+ ],
+ [
+  "bev",
+  "Beverages",
+  "المشروبات",
+  [
+   "Beverage",
+   "Dairy & Spreads"
+  ]
+ ]
+]
