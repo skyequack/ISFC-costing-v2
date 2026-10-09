@@ -168,7 +168,7 @@ describe('validateImage', () => {
 
   it('all 9 seeded brand logos are valid logos', () => {
     const brands: { logoFile: string | null }[] = JSON.parse(
-      fs.readFileSync(path.resolve(__dirname, '../prisma/seed-data/brands.json'), 'utf8'),
+      fs.readFileSync(path.resolve(__dirname, '../db/seed-data/brands.json'), 'utf8'),
     );
     const files = brands.map((b) => b.logoFile).filter(Boolean) as string[];
     expect(files).toHaveLength(9);

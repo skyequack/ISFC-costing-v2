@@ -23,7 +23,7 @@ Item notes: 135 of 1046 items have `price:null` (flag "PRICE MISSING"); 161 carr
 Brand notes: ids `bnc, b1…b12, bssem`; `locs` only on `bssem` (`['NIC','NEOM','JUBAIL','YANBU']`, `DEF_LOCS` 2049); `ink` only Salus (`#141414`); `nameAr` only `bnc` and `b10`.
 User notes: PINs plaintext 4–8 digits (viewer may be empty); default GM id `u1` PIN `1234` shown on login screen.
 
-## 2. Seed constants (all extracted to `prisma/seed-data/`)
+## 2. Seed constants (all extracted to `db/seed-data/`)
 `SEED_ITEMS` (1046, line 483) · `MASTER_PATCH` (27, 494; all already in SEED_ITEMS) · `RECIPE_PATCH` (319 cards, 504: bnc 234, b7 12, no brandId 73 → bssem) · `DEMO_RECIPES` (2 GRM cards, 998) · `SEED_CONV` (34, 542) · `DEF_BRANDS` (13, 1106) + `SSEM_BRAND` (503) · `DEF_SETTINGS` (1093) · `DEF_USERS` (577) · `DEF_SEC` (1122) · `ROLES` (552) · `YIELD_REF` (43 rows, 544) · `MENU_PLAN` (8 menus, line 1045) · `SEED_ISSUES` (27) · `DEF_LOCS` · `SECTIONS` · `PLAN_ALIAS` (11). Empty: `EXTRA_ITEMS`, `LINE_FIX`.
 
 ## 3. Boot sequence (6103–6570) and why we do NOT port it
@@ -39,6 +39,6 @@ Boot: load saved state or `seed()` (1131: settings, users, audit[], brands, acti
 cd tools && npm i && node dump-golden.js   # legacy boot -> golden/state.json
 node dump-costs.js                          # legacy cost() over every golden recipe -> golden/costs.json
 node extract-assets.js                      # logos -> public/assets/*.png
-node extract-seed.js                        # golden + constants -> prisma/seed-data/*.json
+node extract-seed.js                        # golden + constants -> db/seed-data/*.json
 ```
 `golden/` and `legacy/` are read-only oracles; never edit by hand.

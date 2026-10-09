@@ -1,5 +1,5 @@
 # UI_PORT — how to port the legacy UI without redesign
-Rule: visual equivalence with `legacy/app.html`. Keep terminology (e.g. "Activity Log", "Cost Settings"), classes, inline styles, structure. Exceptions require a DECISIONS.md row (D-41 wording tweaks are **pending user confirmation** — do not apply).
+Rule: visual equivalence with `legacy/app.html`. Keep terminology (e.g. "Activity Log", "Cost Settings"), classes, inline styles, structure. Exceptions require a DECISIONS.md row (D-41 resolved: no wording changes except the Backup subtitle — see §7).
 
 ## 1. Legacy UI facts (verify in file)
 - Two `<style>` blocks (lines 8–448): system font stack `-apple-system,"Segoe UI",Roboto,Arial`, 14px/1.5; **no webfont**, **no responsive breakpoints** (only `@media print` at ~312 and ~441); sidebar fixed 230px; RTL only via `dir="rtl"` on `.bt-ar` (2587). Do not use `next/font`, do not add breakpoints.
@@ -32,3 +32,10 @@ Port these controls with the legacy markup/classes (no redesign):
 3. **Add brand (Settings, new):** the legacy inline row (`Brand name` + `Prefix` + `Add`) gains the **Brand logo** box (`.logobox` / `.logoprev` "No logo" / "Choose image" / "Remove logo", same helper text) so the logo is chosen before pressing Add; shown only with `brands.edit`. The brand is created, then the logo uploaded (docs/API.md two-step).
 4. **Edit brand modal:** unchanged control (Choose image / Remove logo, "PNG with a transparent background works best…"); the "stored inside this file" sentence is **stale** under D-49 and is a D-41-style wording change — keep verbatim until you confirm the replacement.
 Behaviour: client resizes before upload (photo ≤ 760 px JPEG q.72; logo 320 px PNG; SVG rasterised); show legacy toasts ("Processing the photo…", "Photo added · w×h · KB", "That photo could not be used", "That image is over 3 MB - use a smaller one"); previews use object URLs until saved; after save, `<img>` uses `photoUrl`/`logoUrl`. Accessibility: file inputs get labels/aria without visual change.
+
+## 7. Resolved wording and additions (D-41, D-45, D-52, D-31)
+- **No label changes** (D-41): "Selling price", "Price at target", etc. stay exactly as legacy. **One factual correction:** Backup subtitle becomes "Your data is stored securely in the database. Download a backup copy at any time." (legacy: "Your data lives in this browser - back it up").
+- **Double-waste note (D-45):** in the recipe editor, a small `.note`-style hint under a line whose `y` is not 1 while a waste % is set ("Yield factor and waste % are both set — waste may be counted twice"). Non-blocking; costing unchanged.
+- **Brand sites editor (D-52):** inside the existing Edit brand modal, a "Sites" section built from legacy primitives (chips with remove ×, an input + Add button, inline rename). Visible only with `brands.edit` (GM). Removing a site that has stored rows shows the count and is refused; renaming updates stored rows.
+- **Audit screen (D-31):** the legacy "Clear activity log" button now adds a marker; a "Show archived" toggle reveals older entries.
+- **Price-list import (D-43):** dry-run table shows old/new/Δ%; rows beyond ±20% get a `PRICE CHECK` pill (legacy pill classes).

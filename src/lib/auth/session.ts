@@ -1,7 +1,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import type { User as ClerkUser } from '@clerk/nextjs/server';
-import { Prisma } from '@prisma/client';
-import { prisma } from '../db/client';
+import { db } from '../db/client';
+import { camelRow } from '../db/rows';
 import { getEnv } from '../env';
 import { log } from '../logger';
 import { isRole, type Role } from '../permissions';
@@ -27,24 +27,31 @@ async function bootstrapGm(clerkUser: ClerkUser): Promise<Role | null> {
   return 'gm';
 }
 
-async function provision(clerkUser: ClerkUser, role: Role | null) {
-  const data = {
-    email: verifiedPrimaryEmail(clerkUser),
-    name: displayName(clerkUser),
-    lastRoleSeen: role,
-  };
-  const run = () =>
-    prisma.user.upsert({
-      where: { clerkUserId: clerkUser.id },
-      create: { clerkUserId: clerkUser.id, ...data },
-      update: {},
-    });
-  try {
-    return await run();
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') return run(); // concurrent first request
-    throw e;
-  }
+interface UserRow {
+  id: string;
+  clerkUserId: string;
+  email: string | null;
+  name: string;
+  active: boolean;
+  lastRoleSeen: string | null;
+}
+
+const USER_COLUMNS = 'id, clerk_user_id, email, name, active, last_role_seen';
+
+async function findUser(clerkUserId: string): Promise<UserRow | null> {
+  const { rows } = await db.query(`SELECT ${USER_COLUMNS} FROM app_user WHERE clerk_user_id = $1`, [clerkUserId]);
+  return rows[0] ? camelRow<UserRow>(rows[0]) : null;
+}
+
+/** Race-safe first-login provisioning: one statement, so two parallel first requests both get the same row. */
+async function provision(clerkUser: ClerkUser, role: Role | null): Promise<UserRow> {
+  const { rows } = await db.query(
+    `INSERT INTO app_user (clerk_user_id, email, name, last_role_seen) VALUES ($1, $2, $3, $4)
+     ON CONFLICT (clerk_user_id) DO UPDATE SET clerk_user_id = EXCLUDED.clerk_user_id
+     RETURNING ${USER_COLUMNS}`,
+    [clerkUser.id, verifiedPrimaryEmail(clerkUser), displayName(clerkUser), role],
+  );
+  return camelRow<UserRow>(rows[0] as Record<string, unknown>);
 }
 
 /**
@@ -57,7 +64,7 @@ export async function getSession(): Promise<SessionResult> {
   if (!userId) return { status: 'anonymous' };
 
   let role: Role | null = isRole(sessionClaims?.role) ? sessionClaims.role : null;
-  let row = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+  let row = await findUser(userId);
   let clerkUser: ClerkUser | null = null;
 
   if (!row || !role) {
@@ -72,7 +79,7 @@ export async function getSession(): Promise<SessionResult> {
   if (!row.active) return { status: 'inactive', clerkUserId: userId };
   if (!role) return { status: 'pending', clerkUserId: userId };
   if (row.lastRoleSeen !== role) {
-    await prisma.user.update({ where: { id: row.id }, data: { lastRoleSeen: role } }); // diagnostics only
+    await db.query('UPDATE app_user SET last_role_seen = $1 WHERE id = $2', [role, row.id]); // diagnostics only
   }
   return { status: 'ok', user: { id: row.id, clerkUserId: userId, email: row.email, name: row.name, role } };
 }

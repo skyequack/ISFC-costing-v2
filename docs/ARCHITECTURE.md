@@ -1,30 +1,31 @@
 # ARCHITECTURE — target system design (authoritative; derived from DECISIONS.md)
 
 ## 1. Stack & layout
-Next.js (App Router) + TypeScript strict · Prisma 6 · PostgreSQL (Neon) · Clerk · Vercel · Zod · Vitest (+fast-check) · Playwright + pixelmatch. No Python, no Tailwind/UI kit, no Clerk Organizations, no global client store, no localStorage persistence.
+Next.js (App Router) + TypeScript strict · PostgreSQL on Neon via node-postgres (`pg`) with hand-written SQL (no ORM, D-50) · Clerk · Vercel · Zod · Vitest (+fast-check) · Playwright + pixelmatch. No Python, no Tailwind/UI kit, no Clerk Organizations, no global client store, no localStorage persistence.
 ```
 src/
   app/                 routes (Server Components fetch; Client Components for interaction); app/api/** route handlers
   components/          layout (shell), shared (Modal, Toast, Perm), per-feature client components
-  domain/              PURE TS (no React/Prisma/Clerk/browser): costing, production, recipes (graph, codes), ingredients, menu-plans, dashboard
-  data/                static data: yield-ref, sections, plan-alias (typed from prisma/seed-data/*.json)
-  lib/                 images (ImageStore interface + Postgres implementation, magic-byte sniffing, caps), auth (withAuth, getCurrentUser, requirePermission), permissions (ROLES), db (prisma client, repositories), validation (zod schemas), audit, print (html builders), brand (palette), xlsx, utils, env.ts (zod-validated env)
+  domain/              PURE TS (no React/pg/Clerk/browser): costing, production, recipes (graph, codes), ingredients, menu-plans, dashboard
+  data/                static data: yield-ref, sections, plan-alias (typed from db/seed-data/*.json)
+  lib/                 images (ImageStore interface + Postgres implementation, magic-byte sniffing, caps), auth (withAuth, getCurrentUser, requirePermission), permissions (ROLES), db (pg pool + withTransaction in client.ts, rows.ts camelCase mapper, scope.ts brand scope, SQL repositories), validation (zod schemas), audit, print (html builders), brand (palette), xlsx, utils, env.ts (zod-validated env)
   styles/              legacy.css (verbatim), print.css
-prisma/                schema.prisma, migrations (incl. raw SQL), seed.ts, seed-data/*.json
+db/                    migrations/*.sql (source of truth), seed-data/*.json, seed script (Phase 3)
+scripts/               migrate.mjs (applies db/migrations over the unpooled URL)
 public/assets/         app logo + original brand logo files (the seed loads brand logos into BrandLogo; uploads never touch the filesystem — Vercel is read-only)
 legacy/ golden/ tools/ read-only oracles + generators
 ```
-Layering rule: route handler → `withAuth` → Zod validation → application function in `domain/`+repository → Prisma transaction → audit (same transaction) → response. Route handlers hold no business logic.
+Layering rule: route handler → `withAuth` → Zod validation → application function in `domain/`+repository → SQL transaction (`withTransaction`) → audit (same transaction) → response. Route handlers hold no business logic.
 
 ## 2. Request pipeline & auth
 1. Clerk middleware validates the session. `withAuth({perm?, brand?})` wraps **every** handler (a meta-test enumerates route files and fails on any unwrapped export).
-2. Resolve app `User` via `upsert({where:{clerkUserId}})` (retry on P2002); provision lazily on first request. **Reject if `User.active=false`.** Backstop for Clerk bans.
+2. Resolve app user (`app_user`) via a single-statement `INSERT … ON CONFLICT (clerk_user_id) DO UPDATE … RETURNING` (race-safe); provision lazily on first request. **Reject if `User.active=false`.** Backstop for Clerk bans.
 3. Role: custom session claim `{"role":"{{user.public_metadata.role}}"}` for UI gating/read speed (≤60 s staleness on role *changes* accepted). **Users-tab writes and last-GM checks re-read Clerk** (`clerkClient.users.getUser`). Role missing/invalid → **403 "pending"**, never viewer. `User.lastRoleSeen` is diagnostics only.
 4. `INITIAL_GM_EMAILS` (server-only): if the Clerk **verified** primary email matches and no role is set, write `publicMetadata.role='gm'` to Clerk (idempotent); treat as gm for that request.
 5. Permission check via central `can(role, perm)` (ROLES from legacy + `menu.edit`; `*` for gm). Client `can()`/`<Perm>` is cosmetic only.
 6. Brand/resource check: repositories **require** `visibleBrandIds(user)` (GM = all; others = `UserBrandAccess`; none → empty). Fetch by id then check brand; out-of-scope → **404**. PATCH brandId needs access to old and new brand. Lines referencing ingredients (`ItemBrandScope`) or sub-recipes must be visible to the caller; unknown legacy codes tolerated only on unchanged lines.
 7. Zod validation (all numbers `.finite()`; null price never → 0; qty ≥ 0; `y` in (0,10] else 1; `yp` null or [0,1000]; output > 0; strings trimmed/max length; uom/unit allowlist warns on import, rejects in editor).
-8. Domain operation in `prisma.$transaction`; re-check lock status **inside** the transaction (`updateMany where status='DRAFT'` or `FOR UPDATE`); optimistic concurrency `version` (mismatch → 409); cycle check under `pg_advisory_xact_lock`.
+8. Domain operation in `withTransaction(...)`; re-check lock status **inside** the transaction (`UPDATE … WHERE status='DRAFT'` or `SELECT … FOR UPDATE`); optimistic concurrency `version` (mismatch → 409); cycle check under `pg_advisory_xact_lock`.
 9. Audit row in the same transaction: actor from session, `userNameSnapshot`, `roleSnapshot` from the fresh Clerk read.
 10. Response. Error shape `{error:{code,message,details?,requestId}}`; 400 validation, 401 no session, 403 permission/inactive/pending, 404 not found/out-of-scope, 409 conflict/cycle/duplicate code/last GM, 413 too large, 422 business rule (e.g. lock gate), 429 rate limit, 500 no internals. Structured JSON logs `{reqId,clerkUserId,route,status,ms}` — never bodies/photos.
 Rate limits (Upstash or Vercel firewall) on import, export, photo, user-management routes (~10/min/user).
@@ -39,11 +40,11 @@ GM invites by email (`createInvitation` with `publicMetadata.role`), assigns bra
 Load catalog with 3 queries (ingredients+conversions, recipes+lines **without photo**, settings), build Maps, run the pure `cost()` over all 321 recipes (ms). Cache the loader with `unstable_cache` tag `catalog`; every mutation of ingredients/recipes/conversions/settings calls `revalidateTag('catalog')`; brand filtering applied after the cache read. No stored cost column. Do not memoize `subUnitCost` across paths (cycle semantics are path-dependent). Photos fetched lazily per recipe from `RecipePhoto`.
 
 ## 6. Serverless / Vercel
-Runtime `nodejs`. Runtime DB URL = pooled (`?pgbouncer=true&connection_limit=1`); `DIRECT_URL` for migrate, seed, import/restore routes (interactive transactions with raised `timeout`/`maxWait`; set `maxDuration`). Request body limit ~4.5 MB → photos client-downscaled (~300 KB; Zod caps data URL ≈400 KB; 1 MB DB cap), imports parsed in the browser and sent as ≤500-row chunks with a server hash, restore chunked. Exports are responses (stream CSV; XLSX generated in browser from API JSON so `export` and brand scope are enforced at the data endpoint). Print is browser-native (`window.print`, Blob documents); `page.pdf()` is used only in local tests (Chromium doesn't fit in a function).
+Runtime `nodejs`. Vercel functions run in **fra1** (same region as the Neon project, `aws-eu-central-1`) on Fluid compute. Runtime DB URL = Neon **pooled** `DATABASE_URL` through one `pg` Pool per instance (`attachDatabasePool`, `idleTimeoutMillis: 5000`); `DATABASE_URL_UNPOOLED` for migrate, seed and import/restore (own clients, set `maxDuration`). Aim for 1–2 queries per screen (catalog loader, D-40) — latency is dominated by round trips, not the driver. Request body limit ~4.5 MB → photos client-downscaled (~300 KB; Zod caps data URL ≈400 KB; 1 MB DB cap), imports parsed in the browser and sent as ≤500-row chunks with a server hash, restore chunked. Exports are responses (stream CSV; XLSX generated in browser from API JSON so `export` and brand scope are enforced at the data endpoint). Print is browser-native (`window.print`, Blob documents); `page.pdf()` is used only in local tests (Chromium doesn't fit in a function).
 Secrets: only env vars; validate with Zod at boot; `INITIAL_GM_EMAILS` has no `NEXT_PUBLIC`.
 
 ## 7. Database operations
-See `schema.md`. Forward-only migrations (expand/contract); Neon branch/PITR point before every prod migration; one Neon branch per CI run/preview for tests. Seed: upserts by code in a single transaction on `DIRECT_URL`, `SeedRun(version,checksum)`, never `deleteMany`, abort if audit rows exist; chunked `createMany` for lines. Prod data load script behind `--confirm`.
+See `schema.md` and `db/migrations/*.sql`. Migrations are plain SQL applied by `npm run db:migrate` (forward-only, checksum-verified, one transaction each). Branches: `production`, `dev`, and per-run test branches (7-day TTL); take a branch/PITR point before every prod migration. Seed: upserts by code in a single transaction on `DATABASE_URL_UNPOOLED`, `seed_run(version,checksum)`, never bulk DELETE, abort if audit rows exist; chunked multi-row `INSERT … SELECT unnest(...)` for lines. Prod data load script behind `--confirm`.
 
 ## 8. Concurrency rules
 `version` on Recipe, Ingredient, CostSettings, Menu (PATCH carries expected version; `updateMany where id,version`; 0 rows → 409). Recipe save = replace lines/method inside one transaction. Last-write-wins for MenuCell edits via Menu version only on structure, ProductionEntry, MenuPax (upserts).

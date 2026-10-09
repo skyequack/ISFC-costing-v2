@@ -1,11 +1,15 @@
 name: ci
 on: [push, pull_request]
+
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://x:x@localhost:5432/x
-      DIRECT_URL: postgresql://x:x@localhost:5432/x
+      DATABASE_URL_UNPOOLED: postgresql://x:x@localhost:5432/x
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
       CLERK_SECRET_KEY: sk_test_dummy
       INITIAL_GM_EMAILS: gm@example.com
@@ -14,8 +18,69 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - run: npx prisma validate
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run format
       - run: npm run test:coverage
       - run: npm run build
+
+  # Database tests on a throwaway, schema-only Neon branch of `production` (no production data ever reaches CI).
+  # Needs repository variable NEON_PROJECT_ID and secret NEON_API_KEY (see docs/RUNBOOK.md §4a).
+  # Skipped for pull requests from forks, which cannot read secrets.
+  db:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+
+      - name: Fail early if Neon credentials are not configured
+        run: |
+          if [ -z "$NEON_PROJECT_ID" ] || [ -z "$NEON_API_KEY" ]; then
+            echo "::error::Set repository variable NEON_PROJECT_ID and secret NEON_API_KEY (docs/RUNBOOK.md §4a)."
+            exit 1
+          fi
+
+      - name: Branch expiry (safety net if cleanup is skipped)
+        run: echo "BRANCH_EXPIRES=$(date -u -d '+1 day' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Create Neon test branch
+        id: branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
+          parent_branch: production
+          branch_type: schema-only
+          role: neondb_owner
+          database: neondb
+          ssl: verify-full
+          expires_at: ${{ env.BRANCH_EXPIRES }}
+
+      - name: 'Apply migrations (twice - the second run must be a no-op)'
+        env:
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
+        run: |
+          npm run db:migrate
+          npm run db:migrate | tee /tmp/second.txt
+          grep -q "database is up to date" /tmp/second.txt
+
+      - name: Database tests
+        env:
+          TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
+          TEST_DATABASE_POOLED_URL: ${{ steps.branch.outputs.db_url_pooled }}
+        run: npm run test:db
+
+      - name: Delete Neon test branch
+        if: always() && steps.branch.outputs.branch_id != ''
+        run: |
+          curl -fsS -X DELETE \
+            -H "Authorization: Bearer $NEON_API_KEY" \
+            "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/${{ steps.branch.outputs.branch_id }}" \
+            > /dev/null

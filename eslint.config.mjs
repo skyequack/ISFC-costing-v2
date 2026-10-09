@@ -10,7 +10,7 @@ const config = [
       'legacy/**',
       'golden/**',
       'tools/**',
-      'prisma/seed-data/**',
+      'db/seed-data/**',
       'next-env.d.ts',
       'coverage/**',
     ],
@@ -28,7 +28,19 @@ const config = [
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: ['react', 'react-dom', 'next', 'next/*', '@prisma/*', '@clerk/*', '@/lib/*', '@/components/*'] },
+        {
+          patterns: [
+            'react',
+            'react-dom',
+            'next',
+            'next/*',
+            'pg',
+            '@vercel/*',
+            '@clerk/*',
+            '@/lib/*',
+            '@/components/*',
+          ],
+        },
       ],
     },
   },

@@ -1,6 +1,6 @@
 # ISFC Food Costing System — Migration Agent Instructions
 
-> **AMENDMENTS (authoritative, see DECISIONS.md D-01…D-41):** the 3-day deadline is removed (D-25); scope additions approved by the user override the "no new business rules" language in this document — editable menus (D-05), brand access across all brand-tied data (D-07), unique recipe codes (D-12), cycle blocking (D-13), extra auditing (D-15), yp/buffer round trip (D-17), unified "All sites" (D-20), price history & cost-at-lock (D-26), required brand on recipes (D-27), requisition valuation fix (D-10/D-28), lock gate (D-29). Permissions are the legacy ROLES list plus `menu.edit` (gm, cc) and GM-only `users.manage`, `data.admin`, `brands.edit`. Schema field names follow `schema.md`, not §13 here (e.g. `RecipeLine.y/yp`, `Ingredient.price`, `ItemBrandScope`, `MenuPax/ProductionEntry`). Real menu-planning model: see DISCOVERY_FINDINGS.md.
+> **AMENDMENTS (authoritative, see DECISIONS.md D-01…D-50):** the 3-day deadline is removed (D-25); scope additions approved by the user override the "no new business rules" language in this document — editable menus (D-05), brand access across all brand-tied data (D-07), unique recipe codes (D-12), cycle blocking (D-13), extra auditing (D-15), yp/buffer round trip (D-17), unified "All sites" (D-20), price history & cost-at-lock (D-26), required brand on recipes (D-27), requisition valuation fix (D-10/D-28), lock gate (D-29). Permissions are the legacy ROLES list plus `menu.edit` (gm, cc) and GM-only `users.manage`, `data.admin`, `brands.edit`. Schema field names follow `schema.md`, not §13 here (e.g. `RecipeLine.y/yp`, `Ingredient.price`, `ItemBrandScope`, `MenuPax/ProductionEntry`). Real menu-planning model: see DISCOVERY_FINDINGS.md. **Data access (D-50): Prisma is NOT used.** The database is Neon PostgreSQL accessed with node-postgres (`pg`) and hand-written SQL; schema lives in `db/migrations/*.sql`; wherever this document says Prisma/ORM, read "pg + plain SQL".
 
 You are the implementation agent responsible for converting the existing ISFC Food Costing System from a monolithic HTML application into a production-ready Next.js web application.
 
@@ -14,7 +14,7 @@ The final application must use:
 
 - Next.js
 - TypeScript
-- Prisma 6
+- PostgreSQL on Neon via `pg` + plain SQL (no ORM)
 - PostgreSQL
 - Clerk
 - Vercel
@@ -94,7 +94,7 @@ React
 +
 TypeScript
 +
-Prisma 6
+node-postgres (pg), plain SQL
 +
 PostgreSQL
 +
@@ -208,7 +208,7 @@ The important requirement is that costing is independent from:
 - UI state
 - Next.js components
 - Clerk
-- Prisma
+- Database drivers and ORMs
 The domain calculation should receive data and return calculations.
 
 This makes it testable.
@@ -249,7 +249,7 @@ Do not proceed as though the migration is correct merely because TypeScript comp
 ---
 
 # 7. Database migration rules
-Use Prisma 6 with PostgreSQL.
+Use PostgreSQL on Neon through node-postgres (`pg`) with plain SQL.
 
 Do not use SQLite for the production architecture.
 
@@ -391,9 +391,9 @@ viewer
 ```
 Clerk is authoritative for the user's role.
 
-Do not create an independently editable Prisma role that can contradict Clerk.
+Do not create an independently editable database role that can contradict Clerk.
 
-If Prisma stores role information for synchronization or querying, document the relationship clearly.
+If the database stores role information for synchronization or querying, document the relationship clearly.
 
 Never silently choose one value in one part of the system and another value elsewhere.
 
@@ -516,7 +516,7 @@ Use application-level brand access.
 # 16. API design
 Create APIs around application operations.
 
-Do not expose every Prisma model as generic CRUD.
+Do not expose every database table as generic CRUD.
 
 Prefer meaningful endpoints such as:
 
@@ -561,13 +561,13 @@ Validation
     ↓
 Application/domain operation
     ↓
-Prisma
+Database access (pg)
     ↓
 Audit logging
     ↓
 Response
 ```
-For complex mutations, use Prisma transactions.
+For complex mutations, use database transactions.
 
 Examples:
 
@@ -817,7 +817,7 @@ Inspect the existing `lineCost()` implementation.
 
 Write tests using real source examples.
 
-Only then implement the Prisma-backed conversion model.
+Only then implement the database-backed conversion model.
 
 ---
 
@@ -962,7 +962,7 @@ Do not use local SQLite as the production database.
 
 Use PostgreSQL.
 
-Configure Prisma appropriately for serverless execution.
+Configure node-postgres and Neon pooling appropriately for serverless execution.
 
 All secrets must be environment variables.
 
@@ -984,7 +984,7 @@ Authorization
    ↓
 Application/domain logic
    ↓
-Prisma 6
+node-postgres (pg), plain SQL
    ↓
 PostgreSQL
 ```
@@ -1024,7 +1024,7 @@ Set up:
 - Next.js
 - TypeScript
 - Clerk
-- Prisma 6
+- PostgreSQL on Neon via `pg` + plain SQL (no ORM)
 - PostgreSQL
 - environment configuration
 - basic application layout
@@ -1045,7 +1045,7 @@ Costing
  ↓
 API
  ↓
-Prisma
+Database access (pg)
  ↓
 PostgreSQL
  ↓
@@ -1127,7 +1127,7 @@ authorization
  ↓
 API
  ↓
-Prisma
+Database access (pg)
  ↓
 PostgreSQL
  ↓
@@ -1203,7 +1203,7 @@ Log useful server-side diagnostic information.
 ---
 
 # 40. Database safety
-Use Prisma transactions for multi-step operations that must succeed or fail together.
+Use database transactions for multi-step operations that must succeed or fail together.
 
 Examples:
 
@@ -1302,7 +1302,7 @@ The finished application must satisfy all of the following:
 [ ] Clerk role resolution works
 [ ] Permissions are enforced server-side
 [ ] Brand access is enforced server-side
-[ ] Prisma 6 works
+[ ] node-postgres + Neon works
 [ ] PostgreSQL works
 [ ] Existing ingredient codes are preserved
 [ ] Existing ingredient records are not merged

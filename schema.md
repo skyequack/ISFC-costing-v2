@@ -1,222 +1,42 @@
-# schema.md — Prisma 6 / PostgreSQL schema (V1) — reflects DECISIONS.md and the 5-role review
+# schema.md — database design (Neon PostgreSQL 18, plain SQL)
 
-Principles: relational, no `S` blob; **Float (double precision) for numerics** (parity with JS doubles; never round before storing/summing); business codes verbatim; no dedupe; legacy ids not kept (key on `code`). Runtime uses the pooled URL, migrations/seed/import use `DIRECT_URL`. All timestamps `timestamptz` (UTC). Forward-only migrations (expand/contract); take a Neon branch/PITR point before every prod migration.
+**The SQL is the source of truth:** `db/migrations/0001_init.sql` (applied with `npm run db:migrate`, tracked in `schema_migrations`, forward-only, checksum-verified). This file explains the model and the rules behind it. A new migration is required for any change; never edit an applied migration.
 
-```prisma
-datasource db { provider = "postgresql"; url = env("DATABASE_URL"); directUrl = env("DIRECT_URL") }
+## Conventions
+- **Naming:** snake_case tables and columns (`app_user` because `user` is reserved). Docs use the conceptual model names (`Recipe.deletedAt` ↔ table `recipe`, column `deleted_at`). Rows are mapped to camelCase in TypeScript by `src/lib/db/rows.ts` (`camelRow`), nowhere else.
+- **IDs:** `text` UUIDs from `gen_random_uuid()::text`. Legacy ids are not kept; key legacy data on `code`. `brand.legacy_id` keeps the legacy brand id (bnc, b1…b12, bssem).
+- **Numerics:** `double precision` everywhere (parity with JS doubles; never round before storing or summing). **Timestamps:** `timestamptz` (UTC); `cost_settings.price_date` is a `date`. `updated_at` is maintained by the `set_updated_at()` trigger.
+- **Connections:** the running app uses the pooled URL (`DATABASE_URL`, host contains `-pooler`) through `src/lib/db/client.ts`; migrations, seeding and bulk import/restore use `DATABASE_URL_UNPOOLED`. Transaction-scoped features (`pg_advisory_xact_lock`, `SELECT … FOR UPDATE`) are safe through the pooler.
+- **Branches:** `production` (live), `dev` (local work and seeding), short-lived per-run branches for tests/CI (TTL 7 d). Take a branch / note a PITR point before every production migration.
 
-enum RecipeType   { MENU SUB }
-enum RecipeStatus { DRAFT LOCKED }
-enum HistoryAction { LOCK UNLOCK }
-enum MenuCellKind { ITEM RECIPE NONE }
+## Tables (21 + `schema_migrations`)
+| Table | Purpose / key rules |
+|---|---|
+| `brand` | 14 rows. `legacy_id`, `code` (recipe-code prefix), `name` unique; `name_ar`, `color` (`''` allowed), `ink_color`, `locations text[]` (only SSEM has values; GM-editable, D-52: names are referenced by `menu_pax.location` / `production_entry.location`, so rename cascades in one transaction and removal of a site with rows is refused), `active`. |
+| `app_user` | Lazily provisioned on first authenticated request (single-statement upsert on `clerk_user_id`). **No role column** — Clerk `publicMetadata.role` is authoritative; `last_role_seen` is diagnostics only. `active` is the app-side backstop for Clerk bans, checked on every request. |
+| `user_brand_access` | (user, brand) unique. Non-GM visibility. |
+| `ingredient` | 1046 rows. `code` verbatim, case-sensitive unique. **`price` NULL = PRICE MISSING (135 rows) — never 0.** `uom` CHECK in Gram/Ml/Each/Slice (extend by migration if importers learn new units). `flag` verbatim data-quality text. `version` for optimistic concurrency. |
+| `item_brand_scope` | Legacy `item.brands[]`: visibility scope (no rows = Shared). **Not** a price override. |
+| `unit_conversion` | One per ingredient (legacy `S.conv`): `recipe_unit`, `factor > 0`; line cost = `qty / factor` only when the stored unit equals the line unit. |
+| `ingredient_price_history` | Append-only (D-26): old/new price, source (MANUAL / IMPORT / MENU_PLAN / SEED), user snapshot. |
+| `recipe` | `brand_id` **required** (D-27). `code` uniqueness = partial unique index `recipe_code_lower_live` on `lower(code) WHERE deleted_at IS NULL` (soft-deleted codes are reusable; restore must re-check). `status` DRAFT/LOCKED, `locked_by` (free-text approver), `cost_at_lock jsonb` (D-26/D-29), `version`, `deleted_at/by`. `selling_price` is ex-VAT. `buffer` NULL falls back to `cost_settings.buffer`. |
+| `recipe_photo`, `brand_logo` | Images (D-48/D-49): `bytea` in their own tables so list queries cannot pull blobs; CHECKs on size and dimensions (photo ≤ 1.5 MB, ≤ 4096 px; logo ≤ 512 KB, ≤ 1024 px); `sha256` for ETags. Accessed only through the `ImageStore` interface (`src/lib/images`). |
+| `recipe_line` | References an item or sub-recipe **by code string, no FK** (`CODE NOT FOUND` is a legal legacy state). `UNIQUE(recipe_id, sort_order)`, index on `code`. `y > 0` (divisor; the engine treats values ≤ 0 or > 10 as 1). **`yp` NULL ≠ 0** (NULL falls back to the card buffer). `qty ≥ 0`, finite. |
+| `recipe_method_step`, `recipe_history_entry` | Ordered method steps; lock/unlock history (legacy cap of 40 is not preserved). |
+| `cost_settings` | Singleton (`id = 1` CHECK). Legacy names and fractions: `pkg, del, lab, ops, buffer, target, vat`, `currency`, `price_date`, `version`. Not brand scoped. |
+| `audit_log` | Append-only: triggers raise on UPDATE/DELETE/TRUNCATE. Snapshots of user name and role. "Clear activity log" is implemented as an audited archive marker (D-31). |
+| `menu`, `menu_row`, `menu_cell`, `menu_pax` | Editable menus (D-05), seeded from legacy `MENU_PLAN` (8 menus, 146 rows, 1001 cells). `menu.legacy_index` translates legacy `LOC|menuIndex` pax keys on restore. Meal labels are not unique. Cell `kind` ITEM → `ingredient.code` (710), RECIPE → `recipe.code` (290), NONE (1) has no code (CHECK). Absent day = no row (23 in the seed). Deactivate menus rather than delete (pax rows cascade). |
+| `production_entry` | (month, day, location, recipe_code) → portions ≥ 0; `location ''` = legacy/unassigned bucket. Brand scoping through `recipe.code → brand_id`. |
+| `seed_run` | Seed version + checksum; a re-seed must not overwrite edited data. |
 
-model Brand {                       // 14 rows
-  id String @id @default(cuid())
-  legacyId String @unique           // bnc, b1..b12, bssem
-  code String @unique               // NC, GRM ... SSEM (recipe-code prefix)
-  name String @unique
-  nameAr String?
-  color String @default("")
-  inkColor String?
-  logo BrandLogo?                   // D-49: uploaded image lives in its own table (never in list queries)
-  locations String[]
-  active Boolean @default(true)
-  recipes Recipe[]  access UserBrandAccess[]  scopes ItemBrandScope[]
-}
+## Cross-table rules enforced in the application
+- Ingredient and recipe codes must not collide case-insensitively (legacy `resolve()` is items-first): checked inside a serializable transaction (retry on SQLSTATE `40001`) plus a verification query.
+- Recipe code rename cascades to `recipe_line.code` and `menu_cell.code` in one transaction (D-33). Renaming/deleting an ingredient referenced by a line or menu cell is blocked.
+- Cycle checks run inside the recipe save transaction under `pg_advisory_xact_lock` (D-34).
+- Optimistic concurrency: `UPDATE … WHERE id = $1 AND version = $2` and `version = version + 1`; 0 rows → 409.
+- The application database role must not be granted UPDATE/DELETE/TRUNCATE on `audit_log` once a restricted role is introduced; migrations run under the owner role.
 
-model User {                        // lazily provisioned (upsert on clerkUserId) on first authenticated request
-  id String @id @default(cuid())
-  clerkUserId String @unique
-  email String?
-  name String
-  active Boolean @default(true)     // backstop for Clerk ban; checked on EVERY request
-  lastRoleSeen String?              // diagnostics only — never used for authorization
-  createdAt DateTime @default(now()) @db.Timestamptz
-  brandAccess UserBrandAccess[]
-}
-model UserBrandAccess {
-  id String @id @default(cuid())
-  userId String  brandId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  brand Brand @relation(fields: [brandId], references: [id])
-  @@unique([userId, brandId])  @@index([brandId])
-}
+## Post-seed verification (must all pass; docs/TESTING.md §2)
+Counts: ingredient 1046 · recipe 321 · recipe_line 7321 · unit_conversion 34 · brand 14 · menu 8 · menu_row 146 · menu_cell 1001 · null prices 135 · flagged 161 · `item_brand_scope` = sum of legacy `brands[]`. Code sets equal the JSON both ways. 0 lower-case collisions within and across ingredient/recipe. 0 unresolved line codes; 0 lines pointing at MENU recipes; 0 self-referencing recipes; all ITEM/RECIPE menu cells resolve; all `PLAN_ALIAS` targets exist; no code has surrounding whitespace. Float round-trip of BKR2-2058 (0.006667) and DRS1-4772 (0.0064). All 321 recomputed costs equal `golden/costs.json`. UPDATE/DELETE/TRUNCATE on `audit_log` raises. Soft-delete then re-create of a recipe code works; a case-variant duplicate is rejected (SQLSTATE 23505). Seeding twice changes nothing; the production load aborts if audit rows exist.
 
-model Ingredient {                  // 1046 rows, case-sensitive unique code
-  id String @id @default(cuid())
-  code String @unique
-  name String
-  uom String                        // CHECK IN ('Gram','Ml','Each','Slice') — importer may add units later
-  price Float?                      // NULL = PRICE MISSING (135) — never coerce to 0
-  priceUpdatedAt DateTime? @db.Timestamptz
-  category String  subcategory String
-  flag String @default("")
-  version Int @default(0)
-  scopes ItemBrandScope[]  conversion UnitConversion?  priceHistory IngredientPriceHistory[]
-  createdAt DateTime @default(now()) @db.Timestamptz  updatedAt DateTime @updatedAt @db.Timestamptz
-}
-model ItemBrandScope {              // visibility scope (empty = Shared)
-  ingredientId String  brandId String
-  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  brand Brand @relation(fields: [brandId], references: [id])
-  @@id([ingredientId, brandId])
-}
-model UnitConversion {              // line cost = qty / factor, only if stored unit == line unit
-  ingredientId String @id
-  recipeUnit String  factor Float   // CHECK factor > 0
-  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-}
-model IngredientPriceHistory {      // NEW (D-26): append-only
-  id String @id @default(cuid())
-  ingredientId String
-  oldPrice Float?  newPrice Float?
-  source String                     // MANUAL | IMPORT | MENU_PLAN | SEED
-  userId String?  userNameSnapshot String
-  createdAt DateTime @default(now()) @db.Timestamptz
-  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  @@index([ingredientId, createdAt])
-}
-
-model Recipe {
-  id String @id @default(cuid())
-  code String                       // NO @unique: partial unique index on lower(code) WHERE deletedAt IS NULL (raw SQL)
-  name String  category String
-  type RecipeType
-  brandId String                    // REQUIRED (D-27): no recipe without a brand
-  brand Brand @relation(fields: [brandId], references: [id])
-  output Float @default(1)
-  subQty Float @default(0)  subUom String @default("Gram")
-  batchOut Float @default(0)  batchUom String @default("Gram")
-  sellingPrice Float @default(0)    // legacy `price`; ex-VAT
-  buffer Float?
-  status RecipeStatus @default(DRAFT)
-  lockedBy String?  lockedAt DateTime? @db.Timestamptz  lockedByUserId String?
-  costAtLock Json?                  // NEW (D-26): {food,totalCost,sellingPrice,fcPct,settings,priceDate,overrideReason?}
-  version Int @default(0)
-  deletedAt DateTime? @db.Timestamptz  deletedBy String?
-  photo RecipePhoto?  lines RecipeLine[]  method RecipeMethodStep[]  history RecipeHistoryEntry[]
-  createdAt DateTime @default(now()) @db.Timestamptz  updatedAt DateTime @updatedAt @db.Timestamptz
-  @@index([brandId, deletedAt])
-}
-model RecipePhoto {                 // D-49: bytes in their own table so list queries cannot pull blobs. CHECK size <= 1500000
-  recipeId String @id
-  contentType String                // image/jpeg | image/png | image/webp (sniffed server-side, never trusted from the client)
-  data Bytes
-  size Int  width Int  height Int
-  sha256 String                     // ETag + cache-busting key in DTO urls
-  updatedAt DateTime @updatedAt @db.Timestamptz
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-}
-model BrandLogo {                   // NEW (D-48/D-49): GM-uploaded brand logo. CHECK size <= 512000
-  brandId String @id
-  contentType String                // image/png | image/jpeg | image/webp (SVG is rasterised client-side to PNG, never stored)
-  data Bytes
-  size Int  width Int  height Int
-  sha256 String
-  updatedAt DateTime @updatedAt @db.Timestamptz
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
-}
-model RecipeLine {                  // references by CODE string (no FK): 'CODE NOT FOUND' is a legal legacy state
-  id String @id @default(cuid())
-  recipeId String  sortOrder Int
-  code String                       // '' allowed (blank row)
-  qty Float  unit String            // CHECK qty >= 0 AND finite
-  y Float @default(1)               // CHECK y > 0
-  yp Float?                         // NULL ≠ 0 (null falls back to card buffer)
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  @@unique([recipeId, sortOrder])  @@index([code])
-}
-model RecipeMethodStep {
-  id String @id @default(cuid())
-  recipeId String  stepNumber Int  text String
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  @@unique([recipeId, stepNumber])
-}
-model RecipeHistoryEntry {
-  id String @id @default(cuid())
-  recipeId String  action HistoryAction  who String  userId String?
-  createdAt DateTime @default(now()) @db.Timestamptz
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  @@index([recipeId, createdAt])
-}
-
-model CostSettings {                // singleton id=1, NOT brand scoped. Legacy names, fractions.
-  id Int @id @default(1)
-  currency String @default("SAR")
-  pkg Float @default(0.10)  del Float @default(0.10)  lab Float @default(0.25)  ops Float @default(0.05)
-  buffer Float @default(0.15)  target Float @default(0.30)  vat Float @default(0.15)
-  priceDate DateTime @db.Date
-  version Int @default(0)
-}
-
-model AuditLog {                    // append-only: DB trigger blocks UPDATE/DELETE/TRUNCATE; app role has no such grants
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @db.Timestamptz
-  userId String?  userNameSnapshot String  roleSnapshot String   // role taken from the fresh Clerk read at write time
-  action String  detail String @default("")
-  @@index([createdAt])  @@index([userId])  @@index([action, createdAt])
-}
-
-// ---- Editable menus (D-05) — seeded from legacy MENU_PLAN (8 menus, 146 rows, 1001 cells) ----
-model Menu {
-  id String @id @default(cuid())
-  legacyIndex Int? @unique          // seed order; translates legacy 'LOC|menuIndex' pax keys on restore
-  name String @unique               // 'ARABIC - SENIOR' …
-  sortOrder Int
-  days String[]                     // FILIPINO LABOUR has 6 days
-  active Boolean @default(true)     // deactivate rather than delete (pax rows cascade)
-  version Int @default(0)
-  rows MenuRow[]  pax MenuPax[]
-  updatedAt DateTime @updatedAt @db.Timestamptz
-}
-model MenuRow {                     // meal label NOT unique (BREAKFAST x8)
-  id String @id @default(cuid())
-  menuId String  sortOrder Int  meal String
-  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  cells MenuCell[]
-  @@unique([menuId, sortOrder])
-}
-model MenuCell {                    // absent day = no row (23 in seed)
-  id String @id @default(cuid())
-  rowId String  day String
-  kind MenuCellKind                 // ITEM -> Ingredient.code (710), RECIPE -> Recipe.code (290), NONE (1)
-  code String?  label String        // CHECK (kind='NONE') = (code IS NULL)
-  row MenuRow @relation(fields: [rowId], references: [id], onDelete: Cascade)
-  @@unique([rowId, day])  @@index([code])
-}
-model MenuPax {
-  month String  day String  location String @default("")  menuId String  people Int   // CHECK >= 0
-  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  @@id([month, day, location, menuId])
-}
-model ProductionEntry {             // brand scoping via join Recipe(code).brandId
-  month String  day String  location String @default("")  recipeCode String  portions Int  // CHECK >= 0
-  @@id([month, day, location, recipeCode])  @@index([recipeCode])
-}
-
-model SeedRun { id String @id @default(cuid())  version String  checksum String  at DateTime @default(now()) @db.Timestamptz }
-```
-
-## Raw-SQL migration additions
-```sql
-CREATE UNIQUE INDEX recipe_code_lower_live ON "Recipe"(lower(code)) WHERE "deletedAt" IS NULL;
-ALTER TABLE "Ingredient" ADD CHECK (price IS NULL OR (price >= 0 AND price < 'Infinity'));
-ALTER TABLE "Ingredient" ADD CHECK (uom IN ('Gram','Ml','Each','Slice'));
-ALTER TABLE "RecipeLine" ADD CHECK (qty >= 0 AND qty < 'Infinity' AND y > 0);
-ALTER TABLE "UnitConversion" ADD CHECK (factor > 0);
-ALTER TABLE "ProductionEntry" ADD CHECK (portions >= 0);
-ALTER TABLE "MenuPax" ADD CHECK (people >= 0);
-ALTER TABLE "RecipePhoto" ADD CHECK (size > 0 AND size <= 1500000 AND width BETWEEN 1 AND 4096 AND height BETWEEN 1 AND 4096);
-ALTER TABLE "BrandLogo" ADD CHECK (size > 0 AND size <= 512000 AND width BETWEEN 1 AND 1024 AND height BETWEEN 1 AND 1024);
-ALTER TABLE "MenuCell" ADD CHECK ((kind = 'NONE') = (code IS NULL));
-CREATE FUNCTION audit_immutable() RETURNS trigger AS $$ BEGIN RAISE EXCEPTION 'AuditLog is append-only'; END $$ LANGUAGE plpgsql;
-CREATE TRIGGER audit_no_mutate BEFORE UPDATE OR DELETE ON "AuditLog" FOR EACH ROW EXECUTE FUNCTION audit_immutable();
-CREATE TRIGGER audit_no_truncate BEFORE TRUNCATE ON "AuditLog" FOR EACH STATEMENT EXECUTE FUNCTION audit_immutable();
-```
-"Clear activity log" (legacy, `data.admin`) therefore cannot truncate: V1 implements it as an audited **archive marker** hiding older rows from the UI (needs decision if the GM must truly purge — see DECISIONS D-31).
-
-## Cross-namespace rule
-Ingredient and Recipe codes must not collide case-insensitively (legacy `resolve()` is items-first). Enforced in the app inside a serializable transaction (retry on P2034) plus a verification query.
-
-## Post-seed verification (must all pass)
-Counts: BrandLogo 9 (one per brand with a seeded logo file; sha256 matches `public/assets/*`) · Ingredient 1046 · Recipe 321 · RecipeLine 7321 · UnitConversion 34 · Brand 14 · Menu 8 · MenuRow 146 · MenuCell 1001 · null-price 135 · flagged 161 · ItemBrandScope = sum of `brands[]`. Code sets equal JSON both ways. 0 lower() collisions within and across Ingredient/Recipe. 0 unresolved line codes; 0 lines pointing at MENU recipes; 0 self-referencing recipes; all ITEM/RECIPE menu cells resolve; all PLAN_ALIAS targets exist; no code has leading/trailing whitespace. Float round-trip of 0.006667 (BKR2-2058). All 321 recomputed costs diff to `golden/costs.json` = 0. UPDATE on AuditLog raises. Seed twice → counts unchanged. Prod load aborts if audit rows already exist.
+Verified on the Neon `dev` branch right after `0001_init`: 22 tables created, the three audit blocks raise, case-insensitive duplicate rejected, code reuse after soft delete works.

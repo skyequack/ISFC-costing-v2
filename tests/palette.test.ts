@@ -19,7 +19,7 @@ interface SeedBrand {
   color?: string;
   ink?: string;
 }
-const brands: SeedBrand[] = JSON.parse(fs.readFileSync(path.join(root, 'prisma/seed-data/brands.json'), 'utf8'));
+const brands: SeedBrand[] = JSON.parse(fs.readFileSync(path.join(root, 'db/seed-data/brands.json'), 'utf8'));
 
 describe('brand palette golden (legacy oracle)', () => {
   it('oracle extraction found the functions', () => {

@@ -11,7 +11,7 @@
 | Palette: `hex2rgb … palette, brandVars` (1235–1300) | `src/lib/brandPalette.ts` (pure, copy verbatim) |
 | `itemFor/itemBrands/brandStock` (1303) | `domain/ingredients` |
 | `readPhoto` (1313), photo handlers (3440–3460) | client util + `PATCH /api/recipes/[id]/photo` |
-| `Store/save/seed/boot IIFE` (1080–1150, 6103–6570) | **Replaced** by Prisma + `prisma/seed.ts` (final state) |
+| `Store/save/seed/boot IIFE` (1080–1150, 6103–6570) | **Replaced** by Postgres + the `db/` seed script (final state) |
 | Nav/render/route/modal/toast (1520–1760) | `components/layout`, `components/shared` |
 | `vPrep, prepPrint, prepCsv` (1758–1920) | `app/production/prep`, print route |
 | `vPlan, planCsv, setMenuPrice` (1923–2050) | `app/menu-plans` (SSEM) |

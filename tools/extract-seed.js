@@ -1,6 +1,6 @@
-// Splits golden/state.json and legacy static constants into prisma/seed-data/*.json (no transformation).
+// Splits golden/state.json and legacy static constants into db/seed-data/*.json (no transformation).
 const fs=require('fs'),path=require('path');const {JSDOM,VirtualConsole}=require('jsdom');
-const root=path.join(__dirname,'..');const out=path.join(root,'prisma/seed-data');fs.mkdirSync(out,{recursive:true});
+const root=path.join(__dirname,'..');const out=path.join(root,'db/seed-data');fs.mkdirSync(out,{recursive:true});
 const S=JSON.parse(fs.readFileSync(path.join(root,'golden/state.json'),'utf8'));
 const w=(n,v)=>fs.writeFileSync(path.join(out,n),JSON.stringify(v,null,1));
 // logos are referenced by file in public/assets (see extract-assets.js), not embedded

@@ -1,5 +1,5 @@
 # ISFC Food Costing System — migration project
-Migrating the single-file legacy HTML app (`legacy/app.html`) to Next.js + TypeScript + Prisma 6 + PostgreSQL + Clerk + Vercel, preserving behavior and UI except where `DECISIONS.md` says otherwise. **No deadline; quality gates only.**
+Migrating the single-file legacy HTML app (`legacy/app.html`) to Next.js + TypeScript + PostgreSQL (Neon, `pg`, plain SQL) + Clerk + Vercel, preserving behavior and UI except where `DECISIONS.md` says otherwise. **No deadline; quality gates only.**
 
 ## How to resume work in a fresh session (no chat history needed)
 Read in this order:
@@ -16,11 +16,16 @@ Read in this order:
 |---|---|
 | `legacy/app.html` | frozen original (read-only oracle) |
 | `golden/state.json`, `golden/costs.json` | effective post-boot data and legacy cost results (read-only oracles) |
-| `prisma/seed-data/*.json` | seed inputs split from golden + constants (menu plan, yield ref, sections, plan alias, seed issues…) |
+| `db/seed-data/*.json` | seed inputs split from golden + constants (menu plan, yield ref, sections, plan alias, seed issues…) |
 | `public/assets/*.png` | logos extracted from legacy |
 | `tools/*.js` | generators for the above (`npm i` inside `tools/`) |
+| `db/migrations/*.sql` | the database schema (hand-written SQL, source of truth) — applied with `npm run db:migrate` |
+| `scripts/migrate.mjs` | migration runner (unpooled Neon connection) |
+| `src/` | Next.js app, `domain/` (pure costing/production), `lib/` (auth, db, images, permissions, palette) |
+| `tests/` | unit tests; `tests/db/` needs `TEST_DATABASE_URL` (see docs/RUNBOOK.md §4a) |
+| `vercel.json`, `neon.ts`, `.neon` | deploy region (`fra1`), Neon project config/link |
 | `docs/` | architecture, API, testing, UI port, runbook, progress, legacy behavior |
 | `ISFC_Costing_System_v8.7.html` | original upload (same as `legacy/app.html`) |
 
 ## Status
-See `docs/PROGRESS.md`. Rule: update docs in the same change as the code; any behavior divergence from legacy gets a `DECISIONS.md` row first.
+See `docs/PROGRESS.md` (phase checklist and open items). Rule: update docs in the same change as the code; any behavior divergence from legacy gets a `DECISIONS.md` row first.

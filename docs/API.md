@@ -44,7 +44,7 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | GET /api/settings | any | – |
 | PATCH /api/settings | settings.edit (version check) | Settings changed (old→new, cards affected) |
 | GET /api/brands | any (scoped) | – |
-| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand |
+| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count) → `Edited brand sites` |
 | GET /api/brands/:id/logo | any (brand in scope, else 404) | – (bytes + `ETag`; 404 if none) |
 | PUT /api/brands/:id/logo | brands.edit | Brand logo changed (set) |
 | DELETE /api/brands/:id/logo | brands.edit | Brand logo changed (removed) |
@@ -67,7 +67,9 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | Method path | Permission | Notes |
 |---|---|---|
 | GET /api/audit | audit.view | search, paging; CSV export requires export |
-| POST /api/audit/archive | data.admin | archive marker (DB forbids deletes) — D-31 |
-| GET /api/export/backup; POST /api/import/restore?mode=… | data.admin | chunked, DIRECT_URL; audit Restored a backup |
+| POST /api/audit/archive | data.admin | writes `Cleared activity log`; GET /api/audit hides entries older than the latest marker unless `?archived=1` (D-31) — nothing is deleted |
+| GET /api/export/backup; POST /api/import/restore?mode=… | data.admin | chunked, DATABASE_URL_UNPOOLED; audit Restored a backup |
 
 Implementation notes: GET endpoints that feed export require `export`; all list endpoints exclude `photo`; recipes list DTO is lightweight; `cost` endpoints use the cached catalog loader; every mutating route calls `revalidateTag('catalog')`; legacy-unaudited setters (`setProd`, `setMenuPax`) remain unaudited.
+
+**Cross-cutting (resolved decisions):** every export endpoint (recipes, ingredients, requisition, production, plan, audit CSV) writes an audit entry `Exported data` with kind and row count (D-44). Price-list import dry-run returns, per item, old price, new price and `variancePct`; items beyond ±20% (`PRICE_VARIANCE_THRESHOLD`) are marked "PRICE CHECK" in the dry-run and, when the import is confirmed, the flag is appended to `ingredient.flag` (existing flags kept, joined with " | ") (D-43).

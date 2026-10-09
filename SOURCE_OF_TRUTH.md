@@ -1,9 +1,9 @@
 # ISFC Food Costing System — Source of Truth
 
-> **AMENDMENTS (authoritative, see DECISIONS.md D-01…D-41):** the 3-day deadline is removed (D-25); scope additions approved by the user override the "no new business rules" language in this document — editable menus (D-05), brand access across all brand-tied data (D-07), unique recipe codes (D-12), cycle blocking (D-13), extra auditing (D-15), yp/buffer round trip (D-17), unified "All sites" (D-20), price history & cost-at-lock (D-26), required brand on recipes (D-27), requisition valuation fix (D-10/D-28), lock gate (D-29). Permissions are the legacy ROLES list plus `menu.edit` (gm, cc) and GM-only `users.manage`, `data.admin`, `brands.edit`. Schema field names follow `schema.md`, not §13 here (e.g. `RecipeLine.y/yp`, `Ingredient.price`, `ItemBrandScope`, `MenuPax/ProductionEntry`). Real menu-planning model: see DISCOVERY_FINDINGS.md.
+> **AMENDMENTS (authoritative, see DECISIONS.md D-01…D-50):** the 3-day deadline is removed (D-25); scope additions approved by the user override the "no new business rules" language in this document — editable menus (D-05), brand access across all brand-tied data (D-07), unique recipe codes (D-12), cycle blocking (D-13), extra auditing (D-15), yp/buffer round trip (D-17), unified "All sites" (D-20), price history & cost-at-lock (D-26), required brand on recipes (D-27), requisition valuation fix (D-10/D-28), lock gate (D-29). Permissions are the legacy ROLES list plus `menu.edit` (gm, cc) and GM-only `users.manage`, `data.admin`, `brands.edit`. Schema field names follow `schema.md`, not §13 here (e.g. `RecipeLine.y/yp`, `Ingredient.price`, `ItemBrandScope`, `MenuPax/ProductionEntry`). Real menu-planning model: see DISCOVERY_FINDINGS.md. **Data access (D-50): Prisma is NOT used.** The database is Neon PostgreSQL accessed with node-postgres (`pg`) and hand-written SQL; schema lives in `db/migrations/*.sql`; wherever this document says Prisma/ORM, read "pg + plain SQL".
 
 **Status:** Authoritative V1 specification
-**Target stack:** Next.js + TypeScript + Prisma 6 + PostgreSQL + Clerk + Vercel
+**Target stack:** Next.js + TypeScript + PostgreSQL (Neon, node-postgres `pg`, plain SQL) + Clerk + Vercel
 **Primary requirement:** Preserve the existing application's behavior and UI while replacing its browser-local architecture with a production web application.
 
 ---
@@ -17,7 +17,7 @@ The target application must:
 
 - use Next.js with the App Router
 - use TypeScript
-- use Prisma 6
+- use PostgreSQL on Neon through node-postgres (`pg`) with plain SQL (no ORM)
 - use PostgreSQL
 - use Clerk for authentication
 - use Clerk roles as the authoritative source for application roles
@@ -330,9 +330,9 @@ The role is authoritative in Clerk.
 
 Do not create two independently editable role systems.
 
-If Prisma stores a role field for application convenience or synchronization, the implementation must explicitly document that Clerk is authoritative.
+If the database stores a role field for application convenience or synchronization, the implementation must explicitly document that Clerk is authoritative.
 
-The application must never silently allow Clerk and Prisma to disagree.
+The application must never silently allow Clerk and the database to disagree.
 
 ---
 
@@ -440,7 +440,7 @@ Validate request data
  ↓
 Execute domain operation
  ↓
-Execute Prisma transaction where required
+Execute database transaction where required
  ↓
 Create audit entry where required
  ↓
@@ -455,7 +455,7 @@ They are not security controls.
 # 12. Database Architecture
 The database is PostgreSQL.
 
-Prisma version is 6.
+Database access is node-postgres (`pg`) with plain SQL migrations (db/migrations).
 
 The database is the source of truth for persistent application data.
 
@@ -505,9 +505,9 @@ active
 createdAt
 updatedAt
 ```
-If a role is also stored in Prisma, Clerk remains authoritative.
+If a role is also stored in the database, Clerk remains authoritative.
 
-Do not create independent role-management behavior in Prisma.
+Do not create independent role-management behavior in the database.
 
 ---
 
@@ -810,7 +810,7 @@ GET   /api/menu-plans
 POST  /api/menu-plans
 PATCH /api/menu-plans/[id]
 ```
-Do not create endpoints merely because a Prisma model exists.
+Do not create endpoints merely because a database table exists.
 
 An endpoint should represent a meaningful application operation.
 
@@ -867,7 +867,7 @@ Authorization
     ↓
 Domain logic
     ↓
-Prisma
+Database access (pg)
     ↓
 PostgreSQL
 ```
@@ -1030,7 +1030,7 @@ Use environment variables for secrets and credentials.
 
 Use a PostgreSQL deployment suitable for serverless workloads.
 
-Use an appropriate Prisma connection strategy for Vercel.
+Use Neon's pooled connection for the running app (Vercel Fluid + node-postgres) and the unpooled connection for migrations.
 
 ---
 
@@ -1044,7 +1044,7 @@ The default stack remains:
 ```
 Next.js
 TypeScript
-Prisma 6
+node-postgres (pg), plain SQL
 PostgreSQL
 Clerk
 Vercel
@@ -1068,7 +1068,7 @@ The implementation order should prioritize:
 1. Project initialization
 2. Next.js shell
 3. Clerk authentication
-4. Prisma/PostgreSQL connection
+4. Neon/PostgreSQL connection
 5. Authorization foundation
 6. Database migration
 7. Ingredient vertical slice

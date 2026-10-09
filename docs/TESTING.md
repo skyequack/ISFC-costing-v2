@@ -1,5 +1,5 @@
 # TESTING — strategy, required cases, baselines
-Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one schema per worker, TRUNCATE between tests; mock `@clerk/nextjs/server` `auth()`/`clerkClient` in one `vi.mock`; call handlers with `new Request()`), fast-check (property), Playwright + pixelmatch (visual, pinned Chromium/OS). CI: typecheck, lint, test, build, `prisma validate`.
+Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one schema per worker, TRUNCATE between tests; mock `@clerk/nextjs/server` `auth()`/`clerkClient` in one `vi.mock`; call handlers with `new Request()`), fast-check (property), Playwright + pixelmatch (visual, pinned Chromium/OS). CI: typecheck, lint, test, build; DB tests apply `db/migrations` to a short-lived Neon branch via `npm run db:migrate`.
 
 ## 1. Costing oracle (Phase 2 gate)
 - **Golden diff:** all 321 cards: every field of `cost()` vs `golden/costs.json` — exact (`toBe`) on doubles; rows keyed `code|id`.
@@ -11,6 +11,9 @@ Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one 
 - **Planning:** `planFindCard` (alias + fuzzy rules) against all 1001 menu cells matches legacy results; `planCost` floors.
 - Price precision: 0.00008 and 10-decimal prices round-trip import → DB → API → export bit-identical; CSV exports keep ≥6dp. Σ non-null item prices equals legacy sum to 1e-9.
 - Coverage gate on `src/domain` ≥ 95%.
+
+## 1b. Database tests (exist today)
+`tests/db/*.test.ts` run against a real Neon branch when `TEST_DATABASE_URL` is set (skipped otherwise): schema constraints/triggers/cascades/double round-trip and the pg layer (pool, `withTransaction` commit/rollback, `visibleBrandIds`, race-safe provisioning). CI runs them on a throwaway schema-only branch; see docs/RUNBOOK.md §4a. New repository code adds its tests here; unit tests that only need SQL results use the `Queryable` fake (see `tests/scope-env.test.ts`).
 
 ## 2. Seed/verification suite (Phase 3 gate) — see schema.md "Post-seed verification"
 Counts (1046/321/7321/34/14/8/146/1001, 135 null prices, 161 flags), code sets equal both ways, no case collisions (within and across Ingredient/Recipe), 0 unresolved line codes, no MENU recipe used as a line, no self references, menu cells resolve, PLAN_ALIAS targets exist, no whitespace in codes, float round-trip (BKR2-2058 = 0.006667, DRS1-4772 = 0.0064), all 321 costs recomputed from DB == golden, AuditLog UPDATE/DELETE/TRUNCATE raise, partial unique index allows soft-delete + reuse, seed twice → no change, prod load aborts if audit rows exist.
@@ -45,3 +48,11 @@ Baselines must include: recipe editor with and without photo, Add-brand row with
 
 ## 6. Definition of done per phase
 typecheck + lint + all tests green; oracle diff 0; seed verification green; authz suite green; visual diffs under threshold; `/code-review` and `/security-review` clean; docs (this folder, DECISIONS.md, PROGRESS.md) updated in the same change.
+
+## 7. Tests required by the resolved decisions (add with the feature)
+- D-43: price import dry-run flags exactly the items with |Δ%| > 20 (boundary 20.0 → not flagged; null → price = "new", never a variance), flag appended once and existing flags preserved verbatim.
+- D-44: every export endpoint writes one `Exported data` audit row with kind and row count; a failed export writes none.
+- D-45: editor shows the note only when `y≠1` and `yp` is set; `cost()` output identical with or without it.
+- D-31: `Cleared activity log` marker is written; audit list hides older entries by default and returns them with `archived=1`; no row is ever deleted (DB trigger still blocks DELETE).
+- D-52: brand site rename updates `menu_pax.location` and `production_entry.location` atomically (rollback on failure); removing a site with rows → 409 with count; duplicate/empty/`|` names rejected; only `brands.edit`; audit row lists rows updated.
+- D-41: a snapshot test asserts the Backup subtitle text and that no other legacy label changed.
