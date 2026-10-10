@@ -71,6 +71,14 @@ jobs:
           npm run db:migrate | tee /tmp/second.txt
           grep -q "database is up to date" /tmp/second.txt
 
+      # The branch is schema-only, but most DB tests need the seeded data (cost_settings row, brands, ingredients).
+      # Seed it here, before the tests: vitest runs test files in parallel, so relying on seed.test.ts to do it races.
+      - name: Seed the throwaway branch
+        env:
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
+          NEON_BRANCH: ci-${{ github.run_id }}-${{ github.run_attempt }}
+        run: npm run db:seed -- --confirm
+
       - name: Database tests
         env:
           TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
