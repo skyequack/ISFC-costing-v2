@@ -1,6 +1,6 @@
-# Perf plan: slow card saves (design only, nothing implemented)
+# Perf plan: slow card saves
 
-Status: proposal. No source was changed. Anything marked **needs DECISIONS row** diverges from a written decision and must be approved first (CLAUDE.md).
+Status (2026-10-10): **R1, R2, R3, R4, R5, R6, R8 and the client save-batching are implemented** (see docs/PROGRESS.md "Live GM pass" for results and tests). **Not implemented:** R7 (user/scope cache, needs a DECISIONS row because D-35 says every request loads the user row) and R9 (single-statement fast path, only if still needed after the `fra1` deploy re-measure). R5 only takes effect once the Clerk session token carries the `role` claim (RUNBOOK §3). The text below is the original design; where it differs from the code, the code and PROGRESS.md are authoritative. Anything marked **needs DECISIONS row** diverges from a written decision and must be approved first (CLAUDE.md).
 Inputs: `docs/PROGRESS.md` "Live GM pass", `docs/ARCHITECTURE.md` §Costing/§Runtime, D-26/29/33/34/35/40/42, and the code cited below.
 
 ## 0. Why it is slow (what the code actually does)
