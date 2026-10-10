@@ -1,6 +1,6 @@
 # PROGRESS — living checklist (update in the same commit as the work)
 
-Last updated: 2026-10-09 (branch `phases-build`). **Phases 0–6 are implemented and green except the items listed under "Not verified / needs you" below. Phase 7 (deploy) was deliberately not started.**
+Last updated: 2026-10-09 (branch `phases-build`). **Phases 0–6 are implemented and green except the items listed under "Not verified / needs you" below. Phase 7 (deploy) started 2026-10-10 (D-62, supersedes D-57): pre-deploy gates re-run green (typecheck, lint, 514 tests passed / 94 DB tests skipped offline); the account-side steps are waiting on the user (see "Phase 7 — Deploy" below).**
 
 ## Phase 0 — Discovery ✅
 
@@ -76,6 +76,10 @@ Pages exercised: Brand Workspaces, Dashboard, Recipe Cards (search, brand/status
 
 Every route has a skeleton (`src/app/*/loading.tsx` → `src/components/shell/Skeletons.tsx`: dash, list, editor, cards, form, sheet kinds, built from the legacy blocks, no text) and a 3 px progress bar (`src/components/shell/nav-progress.tsx`, styles in `src/styles/loading.css`, legacy.css untouched). The bar starts 120 ms after a navigation or `router.refresh()` begins (instant navigations never flash it), runs while the transition is pending or a skeleton is still on screen, and finishes when the real page replaces the skeleton, so pages need no code. Screens import `useRouter` from `nav-progress` (wrapper over next/navigation's). No client data cache or preloading (user decision). Live (dev): skeleton ≈ 130 ms after a click on a warm route, bar from ≈ 250 ms, real page 0.8–1.8 s. First hard load of a page still waits for the root layout (session + brand counts) before anything streams; a skeleton there would need a Suspense split of the layout. Tests: `tests/ui/nav-progress.test.tsx` (5), `tests/loading-routes.test.ts` (every page route has a loading.tsx).
 
+## Sidebar footer credit (2026-10-10, D-60)
+
+The sidebar footer (`src/components/shell/Shell.tsx`) shows "Made by Omer for ISFC" / "omer.mohammd.m@gmail.com" (D-60, D-63 sidebar restyle) in place of the static "All changes saved" and "v8.7" lines (user request; the legacy save-status text was never wired in the React shell).
+
 ## Open items for the user (decisions that were NOT made for you)
 
 - ~~Stale PIN / "stored in this file" wording~~ — resolved by D-58 (approved 2026-10-10).
@@ -92,3 +96,22 @@ All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **be
 - Small duplications left on purpose: `needAdmin` guards per service, header-alias mapping in `src/lib/import/{items,recipes}.ts`.
 - Editor: a `router.refresh()` that lands while a save is still queued can briefly show the server copy before the save returns.
 - `/security-review` could not be run (the skill needs an `origin` remote; the repo is local-only). Run it once the repo is on GitHub.
+
+## Phase 7 — Deploy (started 2026-10-10, D-62)
+
+- [x] Pre-deploy gates: typecheck ✅, lint ✅, `npm test` 514 passed (94 DB tests skipped offline) ✅
+- [x] Vercel project deployed (https://isfc-costing-v2.vercel.app, functions in `fra1`, env vars set, redeployed) — user
+- [x] Neon `production`: `0001` + `0002` migrated and the single audited seed run (2026-10-10): 1046 ingredients (135 null prices = seed file), 321 recipes, 7321 lines, 14 brands, 0 audit rows, 0 users. Note: on this dev machine Node must be run with `NODE_OPTIONS="--dns-result-order=ipv4first --no-network-family-autoselection"` (IPv6 to Neon times out)
+- [x] Signed-out smoke (2026-10-10): `/api/health` 200 `{"ok":true}`; `/sign-in`, `/sign-up` 200; `/api/recipes`, `/api/me` 401 JSON; a browser hitting `/` is redirected to Clerk sign-in (curl without a browser cookie gets Clerk's 404 rewrite, expected)
+- [x] Vercel env fix (2026-10-10): the first deploy's `DATABASE_URL*` pointed at the `dev` branch (dashboard showed dev's 129 unpriced instead of production's 135, and `production` had 0 users); corrected, redeployed, verified (135 unpriced, user row in `production`)
+- [x] Signed-in smoke as GM on https://isfc-costing-v2.vercel.app (2026-10-10, real `production` data, throwaway `ZZ-TEST` rows removed): GM role from `INITIAL_GM_EMAILS` ✅; all 13 pages 200 in 0.5–1 s; create card (Salus), rename, add ingredient via "Search raw materials", quantity → batch 6.000 + 15% buffer = 6.900 (hand-checked), lock (gate warning "no sales price", GM override), locked card refuses PATCH (422), "Cost at lock" shown, unlock, delete ✅; audit log has Created/Edited/Locked/Unlocked/Deleted ✅; ingredient create/dup code 409/negative price 400/stale version 409/delete ✅; exports (recipes, recipe-lines, ingredients, recipes-data, price-template) + full backup JSON ✅ (requisition/production/prep/plan need month/day/menu params, 400 without them as designed). Observed: the new ingredient row shows "unknown code" for ~1 s before the save returns (cosmetic; PROGRESS notes it was meant to show the picker's name at once). The deployed sidebar footer still shows the old "All changes saved / v8.7" because D-60 is not committed/pushed yet.
+- [x] Imports on production (2026-10-10, via the real endpoints with rows built from the exports; throwaway rows deleted): price list dry-run (same / +5% update / +50% PRICE CHECK / add) ✅, commit with the dry-run hash ✅, wrong hash 409 ✅; recipe sheet dry-run (2 updates + 1 add) ✅ and commit of the one new card ✅. Print: the print layer renders the full Beef Steak card and "Print now" calls `window.print` ✅ (the real OS dialog cannot open in the pane). Non-GM roles: 243-case authz matrix + UI tests pass on the deployed commit (no non-GM account exists to sign in with).
+- [x] Restore **dry-run** on production (2026-10-10): fresh full backup (898 KB, 1 chunk) restored onto itself and rolled back: 14 brands / 1046 ingredients / 321 cards / 8 menus matched as updates, 0 added, 0 removed, 0 ingredients kept-not-in-backup, 3.9 s; data unchanged afterwards (321 live cards). Its only trace is the audit row for the backup export (D-44) and staging chunks (pruned after a day). The **commit** is still untested — do it on a throw-away Neon branch.
+- [ ] Still open: backup restore commit, user invitation (emails a real address), second-device check — user
+- [ ] Switch to Clerk **production** instance keys + domain at final handoff (user decision 2026-10-10: stay on dev keys until then; needs domain/DNS access). Until then the sign-in shows "Development mode"
+- [ ] Clerk: session-token claim `{"role":"{{user.public_metadata.role}}"}` (RUNBOOK §3) — user, dashboard
+- [ ] GitHub: repo variable `NEON_PROJECT_ID` + secret `NEON_API_KEY` (RUNBOOK §4a) — user
+- [ ] Vercel: import `skyequack/ISFC-costing-v2`, region Frankfurt (`fra1`), Fluid compute, env vars (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`, Clerk keys, `INITIAL_GM_EMAILS`) — user pastes secrets
+- [ ] Neon `production`: PITR/branch note → `npm run db:migrate` (0001 + 0002) → single audited `npm run db:seed -- --confirm`
+- [ ] Deploy + smoke tests (RUNBOOK §6), second-device persistence check, re-measure latency (docs/PERF_PLAN.md)
+- [ ] Rate limiting (429) decision; `/security-review` now that the repo is on GitHub

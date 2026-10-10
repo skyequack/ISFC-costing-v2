@@ -87,7 +87,18 @@ function Sidebar() {
                 {workspace.code} {'·'} {workspace.cards} card{workspace.cards === 1 ? '' : 's'}
               </i>
             </div>
-            <button type="button" onClick={() => router.push('/brands')} title="Switch brand">
+            <button
+              type="button"
+              onClick={() => router.push('/brands')}
+              title="Switch brand"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                lineHeight: 1,
+              }}
+            >
               {'⇄'}
             </button>
           </div>
@@ -97,14 +108,55 @@ function Sidebar() {
               <span>No brand selected</span>
               <b>Choose a workspace</b>
             </div>
-            <button type="button">{'→'}</button>
+            <button
+              type="button"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                lineHeight: 1,
+              }}
+            >
+              {'→'}
+            </button>
           </div>
         )}
-        <div className="authbar on">
-          <span style={{ color: R.colour }}>
-            {'●'} {name} {'·'} {R.label}
+        <div className="authbar on" style={{ alignItems: 'center', gap: 8, padding: '5px 10px' }}>
+          <span
+            style={{ color: R.colour, flex: '1 1 auto', minWidth: 0, lineHeight: 1.25 }}
+            title={`${name} · ${R.label}`}
+          >
+            <span
+              style={{
+                display: 'block',
+                fontSize: 12,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {'●'} {name}
+            </span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 10,
+                fontWeight: 600,
+                opacity: 0.85,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {R.label}
+            </span>
           </span>
-          <button type="button" onClick={() => signOut({ redirectUrl: '/sign-in' })}>
+          <button
+            type="button"
+            style={{ whiteSpace: 'nowrap', flex: '0 0 auto', width: 'auto', padding: '2px 0', display: 'inline' }}
+            onClick={() => signOut({ redirectUrl: '/sign-in' })}
+          >
             Sign out
           </button>
         </div>
@@ -131,11 +183,10 @@ function Sidebar() {
           );
         })}
       </nav>
-      <div className="uchip" id="uchip"></div>
       <div className="sidefoot">
-        <div id="savedot">All changes saved</div>
+        <div id="savedot">Made by Omer for ISFC</div>
         <div style={{ marginTop: 3 }} id="verline">
-          v8.7
+          omer.mohammd.m@gmail.com
         </div>
       </div>
     </aside>
