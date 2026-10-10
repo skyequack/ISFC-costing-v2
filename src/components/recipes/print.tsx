@@ -31,9 +31,10 @@ export function toPrintCard(d: RecipeDetail, brand: PrintBrand | null): PrintCar
     brand: brand ? { name: brand.name, nameAr: brand.nameAr, color: brand.color, ink: brand.ink } : null,
     logoUrl: brand?.logoUrl ?? '/assets/logo.png',
     photoUrl: r.photoUrl,
+    // while an edit is in flight the stored lines can be ahead of the server's costed view: print only costed lines
     lines: r.lines
-      .map((l, i) => ({ l, v: d.view.lines[i]! }))
-      .filter((x) => x.l.code)
+      .map((l, i) => ({ l, v: d.view.lines[i] }))
+      .filter((x): x is { l: (typeof r.lines)[number]; v: NonNullable<typeof x.v> } => !!x.l.code && !!x.v)
       .map(({ l, v }) => ({
         code: l.code,
         name: v.name,

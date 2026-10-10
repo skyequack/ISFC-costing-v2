@@ -181,6 +181,32 @@ describe('recipe editor (legacy vEdit)', () => {
     vi.stubGlobal('fetch', realFetch);
   });
 
+  it('adding lines while the save is still in flight does not crash the editor (print layer built from costed lines only)', async () => {
+    const real = globalThis.fetch;
+    vi.stubGlobal('fetch', (u: string, i?: RequestInit) =>
+      i?.method === 'PATCH' ? new Promise<Response>(() => {}) : real(u, i),
+    );
+    const user = userEvent.setup();
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    const inputs = () => screen.getAllByPlaceholderText('type a name or code');
+    expect(inputs()).toHaveLength(1);
+    await user.click(screen.getByText('Add blank row'));
+    await user.click(screen.getByText('Add blank row'));
+    expect(inputs()).toHaveLength(3); // optimistic rows are there and nothing threw
+    vi.stubGlobal('fetch', real);
+  });
+
+  it('toPrintCard skips lines the server has not costed yet (a coded line added while a save is in flight)', async () => {
+    const { toPrintCard } = await import('@/components/recipes/print');
+    const d = detailFixture();
+    d.recipe.lines = [
+      ...d.recipe.lines,
+      { sortOrder: 1, code: 'ING-NEW', qty: 5, unit: 'Gram', y: 1, yp: null }, // optimistic: no view line yet
+    ];
+    expect(() => toPrintCard(d, null)).not.toThrow();
+    expect(toPrintCard(d, null).lines.map((l) => l.code)).toEqual(['ING-1']);
+  });
+
   it('read-only role: inputs are locked, no Lock / Delete behaviour needed; server messages surface as a toast and refresh on conflict', async () => {
     const user = userEvent.setup();
     onFetch((c) =>
