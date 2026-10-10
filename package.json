@@ -17,7 +17,9 @@
     "test:coverage": "vitest run --coverage",
     "db:migrate": "node scripts/migrate.mjs",
     "db:status": "node scripts/migrate.mjs --status",
-    "test:db": "vitest run tests/db"
+    "db:seed": "node scripts/seed.mjs",
+    "test:db": "vitest run tests/db",
+    "preview:screens": "vitest run --config vitest.preview.config.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.7",
@@ -33,6 +35,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@playwright/test": "^1.55.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.1.0",
@@ -41,6 +46,7 @@
     "eslint": "^9.36.0",
     "eslint-config-next": "^15.5.27",
     "fast-check": "^4.0.0",
+    "jsdom": "^30.1.2",
     "pixelmatch": "^7.0.0",
     "prettier": "^3.6.0",
     "typescript": "^5.9.0",

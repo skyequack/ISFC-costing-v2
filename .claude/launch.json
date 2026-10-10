@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm.cmd",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "isfc-dev-trace",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": ["/c", "set SQL_TRACE=2&& npm run dev"],
+      "port": 3000
     }
   ]
 }

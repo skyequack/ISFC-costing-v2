@@ -39,3 +39,10 @@ Behaviour: client resizes before upload (photo ≤ 760 px JPEG q.72; logo 320 px
 - **Brand sites editor (D-52):** inside the existing Edit brand modal, a "Sites" section built from legacy primitives (chips with remove ×, an input + Add button, inline rename). Visible only with `brands.edit` (GM). Removing a site that has stored rows shows the count and is refused; renaming updates stored rows.
 - **Audit screen (D-31):** the legacy "Clear activity log" button now adds a marker; a "Show archived" toggle reveals older entries.
 - **Price-list import (D-43):** dry-run table shows old/new/Δ%; rows beyond ±20% get a `PRICE CHECK` pill (legacy pill classes).
+
+## 8. As built (2026-10-09)
+- Screens are server pages (data via `src/lib/screens/*`) feeding client components in `src/components/screens|recipes|io`. Legacy inline `style="…"` strings are kept verbatim through `s('…')` (`src/components/ui.ts`), so the declarations stay greppable against `legacy/app.html`.
+- The editor commits each field on blur/Enter (legacy `onchange`), sends `PATCH` with the card `version`, and adopts the server's recomputed cost; modals share form state through `createStore`/`useStore`.
+- Print: the card is `buildCardHTML` (`src/lib/print/card.ts`, D-21 label); blob documents copy the page's same-origin CSS rules and inline images as data URLs at print time. Production/store sheets: `src/lib/print/prod.ts`.
+- Not ported on purpose (D-54): the browser-storage notes, *Rebuild from this file*, *Backup including accounts & PINs*, *Reset to factory data*. New screens built only from legacy primitives: Users & Access, the menu editor, the reconciliation table, the import review dialogs.
+- Stale PIN / "stored in this file" sentences were rewritten under D-58 (the only wording changes besides the D-41 Backup subtitle).

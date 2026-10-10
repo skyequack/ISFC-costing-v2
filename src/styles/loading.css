@@ -1,0 +1,87 @@
+/* Loading states: the top progress bar and route skeletons (D-59). Added next to the legacy CSS, never inside it.
+   Uses only the legacy variables and class names; no text, so no wording changes. */
+
+/* ---------- progress bar ---------- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, var(--org), var(--grn));
+  box-shadow: 0 0 8px rgba(187, 94, 30, 0.45);
+  border-radius: 0 3px 3px 0;
+}
+.navbar.run {
+  opacity: 1;
+  width: 86%;
+  transition: width 14s cubic-bezier(0.1, 0.6, 0.2, 1);
+}
+.navbar.finish {
+  opacity: 0;
+  width: 100%;
+  transition:
+    width 0.2s ease-out,
+    opacity 0.3s ease 0.2s;
+}
+
+/* ---------- skeletons ---------- */
+.sk {
+  display: block;
+  border-radius: 6px;
+  min-height: 12px;
+  background: linear-gradient(90deg, var(--line) 25%, var(--org-xl) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: skshimmer 1.3s linear infinite;
+}
+th .sk {
+  background: rgba(255, 255, 255, 0.3);
+  animation: none;
+  min-height: 10px;
+}
+.sk.pill {
+  border-radius: 999px;
+}
+.sk-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.sk-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.sk-split {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+@keyframes skshimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+  .navbar.run,
+  .navbar.finish {
+    transition: none;
+  }
+}
+@media print {
+  .navbar,
+  .sk-page {
+    display: none !important;
+  }
+}

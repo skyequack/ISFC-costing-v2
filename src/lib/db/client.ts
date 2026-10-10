@@ -1,11 +1,15 @@
-import { Pool, type PoolClient, type QueryResultRow } from 'pg';
+import { Client, Pool, type PoolClient, type QueryResultRow } from 'pg';
 import { attachDatabasePool } from '@vercel/functions';
 import { getEnv } from '../env';
 import { normalizeConnectionString } from './conn';
+import { traceClients } from './trace';
 
 /** Anything that can run a query: the pool, a transaction client, or a test fake. */
 export interface Queryable {
-  query<R extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<{ rows: R[] }>;
+  query<R extends QueryResultRow = QueryResultRow>(
+    text: string,
+    values?: unknown[],
+  ): Promise<{ rows: R[]; rowCount?: number | null }>;
 }
 
 const g = globalThis as unknown as { __pool?: Pool };
@@ -24,6 +28,7 @@ export function getPool(): Pool {
       idleTimeoutMillis: 5000,
     });
     attachDatabasePool(pool);
+    traceClients(pool);
     g.__pool = pool;
   }
   return g.__pool;
@@ -60,4 +65,28 @@ export async function withTransaction<T>(fn: (tx: Queryable) => Promise<T>): Pro
 /** Postgres SQLSTATE of a pg error, e.g. '23505' unique_violation, '40001' serialization_failure. */
 export function pgErrorCode(e: unknown): string | undefined {
   return typeof e === 'object' && e !== null && 'code' in e ? String((e as { code: unknown }).code) : undefined;
+}
+
+/**
+ * One transaction on a DIRECT (unpooled) Neon connection, for work that is too long or too large for the pooler
+ * (restore, bulk import): the pool's idle timeout and statement limits do not apply (docs/ARCHITECTURE.md §6).
+ */
+export async function withDirectTransaction<T>(fn: (tx: Queryable) => Promise<T>): Promise<T> {
+  const client = new Client({ connectionString: normalizeConnectionString(getEnv().DATABASE_URL_UNPOOLED) });
+  await client.connect();
+  try {
+    await client.query('BEGIN');
+    const out = await fn(client);
+    await client.query('COMMIT');
+    return out;
+  } catch (e) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      /* connection already broken */
+    }
+    throw e;
+  } finally {
+    await client.end();
+  }
 }

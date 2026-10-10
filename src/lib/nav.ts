@@ -38,7 +38,7 @@ export const TITLES: Record<string, [string, string]> = {
   users: ['Users & Access', 'Who can change what, and a record of who did'],
   audit: ['Activity Log', 'Every price change, edit and deletion, with a name against it'],
   health: ['Data Health', 'Problems that will produce a wrong cost'],
-  backup: ['Backup & Export', 'Your data lives in this browser - back it up'],
+  backup: ['Backup & Export', 'Your data is stored securely in the database. Download a backup copy at any time.'],
 };
 
 export const SCREEN_ROUTES = Object.keys(TITLES);

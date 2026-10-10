@@ -16,7 +16,7 @@ Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one 
 `tests/db/*.test.ts` run against a real Neon branch when `TEST_DATABASE_URL` is set (skipped otherwise): schema constraints/triggers/cascades/double round-trip and the pg layer (pool, `withTransaction` commit/rollback, `visibleBrandIds`, race-safe provisioning). CI runs them on a throwaway schema-only branch; see docs/RUNBOOK.md §4a. New repository code adds its tests here; unit tests that only need SQL results use the `Queryable` fake (see `tests/scope-env.test.ts`).
 
 ## 2. Seed/verification suite (Phase 3 gate) — see schema.md "Post-seed verification"
-Counts (1046/321/7321/34/14/8/146/1001, 135 null prices, 161 flags), code sets equal both ways, no case collisions (within and across Ingredient/Recipe), 0 unresolved line codes, no MENU recipe used as a line, no self references, menu cells resolve, PLAN_ALIAS targets exist, no whitespace in codes, float round-trip (BKR2-2058 = 0.006667, DRS1-4772 = 0.0064), all 321 costs recomputed from DB == golden, AuditLog UPDATE/DELETE/TRUNCATE raise, partial unique index allows soft-delete + reuse, seed twice → no change, prod load aborts if audit rows exist.
+Counts (1046/321/7321/34/14/8/148/1001, 135 null prices, 161 flags), code sets equal both ways, no case collisions (within and across Ingredient/Recipe), 0 unresolved line codes, no MENU recipe used as a line, no self references, menu cells resolve, PLAN_ALIAS targets exist, no whitespace in codes, float round-trip (BKR2-2058 = 0.006667, DRS1-4772 = 0.0064), all 321 costs recomputed from DB == golden, AuditLog UPDATE/DELETE/TRUNCATE raise, partial unique index allows soft-delete + reuse, seed twice → no change, prod load aborts if audit rows exist.
 
 ## 3. Authorization suite (Phase 4 gate)
 - Table-driven matrix: 6 roles × every endpoint → expected 200/403 (derived from ROLES + `menu.edit`; GM-only `users.manage`, `data.admin`, `brands.edit`).
@@ -56,3 +56,16 @@ typecheck + lint + all tests green; oracle diff 0; seed verification green; auth
 - D-31: `Cleared activity log` marker is written; audit list hides older entries by default and returns them with `archived=1`; no row is ever deleted (DB trigger still blocks DELETE).
 - D-52: brand site rename updates `menu_pax.location` and `production_entry.location` atomically (rollback on failure); removing a site with rows → 409 with count; duplicate/empty/`|` names rejected; only `brands.edit`; audit row lists rows updated.
 - D-41: a snapshot test asserts the Backup subtitle text and that no other legacy label changed.
+
+## 8. What exists today (2026-10-09) and how to run it
+| Suite | Where | Needs | Notes |
+|---|---|---|---|
+| Unit / domain / golden | `tests/*.test.ts` | nothing | costing golden 321/321, synthetic, property, requisition, planning (matcher == legacy for every dish text), production day, price variance, import parsing (CSV/XLSX incl. deflate + zip-bomb guard, price lists, flat + block recipe sheets), label snapshot (D-41), permission matrix (243 cases), `withAuth`, routes meta |
+| UI interaction | `tests/ui/*.test.tsx` | nothing (jsdom, mocked `fetch`/router/Clerk) | editor autosave + version + conflict, lock dialog + GM override, autocomplete, list filters/paging/bulk delete + undo, item modal, conversion preview, settings, role gating |
+| Database | `tests/db/*.test.ts` | `TEST_DATABASE_URL` (a migrated Neon branch) | schema/pg layer, seed verification, services (recipes, ingredients, brands, settings, users, planning, imports), route tests (images, bulk, settings, audit archive, exports), backup/restore. Every test rolls back (savepoints / outer transaction). ~12 min because each statement is a network round trip. |
+| Coverage gate | `npm run test:coverage` | nothing | `src/domain` ≥ 95% (currently 100% lines/functions, 96.5% branches) |
+| Visual smoke | `npm run preview:screens` | `TEST_DATABASE_URL` | renders every screen with the real legacy CSS from the dev data to `public/_preview/*.html`; open `http://localhost:3000/_preview/<name>.html` while `npm run dev` runs. Not a gate. |
+
+Local database run (bash): `set -a; . ./.env.local; set +a; TEST_DATABASE_URL=$DATABASE_URL_UNPOOLED npx vitest run tests/db` (switch to a throw-away branch first if you do not want the 0002 migration on `dev`; the tests never commit).
+
+**Still open from §5:** Playwright visual baselines against the legacy file need an authenticated session, and Clerk is the only auth (no test bypass exists on purpose). Options when you want them: Clerk's testing tokens with a dedicated test user, or a manual side-by-side. Until then the visual check is the preview harness + a manual pass (see docs/PROGRESS.md).

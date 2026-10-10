@@ -21,6 +21,7 @@ const EXPECTED_TABLES = [
   'recipe_line',
   'recipe_method_step',
   'recipe_photo',
+  'restore_chunk',
   'seed_run',
   'unit_conversion',
   'user_brand_access',
@@ -41,7 +42,7 @@ describe.skipIf(!hasTestDb)('schema (db/migrations) on a real Neon branch', () =
        WHERE table_schema = 'public' AND table_name <> 'schema_migrations' ORDER BY table_name`,
     );
     expect(rows.map((r) => r.table_name)).toEqual(EXPECTED_TABLES);
-    const m = await c.query(`SELECT name FROM schema_migrations WHERE name = '0001_init.sql'`);
+    const m = await c.query(`SELECT name FROM schema_migrations WHERE name = '0002_restore_staging.sql'`);
     expect(m.rowCount).toBe(1);
   });
 
@@ -225,7 +226,7 @@ describe.skipIf(!hasTestDb)('schema (db/migrations) on a real Neon branch', () =
 
   it('cost_settings is a singleton; recipe requires a brand; brand with recipes cannot be deleted; deleting a recipe cascades', () =>
     inRollback(c, async () => {
-      await c.query(`INSERT INTO cost_settings (price_date) VALUES ('2026-10-09')`);
+      await c.query(`INSERT INTO cost_settings (price_date) VALUES ('2026-10-09') ON CONFLICT (id) DO NOTHING`);
       await expectFails(c, `INSERT INTO cost_settings (id, price_date) VALUES (2, '2026-10-09')`, [], '23514');
       await expectFails(
         c,
