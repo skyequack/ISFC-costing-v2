@@ -1,6 +1,6 @@
 # PROGRESS — living checklist (update in the same commit as the work)
 
-Last updated: 2026-10-09 (branch `phases-build`). **Phases 0–6 are implemented and green except the items listed under "Not verified / needs you" below. Phase 7 (deploy) started 2026-10-10 (D-61, supersedes D-57): pre-deploy gates re-run green (typecheck, lint, 514 tests passed / 94 DB tests skipped offline); the account-side steps are waiting on the user (see "Phase 7 — Deploy" below).**
+Last updated: 2026-10-09 (branch `phases-build`). **Phases 0–6 are implemented and green except the items listed under "Not verified / needs you" below. Phase 7 (deploy) started 2026-10-10 (D-62, supersedes D-57): pre-deploy gates re-run green (typecheck, lint, 514 tests passed / 94 DB tests skipped offline); the account-side steps are waiting on the user (see "Phase 7 — Deploy" below).**
 
 ## Phase 0 — Discovery ✅
 
@@ -78,7 +78,7 @@ Every route has a skeleton (`src/app/*/loading.tsx` → `src/components/shell/Sk
 
 ## Sidebar footer credit (2026-10-10, D-60)
 
-The sidebar footer (`src/components/shell/Shell.tsx`) shows "Made by Omer" / "omer.mohammd.m" in place of the static "All changes saved" and "v8.7" lines (user request; the legacy save-status text was never wired in the React shell).
+The sidebar footer (`src/components/shell/Shell.tsx`) shows "Made by Omer for ISFC" / "omer.mohammd.m@gmail.com" (D-60, D-63 sidebar restyle) in place of the static "All changes saved" and "v8.7" lines (user request; the legacy save-status text was never wired in the React shell).
 
 ## Open items for the user (decisions that were NOT made for you)
 
@@ -97,7 +97,7 @@ All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **be
 - Editor: a `router.refresh()` that lands while a save is still queued can briefly show the server copy before the save returns.
 - `/security-review` could not be run (the skill needs an `origin` remote; the repo is local-only). Run it once the repo is on GitHub.
 
-## Phase 7 — Deploy (started 2026-10-10, D-61)
+## Phase 7 — Deploy (started 2026-10-10, D-62)
 
 - [x] Pre-deploy gates: typecheck ✅, lint ✅, `npm test` 514 passed (94 DB tests skipped offline) ✅
 - [x] Vercel project deployed (https://isfc-costing-v2.vercel.app, functions in `fra1`, env vars set, redeployed) — user
