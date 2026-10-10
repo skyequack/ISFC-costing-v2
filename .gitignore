@@ -13,3 +13,6 @@ playwright-report/
 .vercel/
 .neon
 public/_preview/
+
+# local Claude Code permissions
+.claude/settings.local.json
