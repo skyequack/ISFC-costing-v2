@@ -6,12 +6,24 @@ import { Acts } from '@/components/shell/Shell';
 import { s } from '@/components/ui';
 import { cur, fcBar, fcClass, pct } from '@/lib/format';
 import type { DashData } from '@/lib/screens/dash';
+import type { DashAnalytics } from '@/lib/services/dash';
+import { DashAnalyticsSections, DashFilterBar, ExportAnalyticsButton } from './DashAnalyticsPanel';
 
 const TOP = 25;
 const h3 = s('font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--org-dk)');
 
 /** Legacy vDash (2614). Brand-scoped (D-07); the average notes how many cards it leaves out (D-30). */
-export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<string, string> }) {
+export function DashScreen({
+  d,
+  a,
+  filterError,
+  brandNames,
+}: {
+  d: DashData;
+  a: DashAnalytics;
+  filterError?: string;
+  brandNames: Record<string, string>;
+}) {
   const router = useRouter();
   const t = d.target;
   const open = (id: string) => router.push(`/edit/${id}`);
@@ -19,8 +31,10 @@ export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<
   return (
     <>
       <Acts>
+        <ExportAnalyticsButton filters={a.filters} />
         <NewRecipeButton />
       </Acts>
+      <DashFilterBar a={a} error={filterError} />
       <div className="kpis">
         <div className="kpi">
           <div className="k">Menu Items</div>
@@ -301,6 +315,7 @@ export function DashScreen({ d, brandNames }: { d: DashData; brandNames: Record<
           )}
         </>
       )}
+      <DashAnalyticsSections a={a} />
     </>
   );
 }

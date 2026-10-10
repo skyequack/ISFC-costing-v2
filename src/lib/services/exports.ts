@@ -17,6 +17,7 @@ import { loadPrep } from '../screens/plan';
 import { loadProd } from '../screens/prod';
 import { auditExport } from './audit';
 import { loadMenus, loadProduction } from './planning';
+import { dashExportRows } from './dash-export';
 
 export const EXPORT_KINDS = [
   'recipes',
@@ -28,6 +29,7 @@ export const EXPORT_KINDS = [
   'plan',
   'recipes-data',
   'price-template',
+  'dash',
 ] as const;
 export type ExportKind = (typeof EXPORT_KINDS)[number];
 
@@ -44,6 +46,9 @@ export const exportQuery = z.object({
   loc: z.string().max(40).default('*'),
   wd: z.string().max(12).optional(),
   menuId: z.string().max(64).optional(),
+  /** dashboard range, day-level inclusive (D-65) */
+  from: z.string().max(10).optional(),
+  to: z.string().max(10).optional(),
 });
 export type ExportQuery = z.output<typeof exportQuery>;
 
@@ -65,6 +70,7 @@ export async function buildExport(
   if (!can(user.role, 'export')) throw new ApiError('forbidden', 'Your role cannot do that');
   const ctx = ctxIn ?? (await buildCtx(db, user));
   const catalog = await loadCatalog(db);
+  if (kind === 'dash') return dashExportRows(db, ctx, catalog, q); // needs neither the lock info nor the maps below
   const brandName = new Map(ctx.brands.map((b) => [b.id, b.name]));
   const brandCode = new Map(ctx.brands.map((b) => [b.id, b.code]));
   const live = [...catalog.context.recipes.values()].filter((r) => {

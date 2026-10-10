@@ -101,7 +101,7 @@ All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **be
 
 - [x] Team set up: `.claude/agents/*` (8 roles), `/feature-team` skill, `docs/FEATURES.md`, CLAUDE.md and README rules updated
 - [x] Feature 1 **Dashboard**: feature team run, plan approved by Omer (D-65…D-70)
-- [ ] Slice 1: filters (brand/site/date), Menu Matrix, analytics, filtered export
+- [x] Slice 1 (2026-10-10, D-65…D-67): `/dash?brand&loc&from&to` filter bar, Menu Matrix, margin at risk, cost drivers (Pareto), unpriced exposure, over-target ranking, `dash` export kind. New: `src/domain/dash-analytics`, `src/lib/services/dash.ts` + `dash-export.ts`, `loadProductionRange`, `DashAnalyticsPanel.tsx`; `reqExpand` recipe lookup is now a Map (first match kept). Tests: `tests/dash-analytics.test.ts` (13), `tests/ui/dash.test.tsx` (4), `tests/db/dash-analytics.test.ts` (7, run on `dev`). Checked in the browser as GM on `dev` with temporary data (removed); matrix cuts and classes hand-verified.
 - [ ] Slice 2: clients entity + `production_entry.client`, stock counts + receipts, inventory deviation (migration 0003, `stock.edit`)
 - [ ] Slice 3: three-stage yield
 - [ ] Slice 4 (optional): menu-mix shift, price-change impact, locked-card drift

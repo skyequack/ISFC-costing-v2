@@ -58,6 +58,21 @@ function flag(res: ReqResult, f: ReqFlag): void {
   res.flags.push(f);
 }
 
+/* First case-insensitive match per code, built once per recipes array (the contract of the old find()). */
+const recipeIdx = new WeakMap<ReadonlyArray<CostRecipe>, Map<string, CostRecipe>>();
+function recipeByCode(list: ReadonlyArray<CostRecipe>, upper: string): CostRecipe | undefined {
+  let m = recipeIdx.get(list);
+  if (!m) {
+    m = new Map();
+    for (const x of list) {
+      const k = (x.code || '').toUpperCase();
+      if (!m.has(k)) m.set(k, x);
+    }
+    recipeIdx.set(list, m);
+  }
+  return m.get(upper);
+}
+
 export function reqExpand(
   r: CostRecipe | null | undefined,
   portions: number,
@@ -76,7 +91,7 @@ export function reqExpand(
     const y = num(l.y) || 1;
     const q = ((num(l.qty) / out) * portions) / y;
     const want = String(l.code || '').toUpperCase();
-    const sub = ctx.recipes.find((x) => (x.code || '').toUpperCase() === want);
+    const sub = recipeByCode(ctx.recipes, want);
     if (sub) {
       const subQ = num(sub.batchOut) || num(sub.subQty) || 0;
       const subOut = Math.max(1, num(sub.output) || 1);

@@ -57,6 +57,9 @@ typecheck + lint + all tests green; oracle diff 0; seed verification green; auth
 - D-52: brand site rename updates `menu_pax.location` and `production_entry.location` atomically (rollback on failure); removing a site with rows → 409 with count; duplicate/empty/`|` names rejected; only `brands.edit`; audit row lists rows updated.
 - D-41: a snapshot test asserts the Backup subtitle text and that no other legacy label changed.
 
+## 8a. Dashboard analytics (D-65…D-67)
+Pure: `tests/dash-analytics.test.ts` (matrix cuts/ties/min-4/unpriced, margin at risk, Pareto, `reqExpand` lookup-map first-match, filter validation, fast-check properties). DB (`dev`, rolled back): `tests/db/dash-analytics.test.ts` (inclusive day range, site/brand narrowing, hand-checked quadrants, other-brand and out-of-scope 404, unfiltered rows equal the old dashboard rows, export echo/audit/neutralisation). UI: `tests/ui/dash.test.tsx`.
+
 ## 8. What exists today (2026-10-09) and how to run it
 | Suite | Where | Needs | Notes |
 |---|---|---|---|

@@ -316,6 +316,36 @@ export async function loadProduction(db: Queryable, scope: BrandScope, month: st
   return rows as unknown as ProdEntryRow[];
 }
 
+export interface ProdTotalRow {
+  code: string;
+  portions: number;
+}
+
+/**
+ * Portions per card over a day-level inclusive range (D-65), for cards in the given brands (a subset of the caller's
+ * scope, brand scope through recipe.code, D-07). Dates are compared as ISO text (month||'-'||day): production accepts
+ * day 31 in any month, so a date type would reject stored rows. A null bound is open; loc null = every site.
+ */
+export async function loadProductionRange(
+  db: Queryable,
+  brandIds: readonly string[],
+  from: string | null,
+  to: string | null,
+  loc: string | null,
+): Promise<ProdTotalRow[]> {
+  const { rows } = await db.query(
+    `SELECT p.recipe_code AS code, SUM(p.portions)::double precision AS portions
+       FROM production_entry p JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
+      WHERE r.brand_id = ANY($1::text[])
+        AND ($2::text IS NULL OR p.month || '-' || p.day >= $2)
+        AND ($3::text IS NULL OR p.month || '-' || p.day <= $3)
+        AND ($4::text IS NULL OR p.location = $4)
+      GROUP BY p.recipe_code`,
+    [[...brandIds], from, to, loc],
+  );
+  return rows as unknown as ProdTotalRow[];
+}
+
 export async function loadPax(
   db: Queryable,
   month: string,
