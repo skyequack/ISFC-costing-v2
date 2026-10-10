@@ -43,4 +43,7 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 ## Feature log
 | Feature | Decision | Status |
 |---|---|---|
-| _none yet — first up: Dashboard_ | | |
+| Dashboard analytics v2, slice 1: filters (brand/site/date), Menu Matrix, margin-at-risk / Pareto / unpriced / over-target, filtered export | D-65…D-67 | approved, not built |
+| Dashboard slice 2: clients entity, stock counts + receipts, inventory deviation | D-68, D-69 | approved, not built |
+| Dashboard slice 3: three-stage yield | D-70 | approved, not built |
+| Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |

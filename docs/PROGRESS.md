@@ -100,7 +100,11 @@ All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **be
 ## Phase 8 — New features (started 2026-10-10, D-64)
 
 - [x] Team set up: `.claude/agents/*` (8 roles), `/feature-team` skill, `docs/FEATURES.md`, CLAUDE.md and README rules updated
-- [ ] Feature 1: **Dashboard**: to be discussed with Omer (run `/feature-team`)
+- [x] Feature 1 **Dashboard**: feature team run, plan approved by Omer (D-65…D-70)
+- [ ] Slice 1: filters (brand/site/date), Menu Matrix, analytics, filtered export
+- [ ] Slice 2: clients entity + `production_entry.client`, stock counts + receipts, inventory deviation (migration 0003, `stock.edit`)
+- [ ] Slice 3: three-stage yield
+- [ ] Slice 4 (optional): menu-mix shift, price-change impact, locked-card drift
 
 ## Phase 7 — Deploy (started 2026-10-10, D-62)
 
