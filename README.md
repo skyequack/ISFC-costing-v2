@@ -1,10 +1,10 @@
 # ISFC Food Costing System — migration project
-Migrating the single-file legacy HTML app (`legacy/app.html`) to Next.js + TypeScript + PostgreSQL (Neon, `pg`, plain SQL) + Clerk + Vercel, preserving behavior and UI except where `DECISIONS.md` says otherwise. **No deadline; quality gates only.**
+Migrating the single-file legacy HTML app (`legacy/app.html`) to Next.js + TypeScript + PostgreSQL (Neon, `pg`, plain SQL) + Clerk + Vercel, preserving behavior and UI except where `DECISIONS.md` says otherwise. **The migration is complete; from Phase 8 new features are added as Omer describes them (`docs/FEATURES.md`, `/feature-team`).** **No deadline; quality gates only.**
 
 ## How to resume work in a fresh session (no chat history needed)
 Read in this order:
 1. `CLAUDE.md` — non-negotiable rules.
-2. `docs/PROGRESS.md` — what is done, what is next, open items.
+2. `docs/PROGRESS.md` — what is done, what is next, open items. Then `docs/FEATURES.md` — how new features are added (feature team, brief, gates, feature log).
 3. `DECISIONS.md` — every approved/pending decision (overrides the two spec files).
 4. `SOURCE_OF_TRUTH.md` then `MEGA_PROMPT.md` — original spec/instructions (read the AMENDMENTS block at the top first).
 5. `docs/ARCHITECTURE.md`, `schema.md`, `docs/API.md` — target design.

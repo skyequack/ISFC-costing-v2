@@ -97,6 +97,11 @@ All decisions: `DECISIONS.md`. Any divergence from legacy needs a row there **be
 - Editor: a `router.refresh()` that lands while a save is still queued can briefly show the server copy before the save returns.
 - `/security-review` could not be run (the skill needs an `origin` remote; the repo is local-only). Run it once the repo is on GitHub.
 
+## Phase 8 — New features (started 2026-10-10, D-64)
+
+- [x] Team set up: `.claude/agents/*` (8 roles), `/feature-team` skill, `docs/FEATURES.md`, CLAUDE.md and README rules updated
+- [ ] Feature 1: **Dashboard**: to be discussed with Omer (run `/feature-team`)
+
 ## Phase 7 — Deploy (started 2026-10-10, D-62)
 
 - [x] Pre-deploy gates: typecheck ✅, lint ✅, `npm test` 514 passed (94 DB tests skipped offline) ✅
