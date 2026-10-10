@@ -321,27 +321,34 @@ export interface ProdTotalRow {
   portions: number;
 }
 
+/** ISO date text of a production row; a day past the end of the month (production accepts 31 in any month) counts as the last day. */
+const PROD_DATE = `CASE WHEN p.month ~ '^\\d{4}-(0[1-9]|1[0-2])$' AND p.day ~ '^(0[1-9]|[12]\\d|3[01])$'
+  THEN p.month || '-' || to_char(LEAST(p.day::int, EXTRACT(DAY FROM ((p.month || '-01')::date + interval '1 month' - interval '1 day'))::int), 'FM00')
+  ELSE p.month || '-' || p.day END`;
+
 /**
- * Portions per card over a day-level inclusive range (D-65), for cards in the given brands (a subset of the caller's
- * scope, brand scope through recipe.code, D-07). Dates are compared as ISO text (month||'-'||day): production accepts
- * day 31 in any month, so a date type would reject stored rows. A null bound is open; loc null = every site.
+ * Portions per card over a day-level inclusive range (D-65), for cards of the caller's scope (brand scope through
+ * recipe.code, D-07), optionally narrowed to one brand the caller can see. Dates are compared as ISO text. A null
+ * bound is open; loc null = every site.
  */
 export async function loadProductionRange(
   db: Queryable,
-  brandIds: readonly string[],
+  scope: BrandScope,
+  brandId: string | null,
   from: string | null,
   to: string | null,
   loc: string | null,
 ): Promise<ProdTotalRow[]> {
+  const ids = brandId === null ? scope.brandIds : scope.brandIds.filter((b) => b === brandId);
   const { rows } = await db.query(
     `SELECT p.recipe_code AS code, SUM(p.portions)::double precision AS portions
        FROM production_entry p JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
       WHERE r.brand_id = ANY($1::text[])
-        AND ($2::text IS NULL OR p.month || '-' || p.day >= $2)
-        AND ($3::text IS NULL OR p.month || '-' || p.day <= $3)
+        AND ($2::text IS NULL OR ${PROD_DATE} >= $2)
+        AND ($3::text IS NULL OR ${PROD_DATE} <= $3)
         AND ($4::text IS NULL OR p.location = $4)
       GROUP BY p.recipe_code`,
-    [[...brandIds], from, to, loc],
+    [[...ids], from, to, loc],
   );
   return rows as unknown as ProdTotalRow[];
 }

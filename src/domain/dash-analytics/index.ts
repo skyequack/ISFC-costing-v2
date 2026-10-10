@@ -45,6 +45,8 @@ export interface MenuMatrix {
   unpriced: number;
   /** priced cards with no production in the range */
   noProduction: number;
+  /** priced, produced cards whose food cost is not a finite number (cost-engine error state) */
+  unvalued: number;
   totalPortions: number;
 }
 
@@ -57,13 +59,17 @@ const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFi
 export function menuMatrix(rows: ReadonlyArray<MatrixInput>, minItems = MATRIX_MIN_ITEMS): MenuMatrix {
   let unpriced = 0;
   let noProduction = 0;
+  let unvalued = 0;
   const live: MatrixInput[] = [];
   for (const r of rows) {
     const hasProd = finite(r.portions) && r.portions > 0;
     const priced = finite(r.sp) && r.sp > 0;
     if (hasProd && !priced) unpriced++;
     else if (!hasProd && priced) noProduction++;
-    else if (hasProd && priced && finite(r.food)) live.push(r);
+    else if (hasProd && priced) {
+      if (finite(r.food)) live.push(r);
+      else unvalued++;
+    }
   }
   const total = live.reduce((a, r) => a + r.portions, 0);
   if (live.length < Math.max(1, minItems))
@@ -74,6 +80,7 @@ export function menuMatrix(rows: ReadonlyArray<MatrixInput>, minItems = MATRIX_M
       classified: live.length,
       unpriced,
       noProduction,
+      unvalued,
       totalPortions: total,
     };
   const popularityCut = (POPULARITY_SHARE * total) / live.length;
@@ -93,7 +100,16 @@ export function menuMatrix(rows: ReadonlyArray<MatrixInput>, minItems = MATRIX_M
       };
     })
     .sort((a, b) => b.portions - a.portions || a.code.localeCompare(b.code));
-  return { points, popularityCut, marginCut, classified: live.length, unpriced, noProduction, totalPortions: total };
+  return {
+    points,
+    popularityCut,
+    marginCut,
+    classified: live.length,
+    unpriced,
+    noProduction,
+    unvalued,
+    totalPortions: total,
+  };
 }
 
 export interface RiskInput {

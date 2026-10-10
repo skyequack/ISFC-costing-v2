@@ -5,7 +5,9 @@ import type { Role } from '@/lib/permissions';
 import { loadCatalog } from '@/lib/db/catalog';
 import { buildCtx } from '@/lib/screens/ctx';
 import { recipeRows } from '@/lib/screens/rows';
+import { visibleBrandIds } from '@/lib/db/scope';
 import { dashRows, loadDashAnalytics, dashFilters } from '@/lib/services/dash';
+import { loadProductionRange } from '@/lib/services/planning';
 import { connect, hasTestDb, insertIngredient, insertRecipe } from './helpers';
 
 const h = vi.hoisted(() => ({ client: null as unknown as import('pg').Client, session: null as unknown }));
@@ -117,17 +119,22 @@ describe.skipIf(!hasTestDb)(
     }
 
     it('date range is day-level and inclusive; sites and brands narrow; the other brand never leaks in', async () => {
-      const { xd } = await fixture();
       const gm = await mkUser('gm', []);
+      // other data may exist on this branch for the same date, so compare with a baseline read first
+      const base = (await load(gm, { brand: '*', from: '2098-04-10', to: '2098-04-10' })).portions;
+      const { xd } = await fixture();
       const q = (o: object) => load(gm, { brand: xd, ...o });
       expect((await q({})).portions).toBe(100 + 5 + 100 + 5);
       expect((await q({ from: '2098-04-10', to: '2098-04-10' })).portions).toBe(100); // both ends inclusive
-      expect((await q({ from: '2098-04-01', to: '2098-04-30' })).portions).toBe(105); // 04-31 is after 04-30 as text
+      // production accepts day 31 in a 30-day month; it counts as the 30th, so a whole-month range keeps it
+      expect((await q({ from: '2098-04-01', to: '2098-04-30' })).portions).toBe(110);
+      expect((await q({ from: '2098-04-30', to: '2098-04-30' })).portions).toBe(5 + 5);
+      expect((await q({ from: '2098-05-01' })).portions).toBe(100); // and it is not in May
       expect((await q({ from: '2098-04-11' })).portions).toBe(5 + 100 + 5); // open end
       expect((await q({ to: '2098-04-09' })).portions).toBe(0);
       expect((await q({ loc: 'NIC' })).portions).toBe(200);
       expect((await q({ loc: 'ZED' })).portions).toBe(5);
-      expect((await load(gm, { brand: '*', from: '2098-04-10', to: '2098-04-10' })).portions).toBe(100 + 999);
+      expect((await load(gm, { brand: '*', from: '2098-04-10', to: '2098-04-10' })).portions).toBe(base + 100 + 999);
     });
 
     it('Menu Matrix classes over exactly the filtered rows (hand-checked) and counts what it leaves out', async () => {
@@ -140,8 +147,8 @@ describe.skipIf(!hasTestDb)(
       // a narrower range leaves too few items to classify
       const narrow = await load(gm, { brand: xd, from: '2098-04-01', to: '2098-04-30' });
       expect(narrow.matrix.points).toBeNull();
-      expect(narrow.matrix.classified).toBe(2);
-      expect(narrow.matrix.noProduction).toBe(2);
+      expect(narrow.matrix.classified).toBe(3); // A, B and D (the 31st counts as the 30th)
+      expect(narrow.matrix.noProduction).toBe(1); // only C
     });
 
     it('cost drivers, margin at risk and unpriced exposure come from the produced portions', async () => {
@@ -158,6 +165,27 @@ describe.skipIf(!hasTestDb)(
       const np = await load(gm, { brand: xd, loc: 'NIC' });
       expect(np.unpriced.rows.map((r) => r.code).sort()).toEqual(['XD-A', 'XD-C']);
       expect(np.unpriced.portions).toBe(200);
+    });
+
+    it('loadProductionRange only ever reads inside the scope it is given', async () => {
+      const { xd, xe } = await fixture();
+      const cc = await mkUser('cc', [xd]);
+      const scope = await visibleBrandIds(cc, c);
+      const total = (await loadProductionRange(c, scope, null, null, null, null)).reduce((a, r) => a + r.portions, 0);
+      expect(total).toBe(210);
+      expect(await loadProductionRange(c, scope, xe, null, null, null)).toEqual([]); // a brand outside the scope reads nothing
+      const gm = await visibleBrandIds(await mkUser('gm', []), c);
+      expect((await loadProductionRange(c, gm, xe, null, null, null)).map((r) => r.code)).toEqual(['XE-A']);
+    });
+
+    it('a month or day that is not a valid date does not break the range query', async () => {
+      const { xd } = await fixture();
+      await c.query(
+        "INSERT INTO production_entry (month, day, location, recipe_code, portions) VALUES ('bogus','01','','XD-A',1), ('2098-13','01','','XD-A',2)",
+      );
+      const gm = await mkUser('gm', []);
+      const a = await load(gm, { brand: xd, from: '2098-04-01', to: '2098-04-30' });
+      expect(a.portions).toBe(110);
     });
 
     it('brand scope: filters can only narrow; an out-of-scope brand or site is a 404 and nothing leaks', async () => {
@@ -211,7 +239,8 @@ describe.skipIf(!hasTestDb)(
         expect(lines.find((l) => l.startsWith('XD-A,') && l.endsWith(',Star'))).toBeTruthy();
         const log = await exported(gm);
         expect(log).toHaveLength(1);
-        expect(log[0]).toMatch(/^dash: \d+ rows?$/);
+        // the audited count is the data rows (4 matrix cards + 1 cost driver), not the title/filter/section lines
+        expect(log[0]).toBe('dash: 5 rows');
       });
 
       it('a bad range is 400, an out-of-scope brand 404, and neither writes an audit row', async () => {

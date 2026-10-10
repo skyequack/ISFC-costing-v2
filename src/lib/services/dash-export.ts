@@ -42,7 +42,14 @@ export async function dashExportRows(
     for (const p of m.points)
       out.push([p.code, p.name, f(p.portions, 4), pc(p.share), f(p.contribution, 4), QUADRANT[p.quadrant]]);
   }
-  out.push(['Not classified: no selling price', m.unpriced, 'no production in range', m.noProduction]);
+  out.push([
+    'Not classified: no selling price',
+    m.unpriced,
+    'no production in range',
+    m.noProduction,
+    'cost could not be valued',
+    m.unvalued,
+  ]);
 
   out.push([], ['Margin at risk']);
   out.push(['Code', 'Name', 'Portions', 'Food cost %', 'Over target per portion', 'At risk']);
@@ -72,6 +79,16 @@ export async function dashExportRows(
   out.push(['Code', 'Name', 'Portions', 'Unpriced ingredients']);
   for (const r of d.unpriced.rows) out.push([r.code, r.name, f(r.portions, 4), r.missing]);
 
+  const dataRows =
+    (d.matrix.points?.length ?? 0) +
+    d.risk.rows.length +
+    d.overTarget.length +
+    d.drivers.rows.length +
+    d.unpriced.rows.length;
   const tag = (s: string) => s.replace(/[^\w-]+/g, '-');
-  return { filename: `dashboard-${tag(filters.from ?? 'start')}_${tag(filters.to ?? 'latest')}.csv`, rows: out };
+  return {
+    filename: `dashboard-${tag(filters.from ?? 'start')}_${tag(filters.to ?? 'latest')}.csv`,
+    rows: out,
+    dataRows,
+  };
 }

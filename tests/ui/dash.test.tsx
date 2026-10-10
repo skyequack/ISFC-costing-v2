@@ -12,6 +12,7 @@ vi.mock('@clerk/nextjs', () => ({ useClerk: () => ({ signOut: vi.fn() }) }));
 import { DashScreen } from '@/components/screens/DashScreen';
 import type { DashData } from '@/lib/screens/dash';
 import type { DashAnalytics } from '@/lib/services/dash';
+import { DATE_COMMIT_MS } from '@/components/screens/DashAnalyticsPanel';
 
 beforeAll(() => {
   installFetch();
@@ -56,6 +57,7 @@ const empty = (over: Partial<DashAnalytics> = {}): DashAnalytics => ({
     classified: 2,
     unpriced: 1,
     noProduction: 0,
+    unvalued: 0,
     totalPortions: 0,
   },
   risk: { rows: [], total: 0, count: 0 },
@@ -73,6 +75,7 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
     const a = empty({ filters: { brand: '*', loc: 'NIC', from: '', to: '' } });
     renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
     fireEvent.change(screen.getByLabelText('From date'), { target: { value: '2026-10-01' } });
+    fireEvent.blur(screen.getByLabelText('From date'));
     expect(lastReplace()).toBe('/dash?loc=NIC&from=2026-10-01');
     fireEvent.change(screen.getByDisplayValue('All brands'), { target: { value: 'b1' } });
     expect(lastReplace()).toBe('/dash?brand=b1'); // the site belonged to the old brand choice
@@ -84,6 +87,50 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
     expect(screen.queryByText(/^Filtered:/)).toBeNull();
   });
 
+  describe('typing a date', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+    const from = () => screen.getByLabelText('From date') as HTMLInputElement;
+    const withFrom = (v: string) =>
+      renderInShell(
+        <DashScreen d={d} a={empty({ filters: { brand: '*', loc: '*', from: v, to: '' } })} brandNames={{}} />,
+      );
+
+    it('keeps what is typed, ignores intermediate years, and applies the final date once after a pause', () => {
+      renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />);
+      for (const v of ['0002-10-01', '0020-10-01', '0202-10-01']) {
+        fireEvent.change(from(), { target: { value: v } });
+        expect(from().value).toBe(v); // the field does not snap back while the user is typing
+        vi.advanceTimersByTime(DATE_COMMIT_MS + 50);
+        expect(nav.replace).not.toHaveBeenCalled(); // a year before 1900 is never applied
+      }
+      fireEvent.change(from(), { target: { value: '2026-10-01' } });
+      expect(nav.replace).not.toHaveBeenCalled(); // not before the pause
+      vi.advanceTimersByTime(DATE_COMMIT_MS + 50);
+      expect(nav.replace).toHaveBeenCalledTimes(1);
+      expect(lastReplace()).toBe('/dash?from=2026-10-01');
+    });
+
+    it('applies at once on Enter or when leaving the field, and clearing the field removes the filter', () => {
+      withFrom('2026-10-01');
+      fireEvent.change(from(), { target: { value: '2026-11-02' } });
+      fireEvent.keyDown(from(), { key: 'Enter' });
+      expect(lastReplace()).toBe('/dash?from=2026-11-02');
+      nav.replace.mockClear();
+      vi.advanceTimersByTime(DATE_COMMIT_MS + 50);
+      expect(nav.replace).not.toHaveBeenCalled(); // the pending timer was cancelled by the commit
+      fireEvent.change(from(), { target: { value: '' } });
+      fireEvent.blur(from());
+      expect(lastReplace()).toBe('/dash');
+    });
+
+    it('does not apply an unchanged value again', () => {
+      withFrom('2026-10-01');
+      fireEvent.blur(from());
+      expect(nav.replace).not.toHaveBeenCalled();
+    });
+  });
+
   it('says which sections respond to which filter, and shows an invalid-filter message', () => {
     const a = empty({ filters: { brand: 'b1', loc: 'NIC', from: '2026-10-01', to: '2026-10-31' } });
     renderInShell(<DashScreen d={d} a={a} filterError="not a calendar date" brandNames={{}} />);
@@ -93,11 +140,16 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
 
   it('exports with exactly the filters on screen', () => {
     const a = empty({ filters: { brand: 'b1', loc: 'NIC', from: '2026-10-01', to: '2026-10-31' } });
+    const original = window.location;
     const loc = { href: '' };
     vi.stubGlobal('location', loc);
-    renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
-    fireEvent.click(screen.getByText('Export analytics'));
-    expect(loc.href).toBe('/api/export/dash?brand=b1&loc=NIC&from=2026-10-01&to=2026-10-31');
+    try {
+      renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
+      fireEvent.click(screen.getByText('Export analytics'));
+      expect(loc.href).toBe('/api/export/dash?brand=b1&loc=NIC&from=2026-10-01&to=2026-10-31');
+    } finally {
+      vi.stubGlobal('location', original); // do not leak the fake into the tests that follow
+    }
   });
 
   it('the matrix: not-enough-data state, then classes with clickable chips that open the card', () => {
@@ -121,6 +173,7 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
         classified: 4,
         unpriced: 0,
         noProduction: 0,
+        unvalued: 0,
         totalPortions: 180,
       },
     });

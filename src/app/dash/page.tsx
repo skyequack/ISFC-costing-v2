@@ -27,7 +27,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   const d = dashData(rows, items, ctx.brands, catalog, catalog.settings.target);
   let a;
   try {
-    a = await loadDashAnalytics(db, ctx, catalog, filters);
+    a = await loadDashAnalytics(db, ctx, catalog, filters, rows);
   } catch (e) {
     if (e instanceof ApiError && e.code === 'not_found') notFound();
     throw e;

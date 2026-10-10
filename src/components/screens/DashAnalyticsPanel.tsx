@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/components/shell/nav-progress';
 import { Perm } from '@/components/shared/Perm';
 import { useToast } from '@/components/shared/Toast';
@@ -18,6 +19,53 @@ export function dashHref(f: DashAnalytics['filters']): string {
   if (f.to) q.set('to', f.to);
   const t = q.toString();
   return t ? `/dash?${t}` : '/dash';
+}
+
+/** Wait this long after the last keystroke before a typed date is applied (a pick, Enter or leaving the field applies it at once). */
+export const DATE_COMMIT_MS = 700;
+/** A blank date (clears the filter) or a full date in a believable year: typing 2026 passes through 0002, 0020 and 0202. */
+const committable = (v: string) =>
+  v === '' || (/^\d{4}-\d{2}-\d{2}$/.test(v) && +v.slice(0, 4) >= 1900 && +v.slice(0, 4) <= 2200);
+
+/** Date field that keeps what is typed and only changes the URL once the date is complete, so typing never fires a request per keystroke. */
+function DateField({
+  value,
+  label,
+  min,
+  max,
+  onCommit,
+}: {
+  value: string;
+  label: string;
+  min?: string;
+  max?: string;
+  onCommit: (v: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => setDraft(value), [value]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const commit = (v: string) => {
+    clearTimeout(timer.current);
+    if (v !== value && committable(v)) onCommit(v);
+  };
+  return (
+    <input
+      type="date"
+      value={draft}
+      min={min}
+      max={max}
+      aria-label={label}
+      onChange={(e) => {
+        const v = e.target.value;
+        setDraft(v);
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => commit(v), DATE_COMMIT_MS);
+      }}
+      onBlur={() => commit(draft)}
+      onKeyDown={(e) => e.key === 'Enter' && commit(draft)}
+    />
+  );
 }
 
 const active = (f: DashAnalytics['filters']) => f.brand !== '*' || f.loc !== '*' || !!f.from || !!f.to;
@@ -64,23 +112,11 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
         <label className="fl" style={s('margin:0')}>
           From
         </label>
-        <input
-          type="date"
-          value={f.from}
-          max={f.to || undefined}
-          onChange={(e) => go({ from: e.target.value })}
-          aria-label="From date"
-        />
+        <DateField value={f.from} label="From date" max={f.to || undefined} onCommit={(v) => go({ from: v })} />
         <label className="fl" style={s('margin:0')}>
           To
         </label>
-        <input
-          type="date"
-          value={f.to}
-          min={f.from || undefined}
-          onChange={(e) => go({ to: e.target.value })}
-          aria-label="To date"
-        />
+        <DateField value={f.to} label="To date" min={f.from || undefined} onCommit={(v) => go({ to: v })} />
         {active(f) && (
           <button className="btn sm o" onClick={() => router.replace('/dash')}>
             Reset
@@ -212,10 +248,10 @@ function Matrix({ a }: { a: DashAnalytics }) {
           </div>
         </>
       )}
-      {(m.unpriced > 0 || m.noProduction > 0) && (
+      {(m.unpriced > 0 || m.noProduction > 0 || m.unvalued > 0) && (
         <div className="note" style={s('margin-top:8px')}>
           Not classified: {m.unpriced} with production but no selling price, {m.noProduction} priced with no production
-          in this range.
+          in this range{m.unvalued > 0 ? `, ${m.unvalued} whose cost could not be calculated` : ''}.
         </div>
       )}
     </>

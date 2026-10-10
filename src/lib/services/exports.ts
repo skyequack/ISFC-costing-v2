@@ -55,6 +55,8 @@ export type ExportQuery = z.output<typeof exportQuery>;
 export interface ExportFile {
   filename: string;
   rows: unknown[][];
+  /** data rows for the audit entry when the file is not one header + data (multi-section sheets) */
+  dataRows?: number;
 }
 
 const f = (v: number, d: number) => v.toFixed(d);
@@ -398,7 +400,7 @@ export async function exportAndAudit(
   q: ExportQuery,
 ): Promise<ExportFile> {
   const file = await buildExport(tx, user, kind, q);
-  const body = Math.max(0, file.rows.length - (kind === 'requisition' || kind === 'plan' ? 0 : 1));
+  const body = file.dataRows ?? Math.max(0, file.rows.length - (kind === 'requisition' || kind === 'plan' ? 0 : 1));
   await auditExport(tx, user, kind, body);
   return file;
 }

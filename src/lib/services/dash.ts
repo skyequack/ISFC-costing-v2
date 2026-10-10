@@ -80,12 +80,12 @@ export interface DashAnalytics {
 
 export const TOP_N = 25;
 
-function resolveFilters(ctx: PageCtx, f: DashFilters): { brandIds: string[]; sites: string[] } {
+function resolveFilters(ctx: PageCtx, f: DashFilters): { sites: string[] } {
   if (f.brand !== '*' && !ctx.brands.some((b) => b.id === f.brand)) throw new ApiError('not_found', 'Not found');
   const brandIds = f.brand === '*' ? ctx.brands.map((b) => b.id) : [f.brand];
   const sites = [...new Set(ctx.brands.filter((b) => brandIds.includes(b.id)).flatMap((b) => b.locations))];
   if (f.loc !== '*' && !sites.includes(f.loc)) throw new ApiError('not_found', 'Not found');
-  return { brandIds, sites };
+  return { sites };
 }
 
 /** Rows the existing dashboard cost sections use: brand filter only (D-65), caller scope always. */
@@ -103,14 +103,23 @@ export async function loadDashAnalytics(
   ctx: PageCtx,
   catalog: Catalog,
   f: DashFilters,
+  /** the already costed rows of dashRows(catalog, ctx, f.brand), when the caller has them (costing every card is the heavy part) */
+  rowsIn?: RecipeRow[],
 ): Promise<DashAnalytics> {
-  const { brandIds, sites } = resolveFilters(ctx, f);
+  const { sites } = resolveFilters(ctx, f);
   const target = catalog.settings.target;
-  const menus = dashRows(catalog, ctx, f.brand).filter((r) => r.type === 'menu');
+  const menus = (rowsIn ?? dashRows(catalog, ctx, f.brand)).filter((r) => r.type === 'menu');
   const byCode = new Map(menus.map((r) => [r.code, r]));
 
   const prod = (
-    await loadProductionRange(db, brandIds, f.from ?? null, f.to ?? null, f.loc === '*' ? null : f.loc)
+    await loadProductionRange(
+      db,
+      ctx.scope,
+      f.brand === '*' ? null : f.brand,
+      f.from ?? null,
+      f.to ?? null,
+      f.loc === '*' ? null : f.loc,
+    )
   ).filter((p) => byCode.has(p.code) && p.portions > 0);
   const portionsOf = new Map(prod.map((p) => [p.code, p.portions]));
   const inputs = menus.map((r) => ({

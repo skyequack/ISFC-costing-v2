@@ -45,7 +45,9 @@ describe('menuMatrix (D-66)', () => {
   });
   it('empty input and non-finite values do not throw', () => {
     expect(menuMatrix([]).points).toBeNull();
-    expect(menuMatrix([m('X', 5, 10, NaN)]).classified).toBe(0);
+    const bad = menuMatrix([m('X', 5, 10, NaN), m('Y', 5, 10, Infinity)]);
+    expect(bad.classified).toBe(0);
+    expect(bad.unvalued).toBe(2); // a cost that is not a number is counted, never silently dropped
   });
   it('is independent of input order; classes always cover every classified item; scaling portions keeps classes', () => {
     const arb = fc.array(
@@ -138,6 +140,19 @@ describe('reqExpand recipe lookup map (perf fix) keeps the old find() behaviour'
     const swapped = newReqResult();
     reqExpand(top, 1, { ...ctx, recipes: [top, second, first] }, swapped);
     expect(Object.keys(swapped.acc)).toEqual([i2]);
+  });
+  it('a recipe added to the context after the first call is seen (the lookup is rebuilt when the list changes)', () => {
+    const lib = rec('LIB', [line(i1!)]);
+    const top = rec('TOP', [{ ...line(i1!), code: 'Late' }]);
+    const recipes = [top];
+    const ctx: ReqContext = { items: c.items, recipes, conv: c.conv };
+    const before = newReqResult();
+    reqExpand(top, 1, ctx, before);
+    expect(Object.keys(before.acc)).toEqual(['?Late']);
+    recipes.push({ ...lib, code: 'LATE' });
+    const after = newReqResult();
+    reqExpand(top, 1, ctx, after);
+    expect(Object.keys(after.acc)).toEqual([i1]);
   });
   it('an unknown code still lands in the ?code bucket', () => {
     const top = rec('TOP', [line('NOPE-1')]);
