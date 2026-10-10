@@ -63,6 +63,21 @@ jobs:
           ssl: verify-full
           expires_at: ${{ env.BRANCH_EXPIRES }}
 
+      # A schema-only branch of `production` keeps the tables but not the rows, so once production is migrated its copy
+      # has the schema without the schema_migrations records and 0001 would fail ("type already exists"). Start from an
+      # empty database so CI proves the migrations apply from scratch.
+      - name: Empty the throwaway branch (migrations must apply from scratch)
+        env:
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
+        run: |
+          node --input-type=module -e "
+            import pg from 'pg';
+            const c = new pg.Client({ connectionString: process.env.DATABASE_URL_UNPOOLED.replace(/sslmode=\w+/, 'sslmode=verify-full') });
+            await c.connect();
+            await c.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+            await c.end();
+          "
+
       - name: 'Apply migrations (twice - the second run must be a no-op)'
         env:
           DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
