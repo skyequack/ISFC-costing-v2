@@ -48,6 +48,7 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Dashboard slice 2b: stock tables, API, Stock screen (migration 0004) | D-69, D-72, D-73 | built on branch `slice-2a`, gates green; not yet on `dev`/`production` |
 | Dashboard slice 2c: stock upload (dry-run/commit) | D-73 | built, gates green (2026-10-11) |
 | Dashboard slice 2d: Theoretical vs actual panel + Client filter + export | D-74, D-82 | built on branch `slice-2d`, gates green (2026-10-11); strings approved |
+| Dashboard redesign: tabs and overview, histogram, incomplete-card note, Ingredients KPI by brand | D-84 | built, gates green (2026-10-11); architect data review requested; new strings pending approval |
 | Dashboard slice 2e: stock in backup/restore, Data Health, site rename carries stock | D-75, D-76, D-77, D-83 | built, gates green (2026-10-11); strings approved |
 | Dashboard slice 3: three-stage yield | D-70 | approved, not built |
 | Users: pending invites, revoke, edit access, Select all brands (migration 0005) | D-78…D-81 | built, gates green on branch `slice-2a` (2026-10-11) |
