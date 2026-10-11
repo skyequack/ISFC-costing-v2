@@ -63,6 +63,12 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 Body `{site, date: YYYY-MM-DD, kind: 'count'|'receipt', cells: [{code, qty: number >= 0 | null}]}` (1-1500 cells, no code twice). The site must be one of the caller's sites (union of `brand.locations` of their brands, else 404); every code an ingredient in their scope (else 422, nothing written); a date later than tomorrow UTC is 400. `qty` null clears; for counts 0 is stored (counted empty); for receipts 0 or null clears the grid row (`ref ''`), uploaded deliveries are never touched. Returns `{saved, cleared}`. Reads go through the `/stock` page (any signed-in role, so the Viewer sees it read-only).
 
 ## Planning & production
+| Endpoint | Permission | Audit |
+|---|---|---|
+| POST /api/stock/import?mode=dry-run\|commit | stock.edit | Uploaded stock counts / Uploaded receipts (file, hash prefix, counts, sites, dates) |
+
+Body `{kind, rows: [{site, date, code, qty, line}], file, hash?}` (1-5000 rows, 2 MB, the whole file in one call). `dry-run` writes nothing and returns `{counts: {add, update, same, blocked}, blocked[], sample[], sites, dates, hash, alreadyImported}`. `commit` needs that `hash` (409 when the content changed), refuses a file with any blocked row (422) and, for receipts, a content already loaded (409). Counts are upserted (only changed rows written); receipts are inserted with `ref = 'file:<hash16>'`.
+
 | Method path | Permission | Notes / Audit |
 |---|---|---|
 | GET /api/menus; POST /api/menus; PUT /api/menus/:id; POST /api/menus/:id/deactivate | read: any (SSEM-scoped); write: menu.edit | Menu edited |

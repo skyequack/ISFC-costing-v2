@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from '@/components/shell/nav-progress';
 import { api, errText } from '@/components/shared/api-client';
+import { useStockIO } from '@/components/io/stock-io';
 import { DateField } from '@/components/shared/DateField';
 import { usePerm } from '@/components/shared/session-context';
 import { useToast } from '@/components/shared/Toast';
@@ -34,6 +35,7 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
   const [dateReset, setDateReset] = useState(0);
+  const io = useStockIO(grid);
   const isCount = grid.kind === 'count';
   const dirty = Object.keys(edits).length;
 
@@ -146,6 +148,14 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
         <input type="checkbox" checked={entered} onChange={(e) => (setEntered(e.target.checked), setPage(0))} />
         Entered only
       </label>
+      <button className="btn sm o" onClick={io.template}>
+        Template
+      </button>
+      {canEdit && (
+        <button className="btn sm o" onClick={io.upload}>
+          Upload
+        </button>
+      )}
     </div>
   );
 

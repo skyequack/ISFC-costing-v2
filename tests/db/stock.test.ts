@@ -6,6 +6,7 @@ import { visibleBrandIds } from '@/lib/db/scope';
 import { ApiError } from '@/lib/errors';
 import type { Role } from '@/lib/permissions';
 import { updateBrand } from '@/lib/services/brands';
+import { commitStockImport, previewStockImport, receiptRef, type StockImportIn } from '@/lib/services/import-stock';
 import { loadStockGrid, saveStock } from '@/lib/services/stock';
 import { connect, expectFails, hasTestDb, inRollback } from './helpers';
 
@@ -349,6 +350,169 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
         expect((await call(chef, { ...body, cells: [{ code: 'ZS-A-ING', qty: -1 }] })).status).toBe(400);
         expect((await call(chef, { ...body, site: 'ZS-B' })).status).toBe(404);
         expect((await call(chef, { ...body, cells: [{ code: 'ZS-B-ING', qty: 1 }] })).status).toBe(422);
+      }));
+  });
+
+  describe('upload (slice 2c, D-73)', () => {
+    const D = '2025-06-10';
+    const file = (kind: 'count' | 'receipt', rows: [string, string, number][], date = D): StockImportIn => ({
+      kind,
+      file: 'f.csv',
+      rows: rows.map(([site, code, qty], i) => ({ site, date, code, qty, line: i + 2 })),
+    });
+    const receipts = async () =>
+      (
+        await c.query("SELECT site, code, qty, ref FROM receipt WHERE code LIKE 'ZS-%' ORDER BY site, code, ref")
+      ).rows.map((r) => r.site + '|' + r.code + '|' + r.qty + '|' + (r.ref === '' ? 'grid' : 'file'));
+
+    it('counts: the dry-run writes nothing and plans add / update / same; the commit loads it; the same file again changes nothing', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const u = await mkUser('cook', [a]);
+        const s = await scopeOf(u);
+        await put(u, s, { cells: [{ code: 'ZS-A-ING', qty: 5 }] });
+        const f1 = file('count', [
+          ['ZS-A', 'ZS-A-ING', 5],
+          ['ZS-A', 'ZS-SHARED-ING', 3],
+        ]);
+        const plan = await previewStockImport(c, u, s, f1);
+        expect(plan.counts).toEqual({ add: 1, update: 0, same: 1, blocked: 0 });
+        expect(plan.sample.map((p) => [p.code, p.action, p.old, p.qty])).toEqual([['ZS-SHARED-ING', 'add', null, 3]]);
+        expect(await counts()).toEqual(['ZS-A|ZS-A-ING|5']); // nothing written by the check
+        expect(await commitStockImport(c, u, s, { ...f1, hash: plan.hash })).toEqual({ added: 1, updated: 0, same: 1 });
+        expect(await counts()).toEqual(['ZS-A|ZS-A-ING|5', 'ZS-A|ZS-SHARED-ING|3']);
+        // a changed value is an update that shows what it replaces
+        const f2 = file('count', [['ZS-A', 'ZS-A-ING', 6]]);
+        const p2 = await previewStockImport(c, u, s, f2);
+        expect(p2.sample[0]).toMatchObject({ action: 'update', old: 5, qty: 6 });
+        await commitStockImport(c, u, s, { ...f2, hash: p2.hash });
+        // loading the identical file again is harmless: every row is "same", nothing is written
+        const p3 = await previewStockImport(c, u, s, f2);
+        expect(p3.counts).toMatchObject({ add: 0, update: 0, same: 1 });
+        expect(await commitStockImport(c, u, s, { ...f2, hash: p3.hash })).toEqual({ added: 0, updated: 0, same: 1 });
+        const audit = (await c.query("SELECT detail FROM audit_log WHERE action = 'Uploaded stock counts'")).rows.map(
+          (r) => r.detail as string,
+        );
+        expect(
+          audit.some((d) =>
+            d.startsWith('f.csv (' + plan.hash.slice(0, 12) + '): 1 added, 0 updated, 1 unchanged · ZS-A · ' + D),
+          ),
+        ).toBe(true);
+        expect(audit.join('|')).not.toMatch(/ZS-A-ING|ZS-SHARED-ING/); // codes and quantities stay out of the log
+      }));
+
+    it('a file is loaded whole or not at all: a hash that does not match is 409, any blocked row is 422 and nothing is written', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const u = await mkUser('chef', [a]);
+        const s = await scopeOf(u);
+        const good = file('count', [['ZS-A', 'ZS-A-ING', 1]]);
+        const p = await previewStockImport(c, u, s, good);
+        expect((await fail(commitStockImport(c, u, s, good))).status).toBe(409); // no hash
+        expect((await fail(commitStockImport(c, u, s, { ...good, hash: 'x'.repeat(64) }))).status).toBe(409);
+        const edited = { ...good, rows: [{ ...good.rows[0]!, qty: 2 }], hash: p.hash }; // changed after the check
+        expect((await fail(commitStockImport(c, u, s, edited))).status).toBe(409);
+        const bad = file('count', [
+          ['ZS-A', 'ZS-A-ING', 1], // fine
+          ['NOWHERE', 'ZS-A-ING', 1], // unknown site
+          ['ZS-B', 'ZS-A-ING', 1], // a site of a brand the user cannot see
+          ['ZS-A', 'ZS-B-ING', 1], // another brand's ingredient
+          ['ZS-A', 'NO-SUCH', 1], // not in the catalog
+          ['ZS-A', 'ZS-SHARED-ING', 1],
+          ['ZS-A', 'ZS-SHARED-ING', 2], // the same site, day and code twice
+        ]);
+        const pb = await previewStockImport(c, u, s, bad);
+        expect(pb.counts.blocked).toBe(5);
+        expect(pb.blocked.map((b) => b.reason)).toEqual([
+          'not one of your sites',
+          'not one of your sites',
+          'not an ingredient you can use',
+          'not an ingredient you can use',
+          'appears twice in the file for the same site and date',
+        ]);
+        expect((await fail(commitStockImport(c, u, s, { ...bad, hash: pb.hash }))).status).toBe(422);
+        const future = file('count', [['ZS-A', 'ZS-A-ING', 1]], '2999-01-01');
+        expect((await previewStockImport(c, u, s, future)).blocked[0]!.reason).toBe('the date is in the future');
+        expect(await counts()).toEqual([]); // the one good row of the bad file was not loaded either
+      }));
+
+    it('receipts: each row is one delivery under the file ref, the grid row is untouched, and the same file cannot be loaded twice', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const u = await mkUser('fin', [a]);
+        const s = await scopeOf(u);
+        await put(u, s, { kind: 'receipt', cells: [{ code: 'ZS-A-ING', qty: 4 }] }); // typed in the grid
+        const f1 = file('receipt', [
+          ['ZS-A', 'ZS-A-ING', 6],
+          ['ZS-A', 'ZS-SHARED-ING', 2],
+        ]);
+        const p1 = await previewStockImport(c, u, s, f1);
+        expect(p1.counts).toMatchObject({ add: 2, blocked: 0 });
+        expect(p1.alreadyImported).toBe(false);
+        expect(await commitStockImport(c, u, s, { ...f1, hash: p1.hash })).toMatchObject({ added: 2 });
+        expect(await receipts()).toEqual(['ZS-A|ZS-A-ING|4|grid', 'ZS-A|ZS-A-ING|6|file', 'ZS-A|ZS-SHARED-ING|2|file']);
+        expect((await c.query("SELECT ref FROM receipt WHERE code = 'ZS-SHARED-ING'")).rows[0]!.ref).toBe(
+          receiptRef(p1.hash),
+        );
+        const g = await loadStockGrid(c, s, { site: 'ZS-A', date: D, kind: 'receipt' });
+        expect(g.rows.find((r) => r.code === 'ZS-A-ING')).toMatchObject({ qty: 4, other: 6 });
+        // the very same content again (even under another name) is refused, so a double click never doubles the deliveries
+        const again = { ...f1, file: 'copy-of-f.csv' };
+        const p2 = await previewStockImport(c, u, s, again);
+        expect(p2.alreadyImported).toBe(true);
+        expect((await fail(commitStockImport(c, u, s, { ...again, hash: p2.hash }))).status).toBe(409);
+        // a different file is a different upload; a delivery of 0 is not a delivery
+        const f3 = file('receipt', [['ZS-A', 'ZS-A-ING', 1]]);
+        expect((await previewStockImport(c, u, s, f3)).alreadyImported).toBe(false);
+        const zero = file('receipt', [['ZS-A', 'ZS-A-ING', 0]]);
+        expect((await previewStockImport(c, u, s, zero)).blocked[0]!.reason).toBe('a delivery must be more than 0');
+        expect(Number((await c.query("SELECT count(*) AS n FROM receipt WHERE code LIKE 'ZS-%'")).rows[0]!.n)).toBe(3);
+      }));
+
+    it('a viewer may not upload, and a user without sites finds every row blocked', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const viewer = await mkUser('viewer', [a]);
+        const f1 = file('count', [['ZS-A', 'ZS-A-ING', 1]]);
+        expect((await fail(previewStockImport(c, viewer, await scopeOf(viewer), f1))).status).toBe(403);
+        expect((await fail(commitStockImport(c, viewer, await scopeOf(viewer), { ...f1, hash: 'x' }))).status).toBe(
+          403,
+        );
+        const nobody = await mkUser('chef');
+        expect((await previewStockImport(c, nobody, await scopeOf(nobody), f1)).counts.blocked).toBe(1);
+      }));
+
+    it('POST /api/stock/import: dry-run then commit through the route; a bad mode or body is 400; the viewer is 403', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const chef = await mkUser('chef', [a]);
+        const viewer = await mkUser('viewer', [a]);
+        const post = async (u: SessionUser, mode: string, body: unknown) => {
+          h.session = { status: 'ok', user: u };
+          const { POST } = await import('@/app/api/stock/import/route');
+          return POST(
+            new Request('http://x/api/stock/import?mode=' + mode, {
+              method: 'POST',
+              body: JSON.stringify(body),
+              headers: { 'content-type': 'application/json' },
+            }),
+            { params: Promise.resolve({}) },
+          );
+        };
+        const f1 = file('count', [['ZS-A', 'ZS-A-ING', 8]]);
+        const dry = await post(chef, 'dry-run', f1);
+        expect(dry.status).toBe(200);
+        const plan = (await dry.json()) as { hash: string; counts: { add: number } };
+        expect(plan.counts.add).toBe(1);
+        expect(await counts()).toEqual([]);
+        const done = await post(chef, 'commit', { ...f1, hash: plan.hash });
+        expect(done.status).toBe(200);
+        expect(await done.json()).toEqual({ added: 1, updated: 0, same: 0 });
+        expect(await counts()).toEqual(['ZS-A|ZS-A-ING|8']);
+        expect((await post(chef, 'load', f1)).status).toBe(400);
+        expect((await post(chef, 'dry-run', { ...f1, rows: [] })).status).toBe(400);
+        expect((await post(chef, 'dry-run', { ...f1, rows: [{ ...f1.rows[0]!, qty: -2 }] })).status).toBe(400);
+        expect((await post(viewer, 'dry-run', f1)).status).toBe(403);
       }));
   });
 
