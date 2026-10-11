@@ -15,6 +15,7 @@ import { cur, fcClass, pct } from '@/lib/format';
 import { ROLES, ROLE_KEYS } from '@/lib/permissions';
 import type { SettingsDto } from '@/lib/db/repo/settings';
 import type { RecipeRow } from '@/lib/screens/rows';
+import { ClientsCard, type SettingsClient } from './ClientsCard';
 
 export interface SettingsBrand {
   id: string;
@@ -38,10 +39,12 @@ interface LogoPick {
 export function SettingsScreen({
   settings,
   brands,
+  clients,
   impact,
 }: {
   settings: SettingsDto;
   brands: SettingsBrand[];
+  clients: SettingsClient[];
   impact: (RecipeRow & { brandName: string })[];
 }) {
   const router = useRouter();
@@ -231,6 +234,8 @@ export function SettingsScreen({
           {can('brands.edit') && <AddBrand st={addPick.current} onAdd={addBrand} />}
         </div>
       </div>
+
+      <ClientsCard clients={clients} brands={brands.map((b) => ({ id: b.id, name: b.name }))} />
 
       <div className="card" style={s('margin-top:18px;max-width:900px')}>
         <h3>Approval &amp; Access</h3>

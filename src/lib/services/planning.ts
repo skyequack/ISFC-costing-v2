@@ -3,6 +3,7 @@ import type { PlanMenu } from '@/domain/menu-plans';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
+import { assertClientForCard } from './clients';
 import { canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
@@ -263,6 +264,8 @@ export const productionIn = z.object({
   day: dayStr,
   location: siteStr.default(''),
   recipeCode: z.string().trim().min(1).max(60),
+  /** D-71: '' = unassigned. Part of the row's key, so two clients never overwrite each other. */
+  clientId: z.string().max(64).default(''),
   portions: z.number().finite().min(0).max(1e7),
 });
 
@@ -279,28 +282,32 @@ export async function setProduction(
   tx: Queryable,
   user: SessionUser,
   scope: BrandScope,
-  input: z.output<typeof productionIn>,
+  input: Omit<z.output<typeof productionIn>, 'clientId'> & { clientId?: string },
 ): Promise<void> {
+  const clientId = input.clientId ?? '';
   if (!can(user.role, 'recipe.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   const { brandId } = await cardForProduction(tx, scope, input.recipeCode);
   await siteAllowed(tx, brandId, input.location);
+  await assertClientForCard(tx, scope, clientId, brandId);
   const q = Math.max(0, Math.round(input.portions));
   if (q)
     await tx.query(
-      `INSERT INTO production_entry (month, day, location, recipe_code, portions) VALUES ($1,$2,$3,$4,$5)
-       ON CONFLICT (month, day, location, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
-      [input.month, input.day, input.location, input.recipeCode, q],
+      `INSERT INTO production_entry (month, day, location, client_id, recipe_code, portions) VALUES ($1,$2,$3,$4,$5,$6)
+       ON CONFLICT (month, day, location, client_id, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
+      [input.month, input.day, input.location, clientId, input.recipeCode, q],
     );
   else
     await tx.query(
-      'DELETE FROM production_entry WHERE month = $1 AND day = $2 AND location = $3 AND recipe_code = $4',
-      [input.month, input.day, input.location, input.recipeCode],
+      'DELETE FROM production_entry WHERE month = $1 AND day = $2 AND location = $3 AND client_id = $4 AND recipe_code = $5',
+      [input.month, input.day, input.location, clientId, input.recipeCode],
     );
 }
 
 export interface ProdEntryRow {
   day: string;
   location: string;
+  /** '' = unassigned (D-71) */
+  clientId: string;
   code: string;
   portions: number;
 }
@@ -308,12 +315,18 @@ export interface ProdEntryRow {
 /** Production figures of a month for cards in the caller's brands (brand scope through recipe.code, D-07). */
 export async function loadProduction(db: Queryable, scope: BrandScope, month: string): Promise<ProdEntryRow[]> {
   const { rows } = await db.query(
-    `SELECT p.day, p.location, p.recipe_code AS code, p.portions
+    `SELECT p.day, p.location, p.client_id, p.recipe_code AS code, p.portions
        FROM production_entry p JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
       WHERE p.month = $1 AND r.brand_id = ANY($2::text[]) ORDER BY p.day, p.recipe_code`,
     [month, [...scope.brandIds]],
   );
-  return rows as unknown as ProdEntryRow[];
+  return rows.map((r) => ({
+    day: r.day as string,
+    location: r.location as string,
+    clientId: r.client_id as string,
+    code: r.code as string,
+    portions: r.portions as number,
+  }));
 }
 
 export interface ProdTotalRow {

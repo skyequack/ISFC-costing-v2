@@ -1,4 +1,5 @@
 import { db } from '@/lib/db/client';
+import { listClients } from '@/lib/db/repo/clients';
 import { getSettings } from '@/lib/db/repo/settings';
 import { pageCatalog, pageCtx } from '@/lib/page';
 import { recipeRows } from '@/lib/screens/rows';
@@ -9,6 +10,7 @@ export default async function Page() {
   const catalog = await pageCatalog();
   const settings = await getSettings(db);
   const rows = recipeRows(catalog, ctx.scope);
+  const clientRows = await listClients(db, ctx.scope);
   const brands = ctx.brands.map((b) => {
     const rs = rows.filter((r) => r.brandId === b.id);
     return {
@@ -24,5 +26,6 @@ export default async function Page() {
   });
   const names = new Map(ctx.brands.map((b) => [b.id, b.name]));
   const impact = rows.filter((r) => r.type === 'menu').map((r) => ({ ...r, brandName: names.get(r.brandId) ?? '' }));
-  return <SettingsScreen settings={settings} brands={brands} impact={impact} />;
+  const clients = clientRows.map((c) => ({ ...c, brandName: names.get(c.brandId) ?? '' }));
+  return <SettingsScreen settings={settings} brands={brands} clients={clients} impact={impact} />;
 }

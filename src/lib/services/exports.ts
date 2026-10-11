@@ -294,6 +294,7 @@ export async function buildExport(
         day: q.day,
         brand: q.brand,
         loc: q.loc,
+        client: '*',
       });
       const out: unknown[][] = [
         ['Store requisition', `${q.month}-${q.day}`, `Site: ${q.loc === '*' ? 'all' : q.loc}`],

@@ -175,6 +175,15 @@ export async function deleteBrand(tx: Queryable, user: SessionUser, id: string):
     (await tx.query('SELECT count(*) AS n FROM user_brand_access WHERE brand_id = $1', [id])).rows[0]!.n,
   );
   const s = Number((await tx.query('SELECT count(*) AS n FROM item_brand_scope WHERE brand_id = $1', [id])).rows[0]!.n);
+  const k = Number((await tx.query('SELECT count(*) AS n FROM client WHERE brand_id = $1', [id])).rows[0]!.n);
+  if (k)
+    throw new ApiError(
+      'conflict',
+      `${cur.name} still has ${k} client${k === 1 ? '' : 's'} - remove ${k === 1 ? 'it' : 'them'} first`,
+      {
+        clients: k,
+      },
+    );
   if (u || s)
     throw new ApiError('conflict', `${cur.name} is still assigned to ${u} user(s) and ${s} ingredient(s)`, {
       users: u,

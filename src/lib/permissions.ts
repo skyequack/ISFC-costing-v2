@@ -19,6 +19,7 @@ export const PERMISSIONS = [
   'users.manage',
   'data.admin',
   'brands.edit',
+  'clients.edit',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -58,6 +59,7 @@ export const ROLES: Record<Role, RoleDef> = {
       'export',
       'audit.view',
       'menu.edit',
+      'clients.edit',
     ],
   },
   fin: {
