@@ -50,9 +50,9 @@ export async function applyMenuDay(
   if (!entries.length) throw new ApiError('unprocessable', 'Enter a headcount against at least one menu');
 
   await tx.query(
-    `INSERT INTO production_entry (month, day, location, recipe_code, portions)
-     SELECT $1, $2, $3, c, p FROM unnest($4::text[], $5::int[]) AS t(c, p)
-     ON CONFLICT (month, day, location, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
+    `INSERT INTO production_entry (month, day, location, client_id, recipe_code, portions)
+     SELECT $1, $2, $3, '', c, p FROM unnest($4::text[], $5::int[]) AS t(c, p)
+     ON CONFLICT (month, day, location, client_id, recipe_code) DO UPDATE SET portions = EXCLUDED.portions`,
     [input.month, input.day, writeLoc, entries.map((e) => e.r.code), entries.map((e) => Math.round(e.q))],
   );
   const people = menus.reduce((a, m) => a + (pax.get(m.id) ?? 0), 0);

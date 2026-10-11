@@ -44,20 +44,37 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | GET /api/settings | any | – |
 | PATCH /api/settings | settings.edit (version check) | Settings changed (old→new, cards affected) |
 | GET /api/brands | any (scoped) | – |
-| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count) → `Edited brand sites` |
+| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count; a site that has stock counts or receipts can be neither renamed nor removed until slice 2e, D-76) → `Edited brand sites` |
+| POST /api/brands/:id/clients | clients.edit | Added client (D-71; name unique per brand, case-insensitive → 409) |
+| PATCH /api/clients/:id | clients.edit | Edited client (`name` and/or `active`, with the `version` read; stale → 409) |
+| DELETE /api/clients/:id | clients.edit | Removed client (409 while production rows reference it: deactivate instead) |
 | GET /api/brands/:id/logo | any (brand in scope, else 404) | – (bytes + `ETag`; 404 if none) |
 | PUT /api/brands/:id/logo | brands.edit | Brand logo changed (set) |
 | DELETE /api/brands/:id/logo | brands.edit | Brand logo changed (removed) |
 
 **Image upload contract (D-49).** `PUT` body = the raw image bytes with `Content-Type` image/png|jpeg|webp (no base64, no multipart). The server ignores the declared type, sniffs magic bytes, parses width/height, enforces the caps (photo ≤ 1.5 MB / 4096 px, logo ≤ 512 KB / 1024 px), stores `{contentType,data,size,width,height,sha256}` and returns `{url, sha256, size, width, height}`. Errors: 400 not an image / unsupported type (SVG, GIF), 413 over cap, 422 locked card, 404 out of scope. DTOs expose `photoUrl`/`logoUrl` = `/api/…/photo|logo?v=<sha8>` (null when none); list endpoints never include bytes. **Add brand in one step:** the UI creates the brand (`POST /api/brands`) then uploads the logo (`PUT …/logo`); if the second call fails the brand exists without a logo and the UI says so (retry from Edit brand). Same two-step for the optional photo in the New-card dialog.
 | GET /api/users; POST /api/users/invite; PATCH /api/users/:id {role, brandIds, name}; POST /api/users/:id/ban\|unban; DELETE /api/users/:id | users.manage | Invited/Updated/Suspended/Restored/Deleted user |
+| POST /api/users/invite {email, role, brandIds?}; PATCH /api/users/invites/:id {role?, brandIds?} (returns the new invitation id when the role changes); DELETE /api/users/invites/:id | users.manage | Invited user / Updated invite / Revoked invite (D-78..D-80). `:id` is the Clerk invitation id, accepted only if it is in a fresh pending list (else 404) |
+
+## Stock (D-72, D-73)
+| Endpoint | Permission | Audit |
+|---|---|---|
+| PUT /api/stock | stock.edit (gm, cc, fin, chef, cook) | Stock counts saved / Receipts saved (site, date, counts only) |
+
+Body `{site, date: YYYY-MM-DD, kind: 'count'|'receipt', cells: [{code, qty: number >= 0 | null}]}` (1-1500 cells, no code twice). The site must be one of the caller's sites (union of `brand.locations` of their brands, else 404); every code an ingredient in their scope (else 422, nothing written); a date later than tomorrow UTC is 400. `qty` null clears; for counts 0 is stored (counted empty); for receipts 0 or null clears the grid row (`ref ''`), uploaded deliveries are never touched. Returns `{saved, cleared}`. Reads go through the `/stock` page (any signed-in role, so the Viewer sees it read-only).
+
+| Endpoint | Permission | Audit |
+|---|---|---|
+| POST /api/stock/import?mode=dry-run\|commit | stock.edit | Uploaded stock counts / Uploaded receipts (file, hash prefix, counts, sites, dates) |
+
+Body `{kind, rows: [{site, date, code, qty, line}], file, hash?}` (1-5000 rows, 2 MB, the whole file in one call). `dry-run` writes nothing and returns `{counts: {add, update, same, blocked}, blocked[], sample[], sites, dates, hash, alreadyImported}`. `commit` needs that `hash` (409 when the content changed), refuses a file with any blocked row (422) and, for receipts, a content already loaded (409). Counts are upserted (only changed rows written); receipts are inserted with `ref = 'file:<hash16>'`. `?mode=undo` with `{hash}` (the dry-run's hash) deletes that upload's deliveries at the caller's sites (404 when none are left), never the grid's own rows: audit `Undid a receipts upload`.
 
 ## Planning & production
 | Method path | Permission | Notes / Audit |
 |---|---|---|
 | GET /api/menus; POST /api/menus; PUT /api/menus/:id; POST /api/menus/:id/deactivate | read: any (SSEM-scoped); write: menu.edit | Menu edited |
 | PUT /api/menu-pax | recipe.edit | none (legacy) |
-| PUT /api/production | recipe.edit | none (legacy) |
+| PUT /api/production | recipe.edit | none (legacy). Body `{month, day, location, recipeCode, portions, clientId?}`; `clientId` `''` or omitted = unassigned (D-71). A client must exist (404), be active and belong to the card's brand (422). `portions` 0 deletes only that client's row. An inactive client takes no new row but its existing rows can still be changed or cleared. |
 | POST /api/production/apply-menu-day | recipe.edit | Turned the menus into production |
 | POST /api/menu-price | items.edit | Priced a menu item from the menu plan (writes Ingredient.price + history) |
 | GET /api/production/{prep,requisition,day,month} | any (brand-scoped) | – |
@@ -82,6 +99,6 @@ The tables above are the original plan; this section is what exists in `src/app/
 - **Catalog search** `GET /api/catalog/search?brandId&q&limit` (ingredient picker; 30 autocomplete / 60 browse / 0 = all).
 - **Workspace** `POST /api/workspace {brandId}` sets the active-brand cookie after a scope check.
 - **Settings / brands / users / audit / menus** as planned. `GET /api/audit` also serves `?format=csv` (needs `export`, audited). `POST /api/audit/archive` writes the marker. Menus: `GET/POST /api/menus`, `PUT /api/menus/:id`, `POST /api/menus/:id/active`; `PUT /api/menu-pax`; `PUT /api/production`; `POST /api/production/apply-menu-day` (`location` may be `*` = all sites, D-20); `POST /api/production/prep-sent` (`export`); `POST /api/menu-price`. The Production / Preparation / Requisition / Monthly **read models are not routes**: the pages compute them on the server (`src/lib/screens/*`).
-- **Exports** `GET /api/export/:kind` for `recipes | recipe-lines | ingredients | price-template | requisition | production | prep | plan | recipes-data` (CSV; `recipes-data` returns `{filename, rows}` JSON for the browser to turn into Excel). All need `export`, are brand-scoped and write one `Exported data` audit row (kind + row count); a failed export writes none.
+- **Exports** `GET /api/export/:kind` for `recipes | recipe-lines | ingredients | price-template | requisition | production | prep | plan | recipes-data | dash` (CSV; `recipes-data` returns `{filename, rows}` JSON for the browser to turn into Excel). All need `export`, are brand-scoped and write one `Exported data` audit row (kind + row count); a failed export writes none. `dash` (D-65/D-67) takes `brand`, `loc`, `from`, `to` (YYYY-MM-DD, from <= to, max 366 days; empty = all): bad date/range 400, brand or site outside the caller's scope 404; it is built by the same loader as the Dashboard page (`src/lib/services/dash.ts`), so the file equals the screen.
 - **Backup** `GET /api/export/backup?part=core|photos|logos&offset=` (`data.admin`; images in ≤ 3 MB base64 chunks). **Restore** `POST /api/import/restore/chunk {session, seq, data}` (≤ 1.5 MB slices), then `POST /api/import/restore?mode=dry-run|commit {session, total, file}` (direct connection, `maxDuration` 300).
 - Error codes: 400 validation, 401, 403 permission/pending/inactive, 404 missing or out of scope, 409 version/code/cycle/last-GM, 413, 422 business rule (locked, lock gate, blocked import card).

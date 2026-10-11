@@ -7,8 +7,11 @@ import type { Role } from '@/lib/permissions';
 import {
   deleteUser,
   inviteUser,
+  listInvites,
   listUsers,
+  revokeInvite,
   setUserBanned,
+  updateInvite,
   updateUser,
   type ClerkPort,
   type ClerkUserLite,
@@ -22,8 +25,11 @@ import {
   setMenuPax,
   setProduction,
 } from '@/lib/services/planning';
+import { deleteBrand } from '@/lib/services/brands';
+import { createClient } from '@/lib/services/clients';
 import { applyMenuDay } from '@/lib/services/planning-apply';
 import { createRecipe } from '@/lib/services/recipes';
+import { PROVISION_SQL } from '@/lib/auth/provision-sql';
 import { connect, hasTestDb, inRollback, insertBrand } from './helpers';
 
 vi.mock('@/lib/db/catalog-cache', () => ({ getCatalog: vi.fn(), CATALOG_TAG: 'catalog' }));
@@ -51,6 +57,8 @@ async function fail(p: Promise<unknown>): Promise<ApiError> {
 function fakeClerk(users: ClerkUserLite[]): ClerkPort & { calls: string[]; failRemove?: boolean } {
   const m = new Map(users.map((u) => [u.id, { ...u }]));
   const calls: string[] = [];
+  const invs = new Map<string, { id: string; email: string; role: Role | null }>();
+  let n = 0;
   return {
     calls,
     async list() {
@@ -79,6 +87,17 @@ function fakeClerk(users: ClerkUserLite[]): ClerkPort & { calls: string[]; failR
     },
     async invite(email, role) {
       calls.push(`invite ${email} ${role}`);
+      const id = `inv-${++n}`;
+      for (const [k, v] of invs) if (v.email === email) invs.delete(k); // like ignoreExisting
+      invs.set(id, { id, email, role });
+      return id;
+    },
+    async listInvitations() {
+      return [...invs.values()].map((i) => ({ ...i }));
+    },
+    async revokeInvitation(id) {
+      calls.push(`revoke ${id}`);
+      if (!invs.delete(id)) throw new ApiError('not_found', 'Not found');
     },
   };
 }
@@ -110,6 +129,120 @@ describe.skipIf(!hasTestDb)('users tab rules (D-31) with a fake Clerk', { timeou
         `SELECT detail FROM audit_log WHERE action = 'Invited user' ORDER BY created_at DESC LIMIT 1`,
       );
       expect(a.rows[0]!.detail).toContain('Head Chef');
+    }));
+
+  it('pending invitations (D-78..D-80): brands stored, listed, edited, revoked; ids only from the pending list', () =>
+    inRollback(c, async () => {
+      const b1 = await insertBrand(c, 'IA');
+      const b2 = await insertBrand(c, 'IB');
+      const clerk = fakeClerk([cu('c-gm', 'gm')]);
+      await inviteUser(c, clerk, gm, { email: 'new@b.co', role: 'chef', brandIds: [b2, b1, b1] });
+      let { invites } = await listInvites(c, clerk, gm);
+      expect(invites).toHaveLength(1);
+      expect(invites[0]).toMatchObject({ email: 'new@b.co', role: 'chef' });
+      expect(invites[0]!.brandIds).toEqual([b1, b2].sort());
+      const id = invites[0]!.id;
+
+      // authorisation, unknown brand, unknown id
+      expect((await fail(listInvites(c, clerk, U('cc')))).status).toBe(403);
+      expect((await fail(revokeInvite(c, clerk, U('cc'), id))).status).toBe(403);
+      expect((await fail(inviteUser(c, clerk, gm, { email: 'x@b.co', role: 'chef', brandIds: ['nope'] }))).status).toBe(
+        400,
+      );
+      expect((await fail(revokeInvite(c, clerk, gm, 'c-gm'))).status).toBe(404); // a user id is not an invitation id
+      expect((await fail(updateInvite(c, clerk, gm, 'inv-999', { brandIds: [] }))).status).toBe(404);
+
+      // brands-only edit sends nothing to Clerk
+      const before = clerk.calls.length;
+      await updateInvite(c, clerk, gm, id, { brandIds: [b1] });
+      expect(clerk.calls.length).toBe(before);
+      expect((await listInvites(c, clerk, gm)).invites[0]!.brandIds).toEqual([b1]);
+
+      // role change = revoke + create (new id, brands kept)
+      const r = await updateInvite(c, clerk, gm, id, { role: 'cc' });
+      expect(r.id).not.toBe(id);
+      expect(clerk.calls.slice(before)).toEqual([`revoke ${id}`, 'invite new@b.co cc']);
+      ({ invites } = await listInvites(c, clerk, gm));
+      expect(invites[0]).toMatchObject({ id: r.id, role: 'cc', brandIds: [b1] });
+
+      // GM invite keeps no brands
+      await updateInvite(c, clerk, gm, r.id, { role: 'gm', brandIds: [b1] });
+      const stored = await c.query(`SELECT count(*)::int AS n FROM invite_brand_access WHERE email = 'new@b.co'`);
+      expect(stored.rows[0]!.n).toBe(0);
+
+      // revoke removes the invitation and its brands; a second revoke is a 404
+      await inviteUser(c, clerk, gm, { email: 'two@b.co', role: 'viewer', brandIds: [b2] });
+      const two = (await listInvites(c, clerk, gm)).invites.find((i) => i.email === 'two@b.co')!;
+      await revokeInvite(c, clerk, gm, two.id);
+      expect((await listInvites(c, clerk, gm)).invites.find((i) => i.email === 'two@b.co')).toBeUndefined();
+      expect((await c.query(`SELECT 1 FROM invite_brand_access WHERE email = 'two@b.co'`)).rowCount).toBe(0);
+      expect((await fail(revokeInvite(c, clerk, gm, two.id))).status).toBe(404);
+      const a = await c.query(`SELECT action FROM audit_log WHERE action IN ('Revoked invite','Updated invite') `);
+      expect(a.rowCount).toBeGreaterThanOrEqual(3);
+    }));
+
+  it('a pending invitation blocks deleting its brand (RESTRICT) and a failing Clerk list degrades, not throws', () =>
+    inRollback(c, async () => {
+      const b = await insertBrand(c, 'IC');
+      const clerk = fakeClerk([cu('c-gm', 'gm')]);
+      await inviteUser(c, clerk, gm, { email: 'blk@b.co', role: 'chef', brandIds: [b] });
+      const e = await fail(deleteBrand(c, gm, b));
+      expect(e.status).toBe(409);
+      expect(e.message).toContain('1 pending invitation(s)');
+      const broken = { ...clerk, listInvitations: async () => Promise.reject(new Error('clerk down')) };
+      expect(await listInvites(c, broken, gm)).toEqual({ invites: [], failed: true });
+    }));
+
+  it('first sign-in moves the promised brands once, only for a new user with a verified email (D-79)', () =>
+    inRollback(c, async () => {
+      const b1 = await insertBrand(c, 'PA');
+      const b2 = await insertBrand(c, 'PB');
+      const seed = (email: string) =>
+        c.query('INSERT INTO invite_brand_access (email, brand_id) SELECT $1, unnest($2::text[])', [email, [b1, b2]]);
+      const brandsOf = async (clerkId: string) =>
+        (
+          await c.query(
+            'SELECT a.brand_id FROM user_brand_access a JOIN app_user u ON u.id = a.user_id WHERE u.clerk_user_id = $1 ORDER BY 1',
+            [clerkId],
+          )
+        ).rows.map((r) => r.brand_id as string);
+      const left = async (email: string) =>
+        (await c.query('SELECT count(*)::int AS n FROM invite_brand_access WHERE email = $1', [email])).rows[0]!.n;
+
+      await seed('p@x.test');
+      await c.query(PROVISION_SQL, ['c-p1', 'p@x.test', 'P', 'chef']);
+      expect(await brandsOf('c-p1')).toEqual([b1, b2].sort());
+      expect(await left('p@x.test')).toBe(0);
+
+      await seed('p@x.test'); // the same user signing in again is not new: nothing is granted, nothing consumed
+      await c.query(PROVISION_SQL, ['c-p1', 'p@x.test', 'P', 'chef']);
+      expect(await left('p@x.test')).toBe(2);
+
+      await c.query(PROVISION_SQL, ['c-p2', null, 'Q', 'chef']); // unverified email -> nothing
+      expect(await brandsOf('c-p2')).toEqual([]);
+      await c.query(PROVISION_SQL, ['c-p3', 'other@x.test', 'R', 'chef']); // a different email -> nothing
+      expect(await brandsOf('c-p3')).toEqual([]);
+      expect(await left('p@x.test')).toBe(2);
+    }));
+
+  it('role change restores the old invitation when the new one cannot be created', () =>
+    inRollback(c, async () => {
+      const clerk = fakeClerk([cu('c-gm', 'gm')]);
+      await inviteUser(c, clerk, gm, { email: 'rb@b.co', role: 'chef' });
+      const id = (await clerk.listInvitations())[0]!.id;
+      const real = clerk.invite;
+      let first = true;
+      clerk.invite = async (e, r) => {
+        if (first) {
+          first = false;
+          throw new Error('clerk down');
+        }
+        return real(e, r);
+      };
+      await expect(updateInvite(c, clerk, gm, id, { role: 'cc' })).rejects.toThrow('clerk down');
+      const left = await clerk.listInvitations();
+      expect(left).toHaveLength(1);
+      expect(left[0]).toMatchObject({ email: 'rb@b.co', role: 'chef' });
     }));
 
   it('role change: Clerk is written, app row follows; no self change; last active GM is protected', () =>
@@ -301,6 +434,22 @@ describe.skipIf(!hasTestDb)(
         const prod = await loadProduction(c, scope, '2099-03');
         expect(prod.length).toBeGreaterThanOrEqual(out.dishes);
         expect(prod.find((p) => p.code === stray)!.portions).toBe(9); // stale code NOT cleared (legacy)
+        // D-71: it writes the unassigned rows only and never touches a client's row for the same dish, day and site
+        const dish = prod.find((p) => p.code !== stray)!.code;
+        expect(prod.filter((p) => p.code === dish).every((p) => p.clientId === '')).toBe(true);
+        const cid = await createClient(c, gm, scope, ssemId, { name: 'Apply Co' });
+        await setProduction(c, gm, scope, {
+          month: '2099-03',
+          day: '07',
+          location: 'NIC',
+          recipeCode: dish,
+          clientId: cid,
+          portions: 33,
+        });
+        await applyMenuDay(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC' });
+        const again = (await loadProduction(c, scope, '2099-03')).filter((p) => p.code === dish);
+        expect(again.find((p) => p.clientId === cid)!.portions).toBe(33);
+        expect(again.filter((p) => p.clientId === '')).toHaveLength(1);
         const a = await c.query(
           `SELECT detail FROM audit_log WHERE action = 'Turned the menus into production' ORDER BY created_at DESC LIMIT 1`,
         );

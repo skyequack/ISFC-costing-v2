@@ -16,7 +16,7 @@ import type { ProdData, ProdParams, ReqRow } from '@/lib/screens/prod';
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
 function href(p: ProdParams): string {
-  const q = new URLSearchParams({ v: p.view, m: p.month, d: p.day, b: p.brand, l: p.loc });
+  const q = new URLSearchParams({ v: p.view, m: p.month, d: p.day, b: p.brand, l: p.loc, c: p.client });
   return `/prod?${q.toString()}`;
 }
 
@@ -29,6 +29,7 @@ export function ProdScreen({ data }: { data: ProdData }) {
   const cu = data.currency;
   const go = (patch: Partial<ProdParams>) => router.replace(href({ ...p, ...patch }));
   const site = p.loc === '*' ? '' : p.loc; // a number typed under "all sites" is saved unassigned (D-20)
+  const clientId = p.client === '*' || p.client === 'none' ? '' : p.client; // D-71: '' = unassigned
 
   async function setProd(code: string, v: string) {
     try {
@@ -36,6 +37,7 @@ export function ProdScreen({ data }: { data: ProdData }) {
         month: p.month,
         day: p.day,
         location: site,
+        clientId,
         recipeCode: code,
         portions: parseFloat(v) || 0,
       });
@@ -116,7 +118,7 @@ export function ProdScreen({ data }: { data: ProdData }) {
     });
   }
   function exportCsv() {
-    const q = new URLSearchParams({ month: p.month, day: p.day, brand: p.brand, loc: p.loc });
+    const q = new URLSearchParams({ month: p.month, day: p.day, brand: p.brand, loc: p.loc, client: p.client });
     window.location.href = `/api/export/${p.view === 'req' ? 'requisition' : 'production'}?${q.toString()}`;
     toast(p.view === 'req' ? 'Requisition exported' : 'Production exported');
   }
@@ -153,7 +155,11 @@ export function ProdScreen({ data }: { data: ProdData }) {
       <label className="fl" style={s('margin:0')}>
         Brand
       </label>
-      <select value={p.brand} onChange={(e) => go({ brand: e.target.value, loc: '*' })} style={s('max-width:230px')}>
+      <select
+        value={p.brand}
+        onChange={(e) => go({ brand: e.target.value, loc: '*', client: '*' })}
+        style={s('max-width:230px')}
+      >
         <option value="*">All brands</option>
         {data.brandOptions.map((b) => (
           <option key={b.id} value={b.id}>
@@ -161,6 +167,23 @@ export function ProdScreen({ data }: { data: ProdData }) {
           </option>
         ))}
       </select>
+      {data.clientChoices.length > 0 && (
+        <>
+          <label className="fl" style={s('margin:0')}>
+            Client
+          </label>
+          <select value={p.client} onChange={(e) => go({ client: e.target.value })} style={s('max-width:200px')}>
+            <option value="*">All clients</option>
+            <option value="none">Unassigned</option>
+            {data.clientChoices.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.active ? '' : ' (inactive)'}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
       {data.locs.length > 0 && (
         <>
           <label className="fl" style={s('margin:0')}>
@@ -340,6 +363,11 @@ function DayView({ data, cu, setProd }: { data: ProdData; cu: string; setProd: (
           totals {'–'} pick a site above if it belongs to one.
         </div>
       )}
+      {data.clientChoices.length > 0 && p.client === '*' && (
+        <div className="rolebar">
+          Every client is added together here. Pick a client, or Unassigned, above to enter numbers.
+        </div>
+      )}
       <div className="note">
         Enter how many portions each section must cook. Entries are saved per day and kept for the whole month. Cost is
         read from the recipe card, so correcting a purchase price also corrects what past days cost.
@@ -401,18 +429,22 @@ function DayView({ data, cu, setProd }: { data: ProdData; cu: string; setProd: (
                       </td>
                       <td className="r">{cur(r.food, 4)}</td>
                       <td className="c">
-                        <Perm perm="recipe.edit">
-                          <CommitInput
-                            className="cell"
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={r.qty || ''}
-                            placeholder="0"
-                            style={s('width:90px;text-align:right')}
-                            onCommit={(v) => setProd(r.code, v)}
-                          />
-                        </Perm>
+                        {r.locked ? (
+                          <span title="Pick a client above to enter numbers">{r.qty || '-'}</span>
+                        ) : (
+                          <Perm perm="recipe.edit">
+                            <CommitInput
+                              className="cell"
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={r.qty || ''}
+                              placeholder="0"
+                              style={s('width:90px;text-align:right')}
+                              onCommit={(v) => setProd(r.code, v)}
+                            />
+                          </Perm>
+                        )}
                       </td>
                       <td className="r">{r.qty ? <b>{cur(r.value, 2)}</b> : '-'}</td>
                     </tr>

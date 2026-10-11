@@ -104,6 +104,7 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     );
     const renamedFrom = new Set(renames.map((r) => r.from));
     let updated = 0;
+    for (const r of renames) await assertNoStock(tx, r.from, 'renamed');
     for (const r of renames) {
       updated +=
         (await tx.query('UPDATE menu_pax SET location = $2 WHERE location = $1', [r.from, r.to])).rowCount ?? 0;
@@ -124,6 +125,7 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     }
     const removed = old.filter((s) => !next.includes(s) && !renamedFrom.has(s));
     for (const s of removed) {
+      await assertNoStock(tx, s, 'removed');
       const n =
         Number((await tx.query('SELECT count(*) AS n FROM menu_pax WHERE location = $1', [s])).rows[0]!.n) +
         Number(
@@ -162,6 +164,22 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
   if (siteNote) await appendAudit(tx, user, 'Edited brand sites', `${input.name ?? cur.name}: ${siteNote}`);
 }
 
+/**
+ * Stock counts and receipts are keyed by the site's name and are not carried along by a rename yet (D-76 comes with the
+ * backup work in slice 2e), so a site that has any cannot be renamed or removed until then: better a refusal than rows
+ * left under a name no screen offers any more.
+ */
+async function assertNoStock(tx: Queryable, site: string, what: 'renamed' | 'removed'): Promise<void> {
+  const n =
+    Number((await tx.query('SELECT count(*) AS n FROM stock_count WHERE site = $1', [site])).rows[0]!.n) +
+    Number((await tx.query('SELECT count(*) AS n FROM receipt WHERE site = $1', [site])).rows[0]!.n);
+  if (n)
+    throw new ApiError('conflict', `Stock counts or receipts are recorded for ${site}, so it cannot be ${what} yet`, {
+      site,
+      rows: n,
+    });
+}
+
 export async function deleteBrand(tx: Queryable, user: SessionUser, id: string): Promise<void> {
   needBrands(user);
   const cur = (await tx.query('SELECT name FROM brand WHERE id = $1 FOR UPDATE', [id])).rows[0];
@@ -175,11 +193,24 @@ export async function deleteBrand(tx: Queryable, user: SessionUser, id: string):
     (await tx.query('SELECT count(*) AS n FROM user_brand_access WHERE brand_id = $1', [id])).rows[0]!.n,
   );
   const s = Number((await tx.query('SELECT count(*) AS n FROM item_brand_scope WHERE brand_id = $1', [id])).rows[0]!.n);
-  if (u || s)
-    throw new ApiError('conflict', `${cur.name} is still assigned to ${u} user(s) and ${s} ingredient(s)`, {
-      users: u,
-      items: s,
-    });
+  const k = Number((await tx.query('SELECT count(*) AS n FROM client WHERE brand_id = $1', [id])).rows[0]!.n);
+  if (k)
+    throw new ApiError(
+      'conflict',
+      `${cur.name} still has ${k} client${k === 1 ? '' : 's'} - remove ${k === 1 ? 'it' : 'them'} first`,
+      {
+        clients: k,
+      },
+    );
+  const inv = Number(
+    (await tx.query('SELECT count(*) AS n FROM invite_brand_access WHERE brand_id = $1', [id])).rows[0]!.n,
+  );
+  if (u || s || inv)
+    throw new ApiError(
+      'conflict',
+      `${cur.name} is still assigned to ${u} user(s)${inv ? `, ${inv} pending invitation(s)` : ''} and ${s} ingredient(s)`,
+      { users: u, items: s, invites: inv },
+    );
   await tx.query('DELETE FROM brand WHERE id = $1', [id]);
   await appendAudit(tx, user, 'Removed brand', cur.name as string);
 }

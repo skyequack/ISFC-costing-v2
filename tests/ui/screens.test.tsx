@@ -472,7 +472,7 @@ describe('settings (percent fields store fractions; brand logo box in the add-br
         ? { json: { settings: { ...settings, pkg: 0.12, version: 5 }, cards: 3, changed: ['pkg'] } }
         : undefined,
     );
-    renderInShell(<SettingsScreen settings={settings} brands={brands} impact={[]} />);
+    renderInShell(<SettingsScreen settings={settings} brands={brands} clients={[]} impact={[]} />);
     const pkg = screen.getAllByDisplayValue('10.00')[0]!;
     await user.clear(pkg);
     await user.type(pkg, '12');
@@ -481,12 +481,12 @@ describe('settings (percent fields store fractions; brand logo box in the add-br
     expect(calls.find((c) => c.method === 'PATCH')!.body).toEqual({ version: 4, pkg: 0.12 });
   });
   it('the add-brand row carries a logo box; non-GM roles do not get the brand tools', () => {
-    renderInShell(<SettingsScreen settings={settings} brands={brands} impact={[]} />);
+    renderInShell(<SettingsScreen settings={settings} brands={brands} clients={[]} impact={[]} />);
     expect(screen.getByText('Brand logo')).toBeTruthy();
     expect(screen.getByText('Choose image')).toBeTruthy();
     expect(screen.getByText('No logo')).toBeTruthy();
     cleanup();
-    renderInShell(<SettingsScreen settings={settings} brands={brands} impact={[]} />, 'cc');
+    renderInShell(<SettingsScreen settings={settings} brands={brands} clients={[]} impact={[]} />, 'cc');
     expect(screen.queryByText('Brand logo')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
   });

@@ -7,15 +7,18 @@ const EXPECTED_TABLES = [
   'audit_log',
   'brand',
   'brand_logo',
+  'client',
   'cost_settings',
   'ingredient',
   'ingredient_price_history',
+  'invite_brand_access',
   'item_brand_scope',
   'menu',
   'menu_cell',
   'menu_pax',
   'menu_row',
   'production_entry',
+  'receipt',
   'recipe',
   'recipe_history_entry',
   'recipe_line',
@@ -23,6 +26,7 @@ const EXPECTED_TABLES = [
   'recipe_photo',
   'restore_chunk',
   'seed_run',
+  'stock_count',
   'unit_conversion',
   'user_brand_access',
 ];
@@ -42,8 +46,10 @@ describe.skipIf(!hasTestDb)('schema (db/migrations) on a real Neon branch', () =
        WHERE table_schema = 'public' AND table_name <> 'schema_migrations' ORDER BY table_name`,
     );
     expect(rows.map((r) => r.table_name)).toEqual(EXPECTED_TABLES);
-    const m = await c.query(`SELECT name FROM schema_migrations WHERE name = '0002_restore_staging.sql'`);
-    expect(m.rowCount).toBe(1);
+    const m = await c.query(
+      `SELECT name FROM schema_migrations WHERE name IN ('0002_restore_staging.sql', '0003_client.sql', '0004_stock.sql', '0005_invite_brand_access.sql')`,
+    );
+    expect(m.rowCount).toBe(4);
   });
 
   it('audit_log is append-only (update, delete and truncate are refused)', () =>

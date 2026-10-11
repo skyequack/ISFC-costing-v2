@@ -37,3 +37,23 @@ export async function listIngredients(db: Queryable, scope: BrandScope): Promise
   );
   return camelRows<IngredientDto>(rows);
 }
+
+/**
+ * Which of `codes` are ingredients the caller can use: shared ones (no brand scope) or ones scoped to a brand in their
+ * scope (the same rule as listIngredients, one indexed lookup for the codes given instead of the whole catalog).
+ */
+export async function ingredientCodesInScope(
+  db: Queryable,
+  scope: BrandScope,
+  codes: readonly string[],
+): Promise<Set<string>> {
+  if (!codes.length) return new Set();
+  const { rows } = await db.query<{ code: string }>(
+    `SELECT i.code FROM ingredient i
+      WHERE i.code = ANY($1::text[])
+        AND (NOT EXISTS (SELECT 1 FROM item_brand_scope s WHERE s.ingredient_id = i.id)
+             OR EXISTS (SELECT 1 FROM item_brand_scope s WHERE s.ingredient_id = i.id AND s.brand_id = ANY($2::text[])))`,
+    [[...codes], [...scope.brandIds]],
+  );
+  return new Set(rows.map((r) => r.code));
+}

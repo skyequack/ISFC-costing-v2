@@ -13,6 +13,7 @@ import {
 import { reconcile, type ReqContext, type ReqEntry, type ReqFlag } from '@/domain/production/requisition';
 import { MENU_DAYS, PLAN_ALIAS, SECTIONS, sectionOf } from '@/data';
 import type { Catalog } from '../db/catalog';
+import { listClients } from '../db/repo/clients';
 import { canSeeBrand } from '../db/scope';
 import type { PageCtx } from './ctx';
 import { loadMenus, loadPax, loadProduction, type MenuRecord } from '../services/planning';
@@ -28,6 +29,8 @@ export interface ProdParams {
   brand: string;
   /** '*' or a site name ('' never appears in the URL) */
   loc: string;
+  /** '*' = every client added together, 'none' = unassigned, otherwise a client id (D-71) */
+  client: string;
 }
 
 export interface ReqRow {
@@ -57,6 +60,8 @@ export interface DayCardRow {
   food: number;
   qty: number;
   value: number;
+  /** typing is off: every client is added together and this card's brand has clients (D-71) */
+  locked: boolean;
 }
 export interface DaySection {
   key: string;
@@ -102,6 +107,8 @@ export interface ProdData {
   nd: number;
   locs: string[];
   brandOptions: { id: string; name: string }[];
+  /** clients of the chosen brand (empty under All brands), for the Client select (D-71); inactive ones stay so their rows can be cleared */
+  clientChoices: { id: string; name: string; active: boolean }[];
   brandName: string;
   nCards: number;
   currency: string;
@@ -128,7 +135,12 @@ export interface ProdData {
 }
 
 /** Everything the Production screen shows (Daily / Store requisition / Monthly), computed once on the server. */
-export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, p: ProdParams): Promise<ProdData> {
+export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pIn: ProdParams): Promise<ProdData> {
+  const clients = await listClients(db, ctx.scope);
+  // a client is only meaningful for one chosen brand; anything else (unknown, other brand, All brands) means every client
+  const client =
+    pIn.client === 'none' || clients.some((c) => c.id === pIn.client && c.brandId === pIn.brand) ? pIn.client : '*';
+  const p: ProdParams = { ...pIn, client: pIn.brand === '*' && client !== 'none' ? '*' : client };
   const brandById = new Map(ctx.brands.map((b) => [b.id, b]));
   const inScope = (code: string) => {
     const m = catalog.cards[code];
@@ -153,7 +165,15 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, p:
     }));
   const brandCode = (c: ProdCard) => brandById.get(c.brandId)?.code ?? '';
 
-  const entries = await loadProduction(db, ctx.scope, p.month);
+  const brandsWithClients = new Set(clients.filter((c) => c.active).map((c) => c.brandId));
+  const clientChoices =
+    p.brand === '*'
+      ? []
+      : clients.filter((c) => c.brandId === p.brand).map((c) => ({ id: c.id, name: c.name, active: c.active }));
+  const wantedClient = p.client === 'none' ? '' : p.client;
+  const entries = (await loadProduction(db, ctx.scope, p.month)).filter(
+    (e) => p.client === '*' || e.clientId === wantedClient,
+  );
   const idx = new ProdIndex(
     entries.map((e) => ({ day: e.day, location: e.location, code: e.code, portions: e.portions })),
   );
@@ -182,6 +202,7 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, p:
           food: c.food,
           qty: q,
           value: q * c.food,
+          locked: p.client === '*' && brandsWithClients.has(c.brandId),
         };
       }),
     };
@@ -284,6 +305,7 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, p:
     nd,
     locs,
     brandOptions,
+    clientChoices,
     brandName: p.brand === '*' ? 'All brands' : (brandById.get(p.brand)?.name ?? ''),
     nCards: cards.length,
     currency,

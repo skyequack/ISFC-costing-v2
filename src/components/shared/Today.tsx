@@ -18,3 +18,14 @@ export function RedirectToday({ base, params }: { base: string; params: Record<s
   }, [router, base, params]);
   return null;
 }
+
+/** Like RedirectToday, for a screen keyed by one full date (`date=YYYY-MM-DD`, the user's own clock). */
+export function RedirectTodayDate({ base, params }: { base: string; params: Record<string, string> }) {
+  const router = useRouter();
+  useEffect(() => {
+    const t = new Date();
+    const date = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    router.replace(`${base}?${new URLSearchParams({ ...params, date }).toString()}`);
+  }, [router, base, params]);
+  return null;
+}

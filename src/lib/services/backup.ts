@@ -118,10 +118,17 @@ export const backupSchema = z.object({
         day: z.string(),
         location: z.string(),
         recipeCode: z.string(),
+        /** the backup's client id; '' = unassigned. Files from before clients existed have none (D-71, D-75). */
+        clientId: z.string().max(64).default(''),
         portions: z.number().int().min(0),
       }),
     )
     .max(600000),
+  /** optional: files from before clients existed restore unchanged (D-75) */
+  clients: z
+    .array(z.object({ id: z.string().max(64), brandCode: z.string(), name: z.string().max(80), active: z.boolean() }))
+    .max(5000)
+    .optional(),
   /** present only when the images were exported too */
   photos: z.array(z.object({ recipeCode: z.string(), data: z.string() })).optional(),
   logos: z.array(z.object({ brandCode: z.string(), data: z.string() })).optional(),
@@ -199,7 +206,13 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
   ).rows;
   const prod = (
     await db.query(
-      'SELECT month, day, location, recipe_code, portions FROM production_entry ORDER BY month, day, location, recipe_code',
+      'SELECT month, day, location, client_id, recipe_code, portions FROM production_entry ORDER BY month, day, location, client_id, recipe_code',
+    )
+  ).rows;
+
+  const clientRows = (
+    await db.query(
+      'SELECT c.id, b.code AS brand_code, c.name, c.active FROM client c JOIN brand b ON b.id = c.brand_id ORDER BY b.code, lower(c.name)',
     )
   ).rows;
 
@@ -293,9 +306,11 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       month: p.month,
       day: p.day,
       location: p.location,
+      clientId: p.client_id,
       recipeCode: p.recipe_code,
       portions: p.portions,
     })),
+    clients: clientRows.map((c) => ({ id: c.id, brandCode: c.brand_code, name: c.name, active: c.active })),
   };
 }
 
@@ -627,6 +642,49 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
     await tx.query('UPDATE menu SET active = false, version = version + 1 WHERE id = ANY($1::text[])', [dropped]);
   stats.menus.deactivated = dropped.length;
 
+  // clients (D-71), by brand + name; the backup's ids are translated. A file without clients leaves them alone; one with
+  // clients deactivates the ones it lacks (production rows may still point at them), never deletes
+  const clientMap = new Map<string, string>();
+  if (bk.clients) {
+    const seen = new Set<string>();
+    for (const c of bk.clients) {
+      if (!brandId.has(c.brandCode))
+        throw new ApiError('unprocessable', `The backup has the client ${c.name} for the unknown brand ${c.brandCode}`);
+      const k = `${c.brandCode}|${c.name.toLowerCase()}`;
+      if (seen.has(k))
+        throw new ApiError('unprocessable', `The backup holds the client ${c.name} twice for brand ${c.brandCode}`);
+      seen.add(k);
+    }
+    const have = (await tx.query('SELECT id, brand_id, name FROM client')).rows;
+    const kept = new Set<string>();
+    for (const c of bk.clients) {
+      const bid = brandId.get(c.brandCode);
+      if (!bid) continue;
+      const ex = have.find((x) => x.brand_id === bid && String(x.name).toLowerCase() === c.name.toLowerCase());
+      let id: string;
+      if (ex) {
+        await tx.query('UPDATE client SET name = $2, active = $3, version = version + 1 WHERE id = $1', [
+          ex.id,
+          c.name,
+          c.active,
+        ]);
+        id = ex.id as string;
+      } else
+        id = (
+          await tx.query('INSERT INTO client (brand_id, name, active) VALUES ($1,$2,$3) RETURNING id', [
+            bid,
+            c.name,
+            c.active,
+          ])
+        ).rows[0]!.id as string;
+      kept.add(id);
+      clientMap.set(c.id, id);
+    }
+    const gone = have.map((x) => x.id as string).filter((id) => !kept.has(id));
+    if (gone.length)
+      await tx.query('UPDATE client SET active = false, version = version + 1 WHERE id = ANY($1::text[])', [gone]);
+  }
+
   // working data: headcounts and production figures are replaced as a whole
   await tx.query('DELETE FROM menu_pax');
   await tx.query('DELETE FROM production_entry');
@@ -645,11 +703,12 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
   stats.menuPax = paxRows.length;
   for (const part of chunks(bk.production, 5000))
     await tx.query(
-      `INSERT INTO production_entry (month, day, location, recipe_code, portions) SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::int[]) ON CONFLICT DO NOTHING`,
+      `INSERT INTO production_entry (month, day, location, client_id, recipe_code, portions) SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::text[], $6::int[]) ON CONFLICT DO NOTHING`,
       [
         part.map((p) => p.month),
         part.map((p) => p.day),
         part.map((p) => p.location),
+        part.map((p) => (p.clientId ? (clientMap.get(p.clientId) ?? '') : '')), // an unknown client becomes unassigned
         part.map((p) => p.recipeCode),
         part.map((p) => p.portions),
       ],

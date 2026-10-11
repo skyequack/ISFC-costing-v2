@@ -67,7 +67,7 @@ describe('permission matrix', () => {
   it('finds the permission-gated endpoints', () => {
     expect(gated.length).toBeGreaterThanOrEqual(30);
     // the GM-only permissions are used by their endpoints
-    for (const p of ['users.manage', 'data.admin', 'brands.edit', 'menu.edit'] as const)
+    for (const p of ['users.manage', 'data.admin', 'brands.edit', 'menu.edit', 'clients.edit', 'stock.edit'] as const)
       expect(
         gated.some((e) => e.perm === p),
         p,
@@ -78,6 +78,8 @@ describe('permission matrix', () => {
     for (const p of ['users.manage', 'data.admin', 'brands.edit'] as const)
       for (const r of ROLE_KEYS) expect(can(r, p), `${r} ${p}`).toBe(r === 'gm');
     expect(ROLE_KEYS.filter((r) => can(r, 'menu.edit')).sort()).toEqual(['cc', 'gm']);
+    // D-72: clients are managed by the General Manager and the Cost Controller only
+    expect(ROLE_KEYS.filter((r) => can(r, 'clients.edit')).sort()).toEqual(['cc', 'gm']);
   });
 
   const cases = gated.flatMap((e) =>

@@ -16,7 +16,9 @@ import { buildCtx, type PageCtx } from '../screens/ctx';
 import { loadPrep } from '../screens/plan';
 import { loadProd } from '../screens/prod';
 import { auditExport } from './audit';
+import { resolveClientChoice } from './clients';
 import { loadMenus, loadProduction } from './planning';
+import { dashExportRows } from './dash-export';
 
 export const EXPORT_KINDS = [
   'recipes',
@@ -28,6 +30,7 @@ export const EXPORT_KINDS = [
   'plan',
   'recipes-data',
   'price-template',
+  'dash',
 ] as const;
 export type ExportKind = (typeof EXPORT_KINDS)[number];
 
@@ -42,14 +45,21 @@ export const exportQuery = z.object({
     .optional(),
   brand: z.string().max(64).default('*'),
   loc: z.string().max(40).default('*'),
+  /** '*' = every client, 'none' = unassigned, or a client id (D-71) */
+  client: z.string().max(64).default('*'),
   wd: z.string().max(12).optional(),
   menuId: z.string().max(64).optional(),
+  /** dashboard range, day-level inclusive (D-65) */
+  from: z.string().max(10).optional(),
+  to: z.string().max(10).optional(),
 });
 export type ExportQuery = z.output<typeof exportQuery>;
 
 export interface ExportFile {
   filename: string;
   rows: unknown[][];
+  /** data rows for the audit entry when the file is not one header + data (multi-section sheets) */
+  dataRows?: number;
 }
 
 const f = (v: number, d: number) => v.toFixed(d);
@@ -65,6 +75,7 @@ export async function buildExport(
   if (!can(user.role, 'export')) throw new ApiError('forbidden', 'Your role cannot do that');
   const ctx = ctxIn ?? (await buildCtx(db, user));
   const catalog = await loadCatalog(db);
+  if (kind === 'dash') return dashExportRows(db, ctx, catalog, q); // needs neither the lock info nor the maps below
   const brandName = new Map(ctx.brands.map((b) => [b.id, b.name]));
   const brandCode = new Map(ctx.brands.map((b) => [b.id, b.code]));
   const live = [...catalog.context.recipes.values()].filter((r) => {
@@ -286,6 +297,7 @@ export async function buildExport(
         day: q.day,
         brand: q.brand,
         loc: q.loc,
+        client: await resolveClientChoice(db, ctx.scope, q.client),
       });
       const out: unknown[][] = [
         ['Store requisition', `${q.month}-${q.day}`, `Site: ${q.loc === '*' ? 'all' : q.loc}`],
@@ -307,7 +319,10 @@ export async function buildExport(
     case 'production': {
       // D-19: the intended columns (legacy threw). One row per site/dish/day, plus a DAY TOTAL row.
       if (!q.month) throw new ApiError('bad_request', 'month is required');
-      const entries = await loadProduction(db, ctx.scope, q.month);
+      const wantedClient = await resolveClientChoice(db, ctx.scope, q.client);
+      const entries = (await loadProduction(db, ctx.scope, q.month)).filter(
+        (e) => wantedClient === '*' || e.clientId === (wantedClient === 'none' ? '' : wantedClient),
+      );
       const idx = new ProdIndex(
         entries.map((e) => ({ day: e.day, location: e.location, code: e.code, portions: e.portions })),
       );
@@ -392,7 +407,7 @@ export async function exportAndAudit(
   q: ExportQuery,
 ): Promise<ExportFile> {
   const file = await buildExport(tx, user, kind, q);
-  const body = Math.max(0, file.rows.length - (kind === 'requisition' || kind === 'plan' ? 0 : 1));
+  const body = file.dataRows ?? Math.max(0, file.rows.length - (kind === 'requisition' || kind === 'plan' ? 0 : 1));
   await auditExport(tx, user, kind, body);
   return file;
 }

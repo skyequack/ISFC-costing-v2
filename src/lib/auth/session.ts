@@ -6,6 +6,7 @@ import { attachScope } from '../db/scope';
 import { getEnv } from '../env';
 import { log } from '../logger';
 import { isRole, type Role } from '../permissions';
+import { PROVISION_SQL, USER_COLUMNS } from './provision-sql';
 import type { SessionResult } from './types';
 
 function verifiedPrimaryEmail(u: ClerkUser): string | null {
@@ -37,8 +38,6 @@ interface UserRow {
   lastRoleSeen: string | null;
 }
 
-const USER_COLUMNS = 'id, clerk_user_id, email, name, active, last_role_seen';
-
 async function findUser(clerkUserId: string): Promise<UserRow | null> {
   const { rows } = await db.query(`SELECT ${USER_COLUMNS} FROM app_user WHERE clerk_user_id = $1`, [clerkUserId]);
   return rows[0] ? camelRow<UserRow>(rows[0]) : null;
@@ -68,12 +67,12 @@ async function findUserWithScope(
 
 /** Race-safe first-login provisioning: one statement, so two parallel first requests both get the same row. */
 async function provision(clerkUser: ClerkUser, role: Role | null): Promise<UserRow> {
-  const { rows } = await db.query(
-    `INSERT INTO app_user (clerk_user_id, email, name, last_role_seen) VALUES ($1, $2, $3, $4)
-     ON CONFLICT (clerk_user_id) DO UPDATE SET clerk_user_id = EXCLUDED.clerk_user_id
-     RETURNING ${USER_COLUMNS}`,
-    [clerkUser.id, verifiedPrimaryEmail(clerkUser), displayName(clerkUser), role],
-  );
+  const { rows } = await db.query(PROVISION_SQL, [
+    clerkUser.id,
+    verifiedPrimaryEmail(clerkUser),
+    displayName(clerkUser),
+    role,
+  ]);
   return camelRow<UserRow>(rows[0] as Record<string, unknown>);
 }
 

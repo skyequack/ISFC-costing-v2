@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useRouter } from '@/components/shell/nav-progress';
 import { Acts } from '@/components/shell/Shell';
 import { api, errText } from '@/components/shared/api-client';
@@ -8,7 +9,7 @@ import { useModal } from '@/components/shared/Modal';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { ROLES, ROLE_KEYS, isRole, type Role } from '@/lib/permissions';
-import type { UserRow } from '@/lib/services/users';
+import type { InviteRow, UserRow } from '@/lib/services/users';
 
 const LEVELS: [string, string][] = [
   ['Create and edit recipe cards', 'recipe.edit'],
@@ -30,6 +31,7 @@ const LEVELS: [string, string][] = [
 interface InviteForm {
   email: string;
   role: Role;
+  brandIds: string[];
   busy: boolean;
 }
 interface EditForm {
@@ -45,9 +47,13 @@ interface EditForm {
  */
 export function UsersScreen({
   users,
+  invites = [],
+  invitesFailed = false,
   brands,
 }: {
   users: UserRow[];
+  invites?: InviteRow[];
+  invitesFailed?: boolean;
   brands: { id: string; name: string; code: string }[];
 }) {
   const router = useRouter();
@@ -63,13 +69,17 @@ export function UsersScreen({
   };
 
   function invite() {
-    const st = createStore<InviteForm>({ email: '', role: 'viewer', busy: false });
+    const st = createStore<InviteForm>({ email: '', role: 'viewer', brandIds: [], busy: false });
     async function send() {
       const f = st.get();
       if (!f.email.trim()) return toast('Enter an email address');
       st.set({ busy: true });
       try {
-        await api('POST', '/api/users/invite', { email: f.email.trim(), role: f.role });
+        await api('POST', '/api/users/invite', {
+          email: f.email.trim(),
+          role: f.role,
+          ...(f.role === 'gm' ? {} : { brandIds: f.brandIds }),
+        });
         done(`Invitation sent to ${f.email.trim()}`);
       } catch (e) {
         st.set({ busy: false });
@@ -78,7 +88,7 @@ export function UsersScreen({
     }
     modal.open({
       title: 'Invite user',
-      body: <InviteBody st={st} />,
+      body: <InviteBody st={st} brands={brands} />,
       foot: (
         <>
           <button className="btn o" onClick={modal.close}>
@@ -119,6 +129,72 @@ export function UsersScreen({
           </button>
           <button className="btn" onClick={save}>
             Save
+          </button>
+        </>
+      ),
+    });
+  }
+
+  function editInvite(i: InviteRow) {
+    const st = createStore<EditForm>({ role: i.role ?? '', name: '', brandIds: i.brandIds, busy: false });
+    async function save() {
+      const f = st.get();
+      if (f.busy) return;
+      st.set({ busy: true });
+      try {
+        await api('PATCH', `/api/users/invites/${encodeURIComponent(i.id)}`, {
+          ...(f.role && f.role !== i.role ? { role: f.role } : {}),
+          brandIds: f.role === 'gm' ? [] : f.brandIds,
+        });
+        done('Invitation updated');
+      } catch (e) {
+        st.set({ busy: false });
+        toast(errText(e));
+        router.refresh();
+      }
+    }
+    modal.open({
+      title: 'Edit access',
+      body: <EditBody st={st} u={null} email={i.email} currentRole={i.role} brands={brands} />,
+      foot: (
+        <>
+          <button className="btn o" onClick={modal.close}>
+            Cancel
+          </button>
+          <button className="btn" onClick={save}>
+            Save
+          </button>
+        </>
+      ),
+    });
+  }
+
+  function revoke(i: InviteRow) {
+    modal.open({
+      title: 'Revoke this invitation?',
+      body: (
+        <p style={s('font-size:13.5px')}>
+          <b>{i.email}</b> will no longer be able to join with this invitation. You can invite them again later.
+        </p>
+      ),
+      foot: (
+        <>
+          <button className="btn o" onClick={modal.close}>
+            Cancel
+          </button>
+          <button
+            className="btn d"
+            onClick={async () => {
+              try {
+                await api('DELETE', `/api/users/invites/${encodeURIComponent(i.id)}`);
+                done('Invitation revoked');
+              } catch (e) {
+                toast(errText(e));
+                router.refresh();
+              }
+            }}
+          >
+            Revoke
           </button>
         </>
       ),
@@ -209,6 +285,16 @@ export function UsersScreen({
           {users.length - nOff} can sign in.
         </div>
       )}
+      {invites.length > 0 && (
+        <div className="note" style={s('margin-bottom:10px')}>
+          {invites.length} invitation{invites.length === 1 ? '' : 's'} pending.
+        </div>
+      )}
+      {invitesFailed && (
+        <div className="note r" style={s('margin-bottom:10px')}>
+          Pending invitations could not be loaded just now. Reload the page to try again.
+        </div>
+      )}
       <div className="note r">
         <b>Understand what this is.</b> Each person signs in as themselves. Access levels stop the wrong person changing
         a purchase price or deleting a card by accident, and every action is recorded with their name. A person with no
@@ -294,6 +380,59 @@ export function UsersScreen({
                 </tr>
               );
             })}
+            {invites.map((i) => {
+              const R = i.role && isRole(i.role) ? ROLES[i.role] : null;
+              return (
+                <tr key={i.id}>
+                  <td>
+                    <b>{i.email}</b>
+                    <div style={s('font-size:11px;color:var(--mute)')}>Invited</div>
+                  </td>
+                  <td>
+                    {R ? (
+                      <span className="pill" style={{ background: R.colour, color: '#fff' }}>
+                        {R.label}
+                      </span>
+                    ) : (
+                      <span className="pill p-warn">no role yet</span>
+                    )}
+                  </td>
+                  <td className="c">
+                    <span className="pill p-warn">pending</span>
+                  </td>
+                  <td style={s('font-size:12px')}>
+                    {i.role === 'gm' ? (
+                      <span className="pill p-gr">all brands</span>
+                    ) : i.brandIds.length ? (
+                      i.brandIds.map((id, k) => (
+                        <span key={id}>
+                          {k > 0 && ' '}
+                          <span className="pill p-sub">{brandCode.get(id) ?? '?'}</span>
+                        </span>
+                      ))
+                    ) : (
+                      <span style={s('color:var(--mute)')}>none</span>
+                    )}
+                  </td>
+                  <td style={s('font-size:12px;color:var(--mute)')}>{R?.note ?? 'Waiting for an access level.'}</td>
+                  <td className="c" style={s('white-space:nowrap')}>
+                    <button className="btn sm o" onClick={() => editInvite(i)}>
+                      Edit access
+                    </button>{' '}
+                    <button className="btn sm d" onClick={() => revoke(i)}>
+                      Revoke invite
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            {users.length === 0 && invites.length === 0 && (
+              <tr>
+                <td colSpan={6} style={s('color:var(--mute)')}>
+                  No users yet.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -339,7 +478,7 @@ export function UsersScreen({
   );
 }
 
-function InviteBody({ st }: { st: Store<InviteForm> }) {
+function InviteBody({ st, brands }: { st: Store<InviteForm>; brands: { id: string; name: string; code: string }[] }) {
   const f = useStore(st);
   return (
     <>
@@ -366,8 +505,12 @@ function InviteBody({ st }: { st: Store<InviteForm> }) {
       </div>
       <div className="note" style={s('margin:0')}>
         {ROLES[f.role].note} They receive an email invitation; after they sign up they land with this access level.
-        Assign their brands afterwards with Edit.
       </div>
+      {f.role !== 'gm' && (
+        <div style={s('margin-top:12px')}>
+          <BrandPicker brandIds={f.brandIds} brands={brands} onChange={(brandIds) => st.set({ brandIds })} />
+        </div>
+      )}
     </>
   );
 }
@@ -375,32 +518,48 @@ function InviteBody({ st }: { st: Store<InviteForm> }) {
 function EditBody({
   st,
   u,
+  email,
+  currentRole,
   brands,
 }: {
   st: Store<EditForm>;
-  u: UserRow;
+  u: UserRow | null; // null = a pending invitation: no name, no self-protection
+  email?: string;
+  currentRole?: Role | null;
   brands: { id: string; name: string; code: string }[];
 }) {
   const f = useStore(st);
+  const had = u ? u.role : (currentRole ?? null);
   return (
     <>
-      <div className="field">
-        <label className="fl">Name</label>
-        <input type="text" className="cell" value={f.name} onChange={(e) => st.set({ name: e.target.value })} />
-      </div>
+      {u ? (
+        <div className="field">
+          <label className="fl">Name</label>
+          <input type="text" className="cell" value={f.name} onChange={(e) => st.set({ name: e.target.value })} />
+        </div>
+      ) : (
+        <p style={s('font-size:13.5px;margin:0 0 12px')}>
+          <b>{email}</b>
+        </p>
+      )}
       <div className="field">
         <label className="fl">Access level</label>
-        <select value={f.role} disabled={u.isYou} onChange={(e) => st.set({ role: e.target.value as Role })}>
-          {!u.role && <option value="">No access level yet</option>}
+        <select value={f.role} disabled={!!u?.isYou} onChange={(e) => st.set({ role: e.target.value as Role })}>
+          {!had && <option value="">No access level yet</option>}
           {ROLE_KEYS.map((k) => (
             <option key={k} value={k}>
               {ROLES[k].label}
             </option>
           ))}
         </select>
-        {u.isYou && (
+        {u?.isYou && (
           <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
             You cannot change your own access level.
+          </div>
+        )}
+        {!u && f.role && f.role !== had && (
+          <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
+            Changing the access level sends them a new invitation email.
           </div>
         )}
       </div>
@@ -409,33 +568,63 @@ function EditBody({
           A General Manager sees every brand.
         </div>
       ) : (
-        <div className="field">
-          <label className="fl">Brands this person can work in</label>
-          <div
-            style={s(
-              'display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid var(--line);border-radius:7px;padding:9px',
-            )}
-          >
-            {brands.map((b) => (
-              <label key={b.id} style={s('display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer')}>
-                <input
-                  type="checkbox"
-                  checked={f.brandIds.includes(b.id)}
-                  onChange={(e) =>
-                    st.set({
-                      brandIds: e.target.checked ? [...f.brandIds, b.id] : f.brandIds.filter((x) => x !== b.id),
-                    })
-                  }
-                />
-                {b.name}
-              </label>
-            ))}
-          </div>
-          <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
-            A person with no brand sees no recipes, production or menus.
-          </div>
-        </div>
+        <BrandPicker brandIds={f.brandIds} brands={brands} onChange={(brandIds) => st.set({ brandIds })} />
       )}
     </>
+  );
+}
+
+/** Brand checkboxes with a "Select all brands" convenience (D-81): it only ticks the boxes, is never pre-ticked and never grants GM. */
+function BrandPicker({
+  brandIds,
+  brands,
+  onChange,
+}: {
+  brandIds: string[];
+  brands: { id: string; name: string; code: string }[];
+  onChange: (ids: string[]) => void;
+}) {
+  const all = brands.length > 0 && brands.every((b) => brandIds.includes(b.id));
+  const some = brandIds.length > 0 && !all;
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = some;
+  }, [some]);
+  return (
+    <div className="field">
+      <label className="fl" id="brand-picker-label">
+        Brands this person can work in
+      </label>
+      <label style={s('display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer;margin-bottom:6px')}>
+        <input
+          ref={ref}
+          type="checkbox"
+          checked={all}
+          onChange={(e) => onChange(e.target.checked ? brands.map((b) => b.id) : [])}
+        />
+        <b>Select all brands</b>
+      </label>
+      <div
+        role="group"
+        aria-labelledby="brand-picker-label"
+        style={s(
+          'display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid var(--line);border-radius:7px;padding:9px',
+        )}
+      >
+        {brands.map((b) => (
+          <label key={b.id} style={s('display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer')}>
+            <input
+              type="checkbox"
+              checked={brandIds.includes(b.id)}
+              onChange={(e) => onChange(e.target.checked ? [...brandIds, b.id] : brandIds.filter((x) => x !== b.id))}
+            />
+            {b.name}
+          </label>
+        ))}
+      </div>
+      <div style={s('font-size:11px;color:var(--mute);margin-top:4px')}>
+        A person with no brand sees no recipes, production or menus.
+      </div>
+    </div>
   );
 }

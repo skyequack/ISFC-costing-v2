@@ -26,7 +26,10 @@
 | `cost_settings` | Singleton (`id = 1` CHECK). Legacy names and fractions: `pkg, del, lab, ops, buffer, target, vat`, `currency`, `price_date`, `version`. Not brand scoped. |
 | `audit_log` | Append-only: triggers raise on UPDATE/DELETE/TRUNCATE. Snapshots of user name and role. "Clear activity log" is implemented as an audited archive marker (D-31). |
 | `menu`, `menu_row`, `menu_cell`, `menu_pax` | Editable menus (D-05), seeded from legacy `MENU_PLAN` (8 menus, 148 rows, 1001 cells). `menu.legacy_index` translates legacy `LOC|menuIndex` pax keys on restore. Meal labels are not unique. Cell `kind` ITEM → `ingredient.code` (710), RECIPE → `recipe.code` (290), NONE (1) has no code (CHECK). Absent day = no row (23 in the seed). Deactivate menus rather than delete (pax rows cascade). |
-| `production_entry` | (month, day, location, recipe_code) → portions ≥ 0; `location ''` = legacy/unassigned bucket. Brand scoping through `recipe.code → brand_id`. |
+| `production_entry` | (month, day, location, client_id, recipe_code) → portions ≥ 0; `location ''` = legacy/unassigned bucket; `client_id ''` = unassigned (migration 0003, D-71; no FK, the service checks the client is active and of the card's brand). Brand scoping through `recipe.code → brand_id`. |
+| `stock_count` | (0004, D-73) PK (site, count_date, code) → qty ≥ 0, `updated_by`, `updated_at`. No brand_id (a site can be shared; scope = the user's sites + ingredient scope), no stage. No row = not counted; 0 = counted empty. |
+| `receipt` | (0004, D-73) `id`, UNIQUE (site, receipt_date, code, ref) → qty > 0. `ref ''` = typed in the grid (one row per site/day/item); anything else = an uploaded file, so several deliveries a day are kept. |
+| `client` | (0003, D-68/D-71) `brand_id` → brand (RESTRICT), `name` unique per brand case-insensitively, `active`, `version`. A client with production rows is deactivated, not deleted. |
 | `seed_run` | Seed version + checksum; a re-seed must not overwrite edited data. |
 | `restore_chunk` | (migration 0002) staging for a chunked backup restore: `(session_id, seq)` → a ≤ 1.5 MB slice of the backup JSON, owner `user_id`; deleted on commit, pruned after a day. |
 

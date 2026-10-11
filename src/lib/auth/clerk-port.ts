@@ -1,7 +1,7 @@
 import { clerkClient } from '@clerk/nextjs/server';
 import type { User } from '@clerk/nextjs/server';
 import { isRole } from '../permissions';
-import type { ClerkPort, ClerkUserLite } from '../services/users';
+import type { ClerkInviteLite, ClerkPort, ClerkUserLite } from '../services/users';
 
 function lite(u: User): ClerkUserLite {
   const primary = u.emailAddresses.find((e) => e.id === u.primaryEmailAddressId);
@@ -45,13 +45,33 @@ export function clerkPort(): ClerkPort {
       await (await clerkClient()).users.deleteUser(id);
     },
     async invite(email, role) {
-      await (
+      const inv = await (
         await clerkClient()
       ).invitations.createInvitation({
         emailAddress: email,
         publicMetadata: { role },
         ignoreExisting: true,
       });
+      return inv.id;
+    },
+    async listInvitations() {
+      const c = await clerkClient();
+      const out: ClerkInviteLite[] = [];
+      for (let offset = 0; offset < 500; offset += 100) {
+        const page = await c.invitations.getInvitationList({ status: 'pending', limit: 100, offset });
+        out.push(
+          ...page.data.map((i) => ({
+            id: i.id,
+            email: i.emailAddress.toLowerCase(),
+            role: isRole(i.publicMetadata?.role) ? i.publicMetadata.role : null,
+          })),
+        );
+        if (page.data.length < 100) break;
+      }
+      return out;
+    },
+    async revokeInvitation(id) {
+      await (await clerkClient()).invitations.revokeInvitation(id);
     },
   };
 }
