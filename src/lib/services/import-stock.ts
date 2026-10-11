@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { SessionUser } from '../auth/types';
-import type { Queryable } from '../db/client';
+import { pgErrorCode, type Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
 import { ingredientCodesInScope } from '../db/repo/ingredients';
 import { visibleSites } from '../db/repo/stock';
@@ -122,9 +122,11 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
   for (const p of planned) counts[p.action]++;
   const blocked = planned.filter((p) => p.action === 'blocked').slice(0, SHOWN);
   const sample = planned.filter((p) => p.action === 'add' || p.action === 'update').slice(0, SHOWN);
-  const names = await tx.query('SELECT code, name FROM ingredient WHERE code = ANY($1::text[])', [
-    [...new Set([...blocked, ...sample].map((p) => p.code))],
-  ]);
+  // names only for ingredients the caller may use: a blocked row for another brand's ingredient must not reveal its name
+  const known = [...new Set([...blocked, ...sample].map((p) => p.code))].filter((c) => inScope.has(c));
+  const names = known.length
+    ? await tx.query('SELECT code, name FROM ingredient WHERE code = ANY($1::text[])', [known])
+    : { rows: [] as { code: string; name: string }[] };
   const nameOf = new Map(names.rows.map((r) => [r.code as string, r.name as string]));
   for (const p of [...blocked, ...sample]) p.name = nameOf.get(p.code) ?? '';
 
@@ -166,6 +168,8 @@ export async function commitStockImport(
   scope: BrandScope,
   input: StockImportIn,
 ): Promise<{ added: number; updated: number; same: number }> {
+  // one commit of a given content at a time, so a double click cannot slip past the 'already loaded' check
+  await tx.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['stock-import:' + hashOf(input)]);
   const { out, planned } = await plan(tx, user, scope, input);
   if (!input.hash || input.hash !== out.hash)
     throw new ApiError('conflict', 'The file changed since it was checked - check it again');
@@ -192,11 +196,16 @@ export async function commitStockImport(
         args,
       );
     else
-      await tx.query(
-        `INSERT INTO receipt (site, receipt_date, code, qty, ref, updated_by)
-         SELECT t.site, t.d, t.code, t.q, $6, $5 FROM unnest($1::text[], $2::date[], $3::text[], $4::float8[]) AS t(site, d, code, q)`,
-        [...args, receiptRef(out.hash)],
-      );
+      try {
+        await tx.query(
+          `INSERT INTO receipt (site, receipt_date, code, qty, ref, updated_by)
+           SELECT t.site, t.d, t.code, t.q, $6, $5 FROM unnest($1::text[], $2::date[], $3::text[], $4::float8[]) AS t(site, d, code, q)`,
+          [...args, receiptRef(out.hash)],
+        );
+      } catch (e) {
+        if (pgErrorCode(e) === '23505') throw new ApiError('conflict', 'This file has already been loaded');
+        throw e;
+      }
   }
   const res = { added: out.counts.add, updated: out.counts.update, same: out.counts.same };
   await appendAudit(
@@ -206,4 +215,30 @@ export async function commitStockImport(
     `${input.file} (${out.hash.slice(0, 12)}): ${res.added} added${input.kind === 'count' ? `, ${res.updated} updated, ${res.same} unchanged` : ''} · ${out.sites.join(', ')} · ${out.dates[0]}${out.dates.length > 1 ? ` to ${out.dates.at(-1)}` : ''}`,
   );
   return res;
+}
+
+export const stockUndoIn = z.object({ hash: z.string().regex(/^[0-9a-f]{64}$/, 'not an upload hash') });
+
+/**
+ * Take back a receipts upload (D-73): deletes the deliveries that carry the file's ref, at the sites the caller can see (so
+ * someone who happens to know a hash cannot touch other sites). Deliveries typed in the grid are never touched. Counts need no
+ * undo: they are upserts and the grid corrects them. 404 when nothing is left to undo. One audit row, no values.
+ */
+export async function undoReceiptUpload(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: z.output<typeof stockUndoIn>,
+): Promise<{ removed: number }> {
+  if (!can(user.role, 'stock.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
+  const sites = await visibleSites(tx, scope);
+  await tx.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['stock-import:' + input.hash]);
+  const r = await tx.query('DELETE FROM receipt WHERE ref = $1 AND site = ANY($2::text[])', [
+    receiptRef(input.hash),
+    sites,
+  ]);
+  const removed = r.rowCount ?? 0;
+  if (!removed) throw new ApiError('not_found', 'Nothing left to undo');
+  await appendAudit(tx, user, 'Undid a receipts upload', `${input.hash.slice(0, 12)}: ${removed} deliveries removed`);
+  return { removed };
 }

@@ -96,6 +96,12 @@ export function parseStockRows(
       blank++;
       continue;
     }
+    // a comma is only a thousands separator in a proper grouping (1,200 / 1,200.5); "1,5" is a decimal comma and would
+    // silently become 15, so it is refused instead of guessed
+    if (q.includes(',') && !/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(q)) {
+      rejected.push(`Row ${line} ${code}: quantity "${q}" is ambiguous (use a dot for decimals, e.g. 1.5)`);
+      continue;
+    }
     const qty = Number(q.replace(/,/g, ''));
     if (!Number.isFinite(qty)) {
       rejected.push(`Row ${line} ${code}: quantity "${q}" is not a number`);

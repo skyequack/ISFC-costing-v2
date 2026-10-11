@@ -114,4 +114,31 @@ describe('stock sheet parsing (D-73, slice 2c)', () => {
       ['=1+1', 2, 4], // kept as text; the server will not find it in the catalog and refuses it
     ]);
   });
+
+  it('a comma is a thousands separator only in a proper grouping; a decimal comma is refused, not read as ten times too much', () => {
+    const p = parseStockRows(
+      [
+        ['Code', 'Quantity'],
+        ['A', '1,200'],
+        ['B', '1,200.5'],
+        ['C', '12,345,678'],
+        ['D', '1,5'],
+        ['E', '0,25'],
+        ['F', '1,2345'],
+        ['G', ',5'],
+      ],
+      fb,
+    );
+    expect(p.rows.map((r) => [r.code, r.qty])).toEqual([
+      ['A', 1200],
+      ['B', 1200.5],
+      ['C', 12345678],
+    ]);
+    expect(p.rejected).toEqual([
+      'Row 5 D: quantity "1,5" is ambiguous (use a dot for decimals, e.g. 1.5)',
+      'Row 6 E: quantity "0,25" is ambiguous (use a dot for decimals, e.g. 1.5)',
+      'Row 7 F: quantity "1,2345" is ambiguous (use a dot for decimals, e.g. 1.5)',
+      'Row 8 G: quantity ",5" is ambiguous (use a dot for decimals, e.g. 1.5)',
+    ]);
+  });
 });

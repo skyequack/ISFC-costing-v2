@@ -6,7 +6,13 @@ import { visibleBrandIds } from '@/lib/db/scope';
 import { ApiError } from '@/lib/errors';
 import type { Role } from '@/lib/permissions';
 import { updateBrand } from '@/lib/services/brands';
-import { commitStockImport, previewStockImport, receiptRef, type StockImportIn } from '@/lib/services/import-stock';
+import {
+  commitStockImport,
+  previewStockImport,
+  receiptRef,
+  undoReceiptUpload,
+  type StockImportIn,
+} from '@/lib/services/import-stock';
 import { loadStockGrid, saveStock } from '@/lib/services/stock';
 import { connect, expectFails, hasTestDb, inRollback } from './helpers';
 
@@ -362,7 +368,7 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
     });
     const receipts = async () =>
       (
-        await c.query("SELECT site, code, qty, ref FROM receipt WHERE code LIKE 'ZS-%' ORDER BY site, code, ref")
+        await c.query("SELECT site, code, qty, ref FROM receipt WHERE code LIKE 'ZS-%' ORDER BY site, code, qty")
       ).rows.map((r) => r.site + '|' + r.code + '|' + r.qty + '|' + (r.ref === '' ? 'grid' : 'file'));
 
     it('counts: the dry-run writes nothing and plans add / update / same; the commit loads it; the same file again changes nothing', () =>
@@ -467,6 +473,62 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
         const zero = file('receipt', [['ZS-A', 'ZS-A-ING', 0]]);
         expect((await previewStockImport(c, u, s, zero)).blocked[0]!.reason).toBe('a delivery must be more than 0');
         expect(Number((await c.query("SELECT count(*) AS n FROM receipt WHERE code LIKE 'ZS-%'")).rows[0]!.n)).toBe(3);
+      }));
+
+    it('a blocked row never reveals the name of an ingredient the user may not use; one they may use keeps its name', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const u = await mkUser('chef', [a]);
+        const s = await scopeOf(u);
+        const p = await previewStockImport(
+          c,
+          u,
+          s,
+          file('count', [
+            ['ZS-A', 'ZS-B-ING', 1], // brand B's ingredient: exists, but not for this user
+            ['ZS-A', 'NO-SUCH', 1],
+            ['ZS-A', 'ZS-SHARED-ING', 1],
+            ['ZS-A', 'ZS-SHARED-ING', 2], // blocked as a duplicate, an ingredient the user may use
+          ]),
+        );
+        const byCode = new Map(p.blocked.map((b) => [b.code + '|' + b.line, b.name]));
+        expect(byCode.get('ZS-B-ING|2')).toBe('');
+        expect(byCode.get('NO-SUCH|3')).toBe('');
+        expect(byCode.get('ZS-SHARED-ING|5')).toBe('ZS-SHARED-ING');
+        expect(JSON.stringify(p)).not.toContain('"name":"ZS-B-ING"');
+      }));
+
+    it('undo takes back exactly one receipts upload at the sites the user can see, leaves grid deliveries alone, and is audited', () =>
+      inRollback(c, async () => {
+        const { a, b } = await fixture();
+        const ua = await mkUser('cc', [a]);
+        const ub = await mkUser('cc', [b]);
+        const sa = await scopeOf(ua);
+        await put(ua, sa, { kind: 'receipt', cells: [{ code: 'ZS-A-ING', qty: 4 }] }); // grid delivery
+        const f1 = file('receipt', [
+          ['ZS-A', 'ZS-A-ING', 6],
+          ['ZS-SHARED', 'ZS-SHARED-ING', 2],
+        ]);
+        const p1 = await previewStockImport(c, ua, sa, f1);
+        await commitStockImport(c, ua, sa, { ...f1, hash: p1.hash });
+        const f2 = file('receipt', [['ZS-A', 'ZS-A-ING', 9]]);
+        const p2 = await previewStockImport(c, ua, sa, f2);
+        await commitStockImport(c, ua, sa, { ...f2, hash: p2.hash });
+        expect((await receipts()).length).toBe(4);
+        // a user of brand B can see ZS-SHARED but not ZS-A: undoing A's upload removes only the shared-site row
+        expect(await undoReceiptUpload(c, ub, await scopeOf(ub), { hash: p1.hash })).toEqual({ removed: 1 });
+        expect(await receipts()).toEqual(['ZS-A|ZS-A-ING|4|grid', 'ZS-A|ZS-A-ING|6|file', 'ZS-A|ZS-A-ING|9|file']);
+        expect(await undoReceiptUpload(c, ua, sa, { hash: p1.hash })).toEqual({ removed: 1 });
+        expect(await receipts()).toEqual(['ZS-A|ZS-A-ING|4|grid', 'ZS-A|ZS-A-ING|9|file']); // the other upload and the grid row stay
+        expect((await fail(undoReceiptUpload(c, ua, sa, { hash: p1.hash }))).status).toBe(404); // nothing left
+        // the same content can be loaded again once it was undone
+        expect((await previewStockImport(c, ua, sa, f1)).alreadyImported).toBe(false);
+        const viewer = await mkUser('viewer', [a]);
+        expect((await fail(undoReceiptUpload(c, viewer, await scopeOf(viewer), { hash: p2.hash }))).status).toBe(403);
+        const audit = (await c.query("SELECT detail FROM audit_log WHERE action = 'Undid a receipts upload'")).rows.map(
+          (r) => r.detail,
+        );
+        expect(audit).toContain(p1.hash.slice(0, 12) + ': 1 deliveries removed');
       }));
 
     it('a viewer may not upload, and a user without sites finds every row blocked', () =>

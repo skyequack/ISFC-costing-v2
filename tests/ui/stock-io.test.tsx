@@ -161,4 +161,31 @@ describe('Stock upload dialog (D-73, slice 2c)', () => {
     expect(screen.getByText('Template')).toBeTruthy();
     expect(screen.queryByText('Upload')).toBeNull();
   });
+
+  it('the receipts template starts with empty quantities, so loading it back cannot add the grid deliveries a second time', () => {
+    const g = grid('receipt');
+    g.rows[0]!.qty = 4;
+    renderInShell(<StockScreen grid={g} />, 'chef');
+    fireEvent.click(screen.getByText('Template'));
+    expect(saved.csv[0]!.slice(1).map((r) => r[5])).toEqual(['', '']);
+  });
+
+  it('after a receipts upload the result stays on screen with an Undo that sends the upload hash', async () => {
+    onFetch((c) =>
+      c.url.includes('mode=dry-run')
+        ? { json: plan({ kind: 'receipt', counts: { add: 2, update: 0, same: 0, blocked: 0 } }) }
+        : c.url.includes('mode=commit')
+          ? { json: { added: 2, updated: 0, same: 0 } }
+          : c.url.includes('mode=undo')
+            ? { json: { removed: 2 } }
+            : undefined,
+    );
+    renderInShell(<StockScreen grid={grid('receipt')} />, 'chef');
+    await choose('Code,Delivered\nrice,3\nflour,6\n');
+    fireEvent.click(await screen.findByText('Load 2 rows'));
+    expect(await screen.findByText('Receipts loaded')).toBeTruthy();
+    fireEvent.click(screen.getByText('Undo this upload'));
+    await waitFor(() => expect(posts('undo')).toHaveLength(1));
+    expect(posts('undo')[0]!.body).toEqual({ hash: 'h'.repeat(64) });
+  });
 });

@@ -21,10 +21,11 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
   const noun = isCount ? 'counts' : 'receipts';
 
   const template = useCallback(() => {
-    const rows = grid.rows.map((r) => [grid.site, grid.date, r.code, r.name, r.uom, r.qty ?? '']);
+    // receipts are added, never replaced, so their template starts empty (pre-filled values would be loaded again as new deliveries)
+    const rows = grid.rows.map((r) => [grid.site, grid.date, r.code, r.name, r.uom, isCount ? (r.qty ?? '') : '']);
     saveCsv(`ISFC-stock-${noun}-${grid.site}-${grid.date}.csv`, [STOCK_TPL_HEAD, ...rows]);
     toast('Template downloaded');
-  }, [grid.rows, grid.site, grid.date, noun, toast]);
+  }, [grid.rows, grid.site, grid.date, isCount, noun, toast]);
 
   const upload = useCallback(() => {
     function back(message: string, title = 'Could not read that file') {
@@ -75,6 +76,39 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
       }
     }
 
+    /** Deliveries from a file cannot be edited afterwards, so the result stays on screen with a way to take them back. */
+    function loaded(n: number, hash: string) {
+      async function undo() {
+        try {
+          const r = await api<{ removed: number }>('POST', '/api/stock/import?mode=undo', { hash });
+          modal.close();
+          toast(`${r.removed} deliveries removed`);
+          router.refresh();
+        } catch (e) {
+          toast(errText(e));
+        }
+      }
+      modal.open({
+        title: 'Receipts loaded',
+        body: (
+          <p style={s('font-size:13.5px')}>
+            <b>{n}</b> deliver{n === 1 ? 'y was' : 'ies were'} loaded. Deliveries from a file cannot be edited
+            afterwards; if this was the wrong file, undo it now.
+          </p>
+        ),
+        foot: (
+          <>
+            <button className="btn o" onClick={undo}>
+              Undo this upload
+            </button>
+            <button className="btn" onClick={modal.close}>
+              Done
+            </button>
+          </>
+        ),
+      });
+    }
+
     function review(file: string, parsed: ReturnType<typeof parseStockRows>, plan: StockImportPlan) {
       const problems = [...parsed.rejected, ...plan.blocked.map((b) => `Row ${b.line} ${b.code}: ${b.reason}`)];
       const nProblems = parsed.rejected.length + plan.counts.blocked;
@@ -89,9 +123,11 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
             file,
             hash: plan.hash,
           });
-          modal.close();
-          toast(isCount ? `${r.added} counts added · ${r.updated} changed` : `${r.added} deliveries loaded`);
           router.refresh();
+          if (isCount) {
+            modal.close();
+            toast(`${r.added} counts added · ${r.updated} changed`);
+          } else loaded(r.added, plan.hash);
         } catch (e) {
           toast(errText(e));
         }
