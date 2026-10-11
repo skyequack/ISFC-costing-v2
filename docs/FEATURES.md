@@ -44,6 +44,10 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Feature | Decision | Status |
 |---|---|---|
 | Dashboard analytics v2, slice 1: filters (brand/site/date), Menu Matrix, margin-at-risk / Pareto / unpriced / over-target, filtered export | D-65…D-67 | built, gates green (2026-10-10) |
-| Dashboard slice 2: clients entity, stock counts + receipts, inventory deviation | D-68, D-69 | approved, not built |
+| Dashboard slice 2a: clients entity + client in the production key (migration 0003) | D-68, D-71, D-72 | approved, not built |
+| Dashboard slice 2b: stock tables, API, Stock screen (migration 0004) | D-69, D-72, D-73 | approved, not built |
+| Dashboard slice 2c: stock upload (dry-run/commit) | D-73 | approved, not built |
+| Dashboard slice 2d: Theoretical vs actual panel + Client filter + export | D-74 | approved, not built |
+| Dashboard slice 2e: backup/restore, Data Health, site rename | D-75, D-76, D-77 | approved, not built |
 | Dashboard slice 3: three-stage yield | D-70 | approved, not built |
 | Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |
