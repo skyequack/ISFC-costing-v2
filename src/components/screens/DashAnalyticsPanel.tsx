@@ -15,13 +15,15 @@ export function dashHref(f: DashAnalytics['filters']): string {
   const q = new URLSearchParams();
   if (f.brand !== '*') q.set('brand', f.brand);
   if (f.loc !== '*') q.set('loc', f.loc);
+  if (f.client !== '*') q.set('client', f.client);
   if (f.from) q.set('from', f.from);
   if (f.to) q.set('to', f.to);
   const t = q.toString();
   return t ? `/dash?${t}` : '/dash';
 }
 
-const active = (f: DashAnalytics['filters']) => f.brand !== '*' || f.loc !== '*' || !!f.from || !!f.to;
+const active = (f: DashAnalytics['filters']) =>
+  f.brand !== '*' || f.loc !== '*' || f.client !== '*' || !!f.from || !!f.to;
 
 /** Filter bar (D-65): URL-driven like the Production screen; date and site only reach the production-driven sections. */
 export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }) {
@@ -29,7 +31,10 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
   const f = a.filters;
   const go = (patch: Partial<DashAnalytics['filters']>) => {
     const n = { ...f, ...patch };
-    if (patch.brand !== undefined) n.loc = '*'; // a site belongs to its brand(s)
+    if (patch.brand !== undefined) {
+      n.loc = '*'; // a site belongs to its brand(s)
+      n.client = '*'; // and so does a client
+    }
     router.replace(dashHref(n));
   };
   const brandName = f.brand === '*' ? 'All brands' : (a.brandOptions.find((b) => b.id === f.brand)?.name ?? '');
@@ -62,6 +67,22 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
             </select>
           </>
         )}
+        {a.clientOptions.length > 0 && (
+          <>
+            <label className="fl" style={s('margin:0')}>
+              Client
+            </label>
+            <select value={f.client} onChange={(e) => go({ client: e.target.value })} style={s('max-width:200px')}>
+              <option value="*">All clients</option>
+              <option value="none">Unassigned</option>
+              {a.clientOptions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         <label className="fl" style={s('margin:0')}>
           From
         </label>
@@ -83,9 +104,15 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
       )}
       {active(f) && (
         <div className="note" style={s('margin-bottom:14px')}>
-          Filtered: {brandName} {'·'} {f.loc === '*' ? 'All sites' : f.loc} {'·'} {f.from || 'start'} {'–'}{' '}
-          {f.to || 'latest'}. Site and dates apply to the Menu Matrix, Margin at Risk, Cost Drivers and Unpriced
-          Exposure. The KPIs, tables and Over Target respond to the brand only.
+          Filtered: {brandName} {'·'} {f.loc === '*' ? 'All sites' : f.loc} {'·'}{' '}
+          {f.client === '*'
+            ? 'All clients'
+            : f.client === 'none'
+              ? 'Unassigned'
+              : (a.clientOptions.find((c) => c.id === f.client)?.name ?? '')}{' '}
+          {'·'} {f.from || 'start'} {'–'} {f.to || 'latest'}. Site and dates apply to the Menu Matrix, Margin at Risk,
+          Cost Drivers and Unpriced Exposure. The KPIs, tables and Over Target respond to the brand only. The client
+          choice applies to the same sections, and Theoretical vs Actual follows all of the filters.
         </div>
       )}
     </>
@@ -99,7 +126,7 @@ export function ExportAnalyticsButton({ filters }: { filters: DashAnalytics['fil
       <button
         className="btn o"
         onClick={() => {
-          const q = new URLSearchParams({ brand: filters.brand, loc: filters.loc });
+          const q = new URLSearchParams({ brand: filters.brand, loc: filters.loc, client: filters.client });
           if (filters.from) q.set('from', filters.from);
           if (filters.to) q.set('to', filters.to);
           window.location.href = `/api/export/dash?${q.toString()}`;
@@ -316,6 +343,8 @@ export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
         </>
       )}
 
+      <TvaSection a={a} />
+
       {a.unpriced.count > 0 && (
         <>
           <h3 style={{ ...h3, margin: '26px 0 12px' }}>
@@ -393,6 +422,115 @@ export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
         <div className="note" style={s('margin-top:14px')}>
           Some lines could not be valued ({a.flags.unconvertible} with no unit conversion, {a.flags.unknown} codes not
           in the library, {a.flags.truncated} too deep); the totals above leave them out.
+        </div>
+      )}
+    </>
+  );
+}
+
+const VERDICT: Record<'within' | 'over' | 'under', { label: string; cls: string }> = {
+  within: { label: 'within allowance', cls: 'p-ok' },
+  over: { label: 'over', cls: 'p-bad' },
+  under: { label: 'under', cls: 'p-warn' },
+};
+
+const TVA_REASON = {
+  client: 'Stock is not tracked per client, so only theoretical usage is shown.',
+  range: 'Pick a From and To date to compare with stock counts.',
+  'no-count': 'No site has both an opening and a closing count in this range, so only theoretical usage is shown.',
+  shared: 'Stock covers the whole site and another brand uses it, so only theoretical usage is shown.',
+} as const;
+
+/** Theoretical vs Actual (D-74): requisition usage against opening + receipts - closing, per ingredient. */
+function TvaSection({ a }: { a: DashAnalytics }) {
+  const t = a.tva;
+  const counted = t.sites.filter((x) => x.state === 'counted');
+  return (
+    <>
+      <h3 style={{ ...h3, margin: '26px 0 6px' }}>Theoretical vs Actual</h3>
+      <div style={s('font-size:12px;color:var(--mute);margin-bottom:10px')}>
+        Theoretical is what the produced portions should have used, without the waste buffer. Actual is the opening
+        count plus receipts minus the closing count, over the days between each site&apos;s counts.
+      </div>
+      {t.mode === 'actual' ? (
+        <div className="note" style={s('margin-bottom:10px')}>
+          Compared at {t.counted} of {t.total} site{t.total === 1 ? '' : 's'}:{' '}
+          {counted.map((x, k) => (
+            <span key={x.site}>
+              {k > 0 && '; '}
+              <b>{x.site}</b> {x.from} {'→'} {x.to}
+            </span>
+          ))}
+          . Days after the first count up to the second are included.
+        </div>
+      ) : (
+        <div className="note" style={s('margin-bottom:10px')}>
+          {TVA_REASON[t.reason ?? 'no-count']}
+        </div>
+      )}
+      {t.unallocated && (
+        <div className="note" style={s('margin-bottom:10px')}>
+          {cur(t.unallocated.portions, 0)} portions were produced with no site; they are not compared (theoretical value{' '}
+          {cur(t.unallocated.value)}
+          {t.unallocated.unpriced > 0 ? `, ${t.unallocated.unpriced} ingredient(s) without a price` : ''}).
+        </div>
+      )}
+      {t.rows.length === 0 ? (
+        <div className="note">No production in this range.</div>
+      ) : (
+        <>
+          <div className="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ingredient</th>
+                  <th className="n">Theoretical</th>
+                  <th className="n">Allowed up to</th>
+                  <th className="n">Actual</th>
+                  <th className="n">Deviation</th>
+                  <th className="n">Value</th>
+                  <th className="c">Verdict</th>
+                </tr>
+              </thead>
+              <tbody>
+                {t.rows.map((r) => (
+                  <tr key={r.code}>
+                    <td>
+                      <b>{r.name}</b>
+                      <div className="mono" style={s('font-size:11px;color:var(--mute)')}>
+                        {r.code}
+                      </div>
+                    </td>
+                    <td className="n">
+                      {cur(r.theoretical, 2)} {r.uom}
+                    </td>
+                    <td className="n">{cur(r.ceiling, 2)}</td>
+                    <td className="n">{r.actual === null ? 'n/a' : cur(r.actual, 2)}</td>
+                    <td className="n">{r.deviation === null ? 'n/a' : cur(r.deviation, 2)}</td>
+                    <td className="n">{r.value === null ? 'n/a' : cur(r.value)}</td>
+                    <td className="c">
+                      {r.verdict ? (
+                        <span className={`pill ${VERDICT[r.verdict].cls}`}>{VERDICT[r.verdict].label}</span>
+                      ) : (
+                        <span className="pill p-gr">n/a</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {t.count > t.rows.length && (
+            <div style={s('font-size:12px;color:var(--mute);margin-top:6px')}>
+              Top {t.rows.length} of {t.count}; the export has them all.
+            </div>
+          )}
+        </>
+      )}
+      {t.flagged > 0 && (
+        <div className="note" style={s('margin-top:10px')}>
+          {t.flagged} ingredient{t.flagged === 1 ? ' has' : 's have'} a recipe line with no unit conversion, so the
+          usage is understated and there is no verdict.
         </div>
       )}
     </>

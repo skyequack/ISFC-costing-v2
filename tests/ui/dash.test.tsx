@@ -44,9 +44,21 @@ const d: DashData = {
 };
 
 const empty = (over: Partial<DashAnalytics> = {}): DashAnalytics => ({
-  filters: { brand: '*', loc: '*', from: '', to: '' },
+  filters: { brand: '*', loc: '*', client: '*', from: '', to: '' },
   sites: ['NIC', 'ZED'],
   brandOptions: [{ id: 'b1', name: 'Gourmet' }],
+  clientOptions: [],
+  tva: {
+    mode: 'theoretical',
+    reason: 'range',
+    sites: [],
+    counted: 0,
+    total: 0,
+    rows: [],
+    count: 0,
+    unallocated: null,
+    flagged: 0,
+  },
   ids: { 'A-1': 'r1' },
   portions: 0,
   producedCards: 0,
@@ -72,7 +84,7 @@ const empty = (over: Partial<DashAnalytics> = {}): DashAnalytics => ({
 
 describe('Dashboard filters and analytics (D-65…D-67)', () => {
   it('writes each filter to the URL; changing the brand resets the site; Reset appears only when filtered', () => {
-    const a = empty({ filters: { brand: '*', loc: 'NIC', from: '', to: '' } });
+    const a = empty({ filters: { brand: '*', loc: 'NIC', client: '*', from: '', to: '' } });
     renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
     fireEvent.change(screen.getByLabelText('From date'), { target: { value: '2026-10-01' } });
     fireEvent.blur(screen.getByLabelText('From date'));
@@ -93,7 +105,11 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
     const from = () => screen.getByLabelText('From date') as HTMLInputElement;
     const withFrom = (v: string) =>
       renderInShell(
-        <DashScreen d={d} a={empty({ filters: { brand: '*', loc: '*', from: v, to: '' } })} brandNames={{}} />,
+        <DashScreen
+          d={d}
+          a={empty({ filters: { brand: '*', loc: '*', client: '*', from: v, to: '' } })}
+          brandNames={{}}
+        />,
       );
 
     it('keeps what is typed, ignores intermediate years, and applies the final date once after a pause', () => {
@@ -132,21 +148,21 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
   });
 
   it('says which sections respond to which filter, and shows an invalid-filter message', () => {
-    const a = empty({ filters: { brand: 'b1', loc: 'NIC', from: '2026-10-01', to: '2026-10-31' } });
+    const a = empty({ filters: { brand: 'b1', loc: 'NIC', client: '*', from: '2026-10-01', to: '2026-10-31' } });
     renderInShell(<DashScreen d={d} a={a} filterError="not a calendar date" brandNames={{}} />);
     expect(screen.getByText(/Filtered: Gourmet/).textContent).toMatch(/Site and dates apply to the Menu Matrix/);
     expect(screen.getByText('not a calendar date')).toBeTruthy();
   });
 
   it('exports with exactly the filters on screen', () => {
-    const a = empty({ filters: { brand: 'b1', loc: 'NIC', from: '2026-10-01', to: '2026-10-31' } });
+    const a = empty({ filters: { brand: 'b1', loc: 'NIC', client: '*', from: '2026-10-01', to: '2026-10-31' } });
     const original = window.location;
     const loc = { href: '' };
     vi.stubGlobal('location', loc);
     try {
       renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
       fireEvent.click(screen.getByText('Export analytics'));
-      expect(loc.href).toBe('/api/export/dash?brand=b1&loc=NIC&from=2026-10-01&to=2026-10-31');
+      expect(loc.href).toBe('/api/export/dash?brand=b1&loc=NIC&client=*&from=2026-10-01&to=2026-10-31');
     } finally {
       vi.stubGlobal('location', original); // do not leak the fake into the tests that follow
     }
@@ -181,5 +197,58 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
     for (const t of ['Stars', 'Plowhorses', 'Puzzles', 'Dogs']) expect(screen.getByText(t)).toBeTruthy();
     fireEvent.click(screen.getAllByText('A-1')[0]!);
     expect(nav.push.mock.calls[0]?.[0]).toBe('/edit/r1');
+  });
+
+  it('Client filter: shown only when there are clients, written to the URL, reset with the brand', () => {
+    const a = empty({
+      clientOptions: [{ id: 'c1', name: 'Acme', brandId: 'b1', active: true }],
+    });
+    renderInShell(<DashScreen d={d} a={a} brandNames={{}} />, 'gm');
+    fireEvent.change(screen.getByDisplayValue('All clients'), { target: { value: 'c1' } });
+    expect(lastReplace()).toBe('/dash?client=c1');
+    fireEvent.change(screen.getByDisplayValue('All clients'), { target: { value: 'none' } });
+    expect(lastReplace()).toBe('/dash?client=none');
+    cleanup();
+    renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
+    expect(screen.queryByText('All clients')).toBeNull();
+  });
+
+  it('Theoretical vs Actual: compared sites and verdicts, n/a is never 0, and the reason when theoretical only', () => {
+    const row = {
+      code: 'I1',
+      name: 'Flour',
+      uom: 'Gram',
+      theoretical: 2000,
+      ceiling: 2200,
+      actual: 2300,
+      deviation: 300,
+      value: 600,
+      theoreticalValue: 4000,
+      verdict: 'over' as const,
+      flagged: false,
+      priced: true,
+    };
+    const a = empty({
+      tva: {
+        mode: 'actual',
+        reason: null,
+        sites: [{ site: 'NIC', state: 'counted', from: '2026-10-01', to: '2026-10-31' }],
+        counted: 1,
+        total: 2,
+        rows: [row, { ...row, code: 'I2', name: 'Salt', actual: null, deviation: null, value: null, verdict: null }],
+        count: 2,
+        unallocated: { portions: 4, value: 800, unpriced: 0 },
+        flagged: 0,
+      },
+    });
+    renderInShell(<DashScreen d={d} a={a} brandNames={{}} />, 'gm');
+    expect(screen.getByText('Theoretical vs Actual')).toBeTruthy();
+    expect(screen.getByText(/Compared at 1 of 2 sites/)).toBeTruthy();
+    expect(screen.getByText('over')).toBeTruthy();
+    expect(screen.getAllByText('n/a').length).toBeGreaterThanOrEqual(4);
+    expect(screen.getByText(/4 portions were produced with no site/)).toBeTruthy();
+    cleanup();
+    renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
+    expect(screen.getByText('Pick a From and To date to compare with stock counts.')).toBeTruthy();
   });
 });

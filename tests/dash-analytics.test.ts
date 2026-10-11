@@ -166,7 +166,7 @@ describe('dashFilters (D-65)', () => {
   const ok = (o: object) => dashFilters.safeParse(o);
   it('empty means all; bounds are day-level ISO dates', () => {
     const r = ok({});
-    expect(r.success && r.data).toEqual({ brand: '*', loc: '*' });
+    expect(r.success && r.data).toEqual({ brand: '*', loc: '*', client: '*' });
     expect(ok({ from: '2026-10-01', to: '2026-10-31' }).success).toBe(true);
   });
   it('rejects bad shapes, impossible dates, inverted and over-long ranges', () => {

@@ -340,7 +340,7 @@ export interface ProdTotalRow {
 }
 
 /** ISO date text of a production row; a day past the end of the month (production accepts 31 in any month) counts as the last day. */
-const PROD_DATE = `CASE WHEN p.month ~ '^\\d{4}-(0[1-9]|1[0-2])$' AND p.day ~ '^(0[1-9]|[12]\\d|3[01])$'
+export const PROD_DATE = `CASE WHEN p.month ~ '^\\d{4}-(0[1-9]|1[0-2])$' AND p.day ~ '^(0[1-9]|[12]\\d|3[01])$'
   THEN p.month || '-' || to_char(LEAST(p.day::int, EXTRACT(DAY FROM ((p.month || '-01')::date + interval '1 month' - interval '1 day'))::int), 'FM00')
   ELSE p.month || '-' || p.day END`;
 
@@ -356,6 +356,8 @@ export async function loadProductionRange(
   from: string | null,
   to: string | null,
   loc: string | null,
+  /** null = every client, '' = unassigned, else one client id (D-71) */
+  client: string | null = null,
 ): Promise<ProdTotalRow[]> {
   const ids = brandId === null ? scope.brandIds : scope.brandIds.filter((b) => b === brandId);
   const { rows } = await db.query(
@@ -365,10 +367,65 @@ export async function loadProductionRange(
         AND ($2::text IS NULL OR ${PROD_DATE} >= $2)
         AND ($3::text IS NULL OR ${PROD_DATE} <= $3)
         AND ($4::text IS NULL OR p.location = $4)
+        AND ($5::text IS NULL OR p.client_id = $5)
       GROUP BY p.recipe_code`,
-    [[...ids], from, to, loc],
+    [[...ids], from, to, loc, client],
   );
   return rows as unknown as ProdTotalRow[];
+}
+
+export interface SiteProdRow {
+  /** the production row's location, verbatim ('' / '*' = no site) */
+  site: string;
+  code: string;
+  portions: number;
+}
+
+/** Portions per location and card over a day-level inclusive range, same scope and filters as loadProductionRange (slice 2d). */
+export async function loadProductionByLocation(
+  db: Queryable,
+  scope: BrandScope,
+  brandId: string | null,
+  from: string | null,
+  to: string | null,
+  client: string | null,
+): Promise<SiteProdRow[]> {
+  const ids = brandId === null ? scope.brandIds : scope.brandIds.filter((b) => b === brandId);
+  const { rows } = await db.query(
+    `SELECT p.location AS site, p.recipe_code AS code, SUM(p.portions)::double precision AS portions
+       FROM production_entry p JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
+      WHERE r.brand_id = ANY($1::text[])
+        AND ($2::text IS NULL OR ${PROD_DATE} >= $2)
+        AND ($3::text IS NULL OR ${PROD_DATE} <= $3)
+        AND ($4::text IS NULL OR p.client_id = $4)
+      GROUP BY p.location, p.recipe_code`,
+    [[...ids], from, to, client],
+  );
+  return rows as unknown as SiteProdRow[];
+}
+
+/**
+ * Portions per site and card inside each site's own window (after, upto]: the days after its opening count up to and
+ * including its closing count (D-74). Only the sites named in `windows` are read.
+ */
+export async function loadProductionWindows(
+  db: Queryable,
+  scope: BrandScope,
+  brandId: string | null,
+  windows: { site: string; after: string; upto: string }[],
+): Promise<SiteProdRow[]> {
+  if (!windows.length) return [];
+  const ids = brandId === null ? scope.brandIds : scope.brandIds.filter((b) => b === brandId);
+  const { rows } = await db.query(
+    `SELECT p.location AS site, p.recipe_code AS code, SUM(p.portions)::double precision AS portions
+       FROM production_entry p
+       JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
+       JOIN unnest($2::text[], $3::text[], $4::text[]) AS w(site, after, upto) ON w.site = p.location
+      WHERE r.brand_id = ANY($1::text[]) AND ${PROD_DATE} > w.after AND ${PROD_DATE} <= w.upto
+      GROUP BY p.location, p.recipe_code`,
+    [[...ids], windows.map((w) => w.site), windows.map((w) => w.after), windows.map((w) => w.upto)],
+  );
+  return rows as unknown as SiteProdRow[];
 }
 
 export async function loadPax(

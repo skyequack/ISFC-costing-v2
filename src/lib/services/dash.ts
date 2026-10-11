@@ -12,10 +12,12 @@ import {
 import { newReqResult, reqExpand, type ReqContext, type ReqEntry } from '@/domain/production/requisition';
 import type { Catalog } from '../db/catalog';
 import type { Queryable } from '../db/client';
+import { listClients, type ClientDto } from '../db/repo/clients';
 import { canSeeBrand } from '../db/scope';
 import { ApiError } from '../errors';
 import type { PageCtx } from '../screens/ctx';
 import { recipeRows, type RecipeRow } from '../screens/rows';
+import { loadTva, type TvaPanel } from './dash-stock';
 import { loadProductionRange } from './planning';
 
 const iso = z
@@ -33,6 +35,8 @@ export const dashFilters = z
   .object({
     brand: z.string().max(64).default('*'),
     loc: z.string().max(40).default('*'),
+    /** '*' = every client, 'none' = unassigned, or a client id (D-71, D-74) */
+    client: z.string().max(64).default('*'),
     from: iso.optional(),
     to: iso.optional(),
   })
@@ -61,9 +65,13 @@ export interface UnpricedRow {
 }
 
 export interface DashAnalytics {
-  filters: { brand: string; loc: string; from: string; to: string };
+  filters: { brand: string; loc: string; client: string; from: string; to: string };
   sites: string[];
   brandOptions: { id: string; name: string }[];
+  /** clients of the selected brand(s) the caller can see (D-71); empty = hide the Client filter */
+  clientOptions: { id: string; name: string; brandId: string; active: boolean }[];
+  /** theoretical vs actual usage (D-74) */
+  tva: TvaPanel;
   /** card id per code, so rows can open the card */
   ids: Record<string, string>;
   portions: number;
@@ -80,12 +88,30 @@ export interface DashAnalytics {
 
 export const TOP_N = 25;
 
-function resolveFilters(ctx: PageCtx, f: DashFilters): { sites: string[] } {
+function resolveFilters(
+  ctx: PageCtx,
+  f: DashFilters,
+  clients: ClientDto[],
+): { sites: string[]; brandIds: string[]; clientOptions: DashAnalytics['clientOptions']; clientSql: string | null } {
   if (f.brand !== '*' && !ctx.brands.some((b) => b.id === f.brand)) throw new ApiError('not_found', 'Not found');
   const brandIds = f.brand === '*' ? ctx.brands.map((b) => b.id) : [f.brand];
   const sites = [...new Set(ctx.brands.filter((b) => brandIds.includes(b.id)).flatMap((b) => b.locations))];
   if (f.loc !== '*' && !sites.includes(f.loc)) throw new ApiError('not_found', 'Not found');
-  return { sites };
+  const clientOptions = clients
+    .filter((c) => brandIds.includes(c.brandId))
+    .map((c) => ({ id: c.id, name: c.name, brandId: c.brandId, active: c.active }));
+  if (f.client !== '*' && f.client !== 'none' && !clientOptions.some((c) => c.id === f.client))
+    throw new ApiError('not_found', 'Not found');
+  return { sites, brandIds, clientOptions, clientSql: f.client === '*' ? null : f.client === 'none' ? '' : f.client };
+}
+
+/** What the requisition expansion reads: library items, the cards the caller can see (list order matters), conversions. */
+export function buildReqCtx(catalog: Catalog, ctx: PageCtx): ReqContext {
+  const recipes = [...catalog.context.recipes.values()].filter((r) => {
+    const m = catalog.cards[r.code];
+    return m && m.id === r.id && canSeeBrand(ctx.scope, m.brandId);
+  });
+  return { items: catalog.context.items, recipes, conv: catalog.context.conv };
 }
 
 /** Rows the existing dashboard cost sections use: brand filter only (D-65), caller scope always. */
@@ -105,8 +131,10 @@ export async function loadDashAnalytics(
   f: DashFilters,
   /** the already costed rows of dashRows(catalog, ctx, f.brand), when the caller has them (costing every card is the heavy part) */
   rowsIn?: RecipeRow[],
+  /** the export carries every theoretical-vs-actual row; the screen the first TVA_CAP */
+  opts: { full?: boolean } = {},
 ): Promise<DashAnalytics> {
-  const { sites } = resolveFilters(ctx, f);
+  const { sites, brandIds, clientOptions, clientSql } = resolveFilters(ctx, f, await listClients(db, ctx.scope));
   const target = catalog.settings.target;
   const menus = (rowsIn ?? dashRows(catalog, ctx, f.brand)).filter((r) => r.type === 'menu');
   const byCode = new Map(menus.map((r) => [r.code, r]));
@@ -119,6 +147,7 @@ export async function loadDashAnalytics(
       f.from ?? null,
       f.to ?? null,
       f.loc === '*' ? null : f.loc,
+      clientSql,
     )
   ).filter((p) => byCode.has(p.code) && p.portions > 0);
   const portionsOf = new Map(prod.map((p) => [p.code, p.portions]));
@@ -137,11 +166,8 @@ export async function loadDashAnalytics(
   );
 
   // theoretical issue value per ingredient and unpriced exposure, from the requisition expansion (D-10/D-28)
-  const recipes = [...catalog.context.recipes.values()].filter((r) => {
-    const m = catalog.cards[r.code];
-    return m && m.id === r.id && canSeeBrand(ctx.scope, m.brandId);
-  });
-  const reqCtx: ReqContext = { items: catalog.context.items, recipes, conv: catalog.context.conv };
+  const reqCtx = buildReqCtx(catalog, ctx);
+  const recipes = reqCtx.recipes;
   const recipeOf = new Map(recipes.map((r) => [r.code, r]));
   const acc = new Map<string, ReqEntry>();
   const unpricedRows: UnpricedRow[] = [];
@@ -177,10 +203,28 @@ export async function loadDashAnalytics(
     })),
   );
 
+  const tva = await loadTva({
+    db,
+    scope: ctx.scope,
+    catalog,
+    reqCtx,
+    brandIds,
+    brand: f.brand,
+    allSites: sites,
+    siteList: f.loc === '*' ? sites : [f.loc],
+    from: f.from ?? null,
+    to: f.to ?? null,
+    client: clientSql,
+    menuCodes: new Set(byCode.keys()),
+    full: opts.full === true,
+  });
+
   return {
-    filters: { brand: f.brand, loc: f.loc, from: f.from ?? '', to: f.to ?? '' },
+    filters: { brand: f.brand, loc: f.loc, client: f.client, from: f.from ?? '', to: f.to ?? '' },
     sites,
     brandOptions: ctx.brands.map((b) => ({ id: b.id, name: b.name })),
+    clientOptions,
+    tva,
     ids: Object.fromEntries(menus.map((r) => [r.code, r.id])),
     portions: prod.reduce((a, p) => a + p.portions, 0),
     producedCards: prod.length,

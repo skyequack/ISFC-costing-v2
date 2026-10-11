@@ -234,13 +234,16 @@ describe.skipIf(!hasTestDb)(
         const lines = (await res.text()).split('\n');
         expect(lines[0]).toBe('Dashboard analytics');
         expect(lines[1]).toBe("Brand,'=EVIL"); // the brand name echoed in the filters is a formula starter
-        expect(lines[3]).toBe('From,2098-04-01');
-        expect(lines[5]).toBe('Portions in range,210');
+        expect(lines[3]).toBe('Client,All clients');
+        expect(lines[4]).toBe('From,2098-04-01');
+        expect(lines[6]).toBe('Portions in range,210');
+        expect(lines.some((l) => l.startsWith('Theoretical vs actual usage'))).toBe(true);
+        expect(lines.some((l) => l.startsWith('XD-ING,'))).toBe(true);
         expect(lines.find((l) => l.startsWith('XD-A,') && l.endsWith(',Star'))).toBeTruthy();
         const log = await exported(gm);
         expect(log).toHaveLength(1);
-        // the audited count is the data rows (4 matrix cards + 1 cost driver), not the title/filter/section lines
-        expect(log[0]).toBe('dash: 5 rows');
+        // the audited count is the data rows (4 matrix cards + 1 cost driver + 1 theoretical-vs-actual ingredient), not the title/filter/section lines
+        expect(log[0]).toBe('dash: 6 rows');
       });
 
       it('a bad range is 400, an out-of-scope brand 404, and neither writes an audit row', async () => {
@@ -251,6 +254,7 @@ describe.skipIf(!hasTestDb)(
         expect((await get('?from=2098-02-30')).status).toBe(400);
         expect((await get(`?brand=${xe}`)).status).toBe(404);
         expect((await get('?loc=OTH')).status).toBe(404);
+        expect((await get('?client=nope')).status).toBe(404);
         expect(await exported(cc)).toEqual([]);
         expect((await get(`?brand=${xd}`)).status).toBe(200);
         expect(await exported(cc)).toHaveLength(1);

@@ -7,7 +7,7 @@ import { dashData } from '@/lib/screens/dash';
 import { dashFilters, dashRows, loadDashAnalytics, type DashFilters } from '@/lib/services/dash';
 import { DashScreen } from '@/components/screens/DashScreen';
 
-type SP = { brand?: string; loc?: string; from?: string; to?: string };
+type SP = { brand?: string; loc?: string; client?: string; from?: string; to?: string };
 
 /** Filters live in the URL (D-65). Unreadable dates fall back to "all" with a message; a brand or site outside the caller's access is a 404. */
 export default async function Page({ searchParams }: { searchParams: Promise<SP> }) {
@@ -15,10 +15,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   const parsed = dashFilters.safeParse({
     brand: sp.brand || '*',
     loc: sp.loc || '*',
+    client: sp.client || '*',
     from: sp.from || undefined,
     to: sp.to || undefined,
   });
-  const filters: DashFilters = parsed.success ? parsed.data : { brand: sp.brand || '*', loc: sp.loc || '*' };
+  const filters: DashFilters = parsed.success
+    ? parsed.data
+    : { brand: sp.brand || '*', loc: sp.loc || '*', client: sp.client || '*' };
   const filterError = parsed.success ? undefined : (parsed.error.issues[0]?.message ?? 'Invalid filters');
   const ctx = await pageCtx();
   const catalog = await pageCatalog();
