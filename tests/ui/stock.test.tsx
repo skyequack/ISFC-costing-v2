@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { calls, installFetch, nav, onFetch, renderInShell, resetFetch } from './harness';
+import { calls, installFetch, nav, onFetch, renderInShell, resetFetch, shellOf } from './harness';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => nav.path,
@@ -75,7 +75,7 @@ describe('Stock screen (D-73)', () => {
     renderInShell(<StockScreen grid={grid()} />, 'chef');
     type('RICE', '-4');
     fireEvent.click(screen.getByText('Save all'));
-    expect(await screen.findByText(/RICE: enter a number of 0 or more/)).toBeTruthy();
+    expect(await screen.findByText(/RICE: enter a number from 0 to 1,000,000,000/)).toBeTruthy();
     expect(puts()).toHaveLength(0);
     type('RICE', '4');
     onFetch((c) =>
@@ -166,6 +166,44 @@ describe('Stock screen (D-73)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('a declined date change puts the field back on the day the grid shows, so a save cannot go to a different day', () => {
+    vi.useFakeTimers();
+    try {
+      vi.spyOn(window, 'confirm').mockReturnValue(false);
+      renderInShell(<StockScreen grid={grid()} />, 'chef');
+      type('RICE', '3');
+      const date = () => screen.getByLabelText('Date') as HTMLInputElement;
+      fireEvent.change(date(), { target: { value: '2026-10-09' } });
+      act(() => {
+        vi.advanceTimersByTime(DATE_COMMIT_MS + 50);
+      });
+      expect(nav.replace).not.toHaveBeenCalled();
+      expect(date().value).toBe('2026-10-10');
+      expect(box('RICE').value).toBe('3'); // the typed count is still there
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps unsaved edits when the same grid is re-rendered, drops them when the site, day or kind changes', () => {
+    const view = renderInShell(<StockScreen grid={grid()} />, 'chef');
+    type('RICE', '3');
+    view.rerender(shellOf(<StockScreen grid={grid()} />, 'chef'));
+    expect(box('RICE').value).toBe('3');
+    view.rerender(shellOf(<StockScreen grid={grid({ site: 'NEOM' })} />, 'chef'));
+    expect(box('RICE').value).toBe('');
+  });
+
+  it('on the receipt view a typed 0 is not a change; a quantity above the limit is refused by name', async () => {
+    renderInShell(<StockScreen grid={grid({ kind: 'receipt' })} />, 'chef');
+    type('RICE', '0');
+    expect(screen.queryByText(/unsaved/)).toBeNull();
+    type('RICE', '2000000000');
+    fireEvent.click(screen.getByText('Save all'));
+    expect(await screen.findByText(/RICE: enter a number from 0 to 1,000,000,000/)).toBeTruthy();
+    expect(puts()).toHaveLength(0);
   });
 
   it('the receipt view adds a column for deliveries that came from uploaded files', () => {

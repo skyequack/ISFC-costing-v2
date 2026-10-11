@@ -12,7 +12,7 @@ vi.mock('@clerk/nextjs', () => ({ useClerk: () => ({ signOut: vi.fn() }) }));
 import { DashScreen } from '@/components/screens/DashScreen';
 import type { DashData } from '@/lib/screens/dash';
 import type { DashAnalytics } from '@/lib/services/dash';
-import { DATE_COMMIT_MS } from '@/components/screens/DashAnalyticsPanel';
+import { DATE_COMMIT_MS } from '@/components/shared/DateField';
 
 beforeAll(() => {
   installFetch();

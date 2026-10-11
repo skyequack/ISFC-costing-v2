@@ -104,6 +104,7 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     );
     const renamedFrom = new Set(renames.map((r) => r.from));
     let updated = 0;
+    for (const r of renames) await assertNoStock(tx, r.from, 'renamed');
     for (const r of renames) {
       updated +=
         (await tx.query('UPDATE menu_pax SET location = $2 WHERE location = $1', [r.from, r.to])).rowCount ?? 0;
@@ -124,6 +125,7 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     }
     const removed = old.filter((s) => !next.includes(s) && !renamedFrom.has(s));
     for (const s of removed) {
+      await assertNoStock(tx, s, 'removed');
       const n =
         Number((await tx.query('SELECT count(*) AS n FROM menu_pax WHERE location = $1', [s])).rows[0]!.n) +
         Number(
@@ -160,6 +162,22 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
       `${input.name ?? cur.name} (${input.code ?? cur.code}): ${fields.join(', ')}`,
     );
   if (siteNote) await appendAudit(tx, user, 'Edited brand sites', `${input.name ?? cur.name}: ${siteNote}`);
+}
+
+/**
+ * Stock counts and receipts are keyed by the site's name and are not carried along by a rename yet (D-76 comes with the
+ * backup work in slice 2e), so a site that has any cannot be renamed or removed until then: better a refusal than rows
+ * left under a name no screen offers any more.
+ */
+async function assertNoStock(tx: Queryable, site: string, what: 'renamed' | 'removed'): Promise<void> {
+  const n =
+    Number((await tx.query('SELECT count(*) AS n FROM stock_count WHERE site = $1', [site])).rows[0]!.n) +
+    Number((await tx.query('SELECT count(*) AS n FROM receipt WHERE site = $1', [site])).rows[0]!.n);
+  if (n)
+    throw new ApiError('conflict', `Stock counts or receipts are recorded for ${site}, so it cannot be ${what} yet`, {
+      site,
+      rows: n,
+    });
 }
 
 export async function deleteBrand(tx: Queryable, user: SessionUser, id: string): Promise<void> {

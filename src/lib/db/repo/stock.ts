@@ -13,15 +13,6 @@ export async function visibleSites(db: Queryable, scope: BrandScope): Promise<st
   return rows.map((r) => r.site);
 }
 
-/** True when every brand that lists `site` is in the caller's scope (D-74: actual usage is only shown then). */
-export async function seesEveryBrandAt(db: Queryable, scope: BrandScope, site: string): Promise<boolean> {
-  const { rows } = await db.query(
-    `SELECT 1 FROM brand WHERE $1 = ANY(locations) AND NOT (id = ANY($2::text[])) LIMIT 1`,
-    [site, [...scope.brandIds]],
-  );
-  return rows.length === 0;
-}
-
 export interface StockCell {
   /** the typed/counted quantity; null = nothing stored (not counted) */
   qty: number | null;

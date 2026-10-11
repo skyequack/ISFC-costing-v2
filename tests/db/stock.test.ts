@@ -1,14 +1,37 @@
 import type pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SessionUser } from '@/lib/auth/types';
-import { loadReceipts, seesEveryBrandAt, visibleSites } from '@/lib/db/repo/stock';
+import { loadReceipts, visibleSites } from '@/lib/db/repo/stock';
 import { visibleBrandIds } from '@/lib/db/scope';
 import { ApiError } from '@/lib/errors';
 import type { Role } from '@/lib/permissions';
+import { updateBrand } from '@/lib/services/brands';
 import { loadStockGrid, saveStock } from '@/lib/services/stock';
 import { connect, expectFails, hasTestDb, inRollback } from './helpers';
 
 vi.mock('@/lib/db/catalog-cache', () => ({ getCatalog: vi.fn(), CATALOG_TAG: 'catalog' }));
+const h = vi.hoisted(() => ({ client: null as unknown as import('pg').Client, session: null as unknown }));
+vi.mock('@/lib/db/client', async (orig) => {
+  const actual = await orig<typeof import('@/lib/db/client')>();
+  return {
+    ...actual,
+    db: { query: (t: string, v?: unknown[]) => h.client.query(t, v) },
+    withTransaction: async <T>(fn: (tx: unknown) => Promise<T>): Promise<T> => {
+      await h.client.query('SAVEPOINT stk');
+      try {
+        const r = await fn(h.client);
+        await h.client.query('RELEASE SAVEPOINT stk');
+        return r;
+      } catch (e) {
+        await h.client.query('ROLLBACK TO SAVEPOINT stk');
+        throw e;
+      }
+    },
+  };
+});
+vi.mock('@/lib/auth/session', () => ({ getSession: async () => h.session }));
+vi.mock('@/lib/logger', () => ({ log: vi.fn() }));
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), unstable_cache: (fn: unknown) => fn }));
 
 async function fail(p: Promise<unknown>): Promise<ApiError> {
   try {
@@ -24,6 +47,7 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
   let c: pg.Client;
   beforeAll(async () => {
     c = await connect();
+    h.client = c;
   }, 60_000);
   afterAll(async () => {
     await c.end();
@@ -90,7 +114,7 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
       (r) => `${r.site}|${r.code}|${r.qty}`,
     );
 
-  it('a user sees the sites of the brands in their scope; a shared site is visible to both, and "sees every brand" tells them apart', () =>
+  it('a user sees the sites of the brands in their scope; a shared site is visible to both', () =>
     inRollback(c, async () => {
       const { a, b } = await fixture();
       const gm = await mkUser('gm');
@@ -104,9 +128,6 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
         'ZS-SHARED',
       ]);
       expect(await visibleSites(c, await scopeOf(nobody))).toEqual([]);
-      expect(await seesEveryBrandAt(c, await scopeOf(ua), 'ZS-A')).toBe(true);
-      expect(await seesEveryBrandAt(c, await scopeOf(ua), 'ZS-SHARED')).toBe(false); // brand B also lists it
-      expect(await seesEveryBrandAt(c, await scopeOf(gm), 'ZS-SHARED')).toBe(true);
       void b;
     }));
 
@@ -242,6 +263,94 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
         1,
       );
     }));
+
+  it('clearing what was never stored writes nothing and no audit row; the count is of rows really deleted', () =>
+    inRollback(c, async () => {
+      const { a } = await fixture();
+      const u = await mkUser('chef', [a]);
+      const s = await scopeOf(u);
+      const before = Number(
+        (
+          await c.query(
+            "SELECT count(*) AS n FROM audit_log WHERE action = 'Stock counts saved' AND detail LIKE 'ZS-A%'",
+          )
+        ).rows[0]!.n,
+      );
+      expect(await put(u, s, { cells: [{ code: 'ZS-A-ING', qty: null }] })).toEqual({ saved: 0, cleared: 0 });
+      expect(
+        Number(
+          (
+            await c.query(
+              "SELECT count(*) AS n FROM audit_log WHERE action = 'Stock counts saved' AND detail LIKE 'ZS-A%'",
+            )
+          ).rows[0]!.n,
+        ),
+      ).toBe(before);
+      await put(u, s, { cells: [{ code: 'ZS-A-ING', qty: 2 }] });
+      expect(
+        await put(u, s, {
+          cells: [
+            { code: 'ZS-A-ING', qty: null },
+            { code: 'ZS-SHARED-ING', qty: null },
+          ],
+        }),
+      ).toEqual({ saved: 0, cleared: 1 });
+    }));
+
+  it('a site that has stock cannot be renamed or removed yet (until slice 2e carries the rows along); one without can', () =>
+    inRollback(c, async () => {
+      const { a } = await fixture();
+      const gm = await mkUser('gm');
+      await put(gm, await scopeOf(gm), { cells: [{ code: 'ZS-A-ING', qty: 1 }] });
+      const rename = (from: string, to: string) =>
+        updateBrand(c, gm, a, { locations: ['ZS-SHARED', to], renamedSites: [{ from, to }] });
+      const e1 = await fail(rename('ZS-A', 'ZS-A2'));
+      expect(e1.status).toBe(409);
+      expect((await fail(updateBrand(c, gm, a, { locations: ['ZS-SHARED'] }))).status).toBe(409); // removal
+      expect((await c.query('SELECT locations FROM brand WHERE id = $1', [a])).rows[0]!.locations).toEqual([
+        'ZS-SHARED',
+        'ZS-A',
+      ]);
+      await c.query("DELETE FROM stock_count WHERE site = 'ZS-A'");
+      await rename('ZS-A', 'ZS-A2');
+      expect((await c.query('SELECT locations FROM brand WHERE id = $1', [a])).rows[0]!.locations).toEqual([
+        'ZS-SHARED',
+        'ZS-A2',
+      ]);
+    }));
+
+  describe('PUT /api/stock', () => {
+    const call = async (u: SessionUser, body: unknown) => {
+      h.session = { status: 'ok', user: u };
+      const { PUT } = await import('@/app/api/stock/route');
+      return PUT(
+        new Request('http://x/api/stock', {
+          method: 'PUT',
+          body: JSON.stringify(body),
+          headers: { 'content-type': 'application/json' },
+        }),
+        { params: Promise.resolve({}) },
+      );
+    };
+    const body = { site: 'ZS-A', date: '2025-06-10', kind: 'count', cells: [{ code: 'ZS-A-ING', qty: 3 }] };
+
+    it('a chef saves, a viewer is refused (403), a bad body is 400, an unknown site 404, a foreign ingredient 422', () =>
+      inRollback(c, async () => {
+        const { a } = await fixture();
+        const chef = await mkUser('chef', [a]);
+        const viewer = await mkUser('viewer', [a]);
+        const ok = await call(chef, body);
+        expect(ok.status).toBe(200);
+        expect(await ok.json()).toEqual({ saved: 1, cleared: 0 });
+        expect(await counts()).toEqual(['ZS-A|ZS-A-ING|3']);
+        expect((await call(viewer, { ...body, cells: [{ code: 'ZS-A-ING', qty: 9 }] })).status).toBe(403);
+        expect(await counts()).toEqual(['ZS-A|ZS-A-ING|3']);
+        expect((await call(chef, { ...body, date: '2025-02-30' })).status).toBe(400);
+        expect((await call(chef, { ...body, cells: [{ code: 'ZS-A-ING', qty: -1 }] })).status).toBe(400);
+        expect((await call(chef, { ...body, site: 'ZS-B' })).status).toBe(404);
+        expect((await call(chef, { ...body, cells: [{ code: 'ZS-B-ING', qty: 1 }] })).status).toBe(422);
+      }));
+  });
 
   it('the table constraints hold even for a direct write: no negative quantity, no zero receipt, no duplicate key', () =>
     inRollback(c, async () => {

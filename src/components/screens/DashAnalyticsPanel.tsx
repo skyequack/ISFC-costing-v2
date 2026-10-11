@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from '@/components/shell/nav-progress';
-import { DATE_COMMIT_MS, DateField } from '@/components/shared/DateField';
+import { DateField } from '@/components/shared/DateField';
 import { Perm } from '@/components/shared/Perm';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
@@ -20,8 +20,6 @@ export function dashHref(f: DashAnalytics['filters']): string {
   const t = q.toString();
   return t ? `/dash?${t}` : '/dash';
 }
-
-export { DATE_COMMIT_MS }; // the shared date field's pause, for the tests
 
 const active = (f: DashAnalytics['filters']) => f.brand !== '*' || f.loc !== '*' || !!f.from || !!f.to;
 

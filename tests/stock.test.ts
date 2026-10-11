@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { latestStockDate, MAX_STOCK_CELLS, stockSaveIn } from '@/lib/services/stock';
+import { latestStockDate, stockSaveIn } from '@/lib/services/stock';
+import { MAX_STOCK_CELLS, MAX_STOCK_QTY } from '@/lib/stock-limits';
 
 const ok = { site: 'NIC', date: '2026-10-11', kind: 'count', cells: [{ code: 'A-1', qty: 3 }] };
 const bad = (o: object) => stockSaveIn.safeParse({ ...ok, ...o });
@@ -26,7 +27,8 @@ describe('stock save input (D-73)', () => {
     expect(bad({ cells: [{ code: 'A-1', qty: -1 }] }).success).toBe(false);
     expect(bad({ cells: [{ code: 'A-1', qty: NaN }] }).success).toBe(false);
     expect(bad({ cells: [{ code: 'A-1', qty: Infinity }] }).success).toBe(false);
-    expect(bad({ cells: [{ code: 'A-1', qty: 2e9 }] }).success).toBe(false);
+    expect(bad({ cells: [{ code: 'A-1', qty: MAX_STOCK_QTY + 1 }] }).success).toBe(false);
+    expect(bad({ cells: [{ code: 'A-1', qty: MAX_STOCK_QTY }] }).success).toBe(true);
     expect(bad({ cells: [{ code: '', qty: 1 }] }).success).toBe(false);
     expect(bad({ cells: [] }).success).toBe(false);
     expect(

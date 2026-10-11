@@ -53,8 +53,9 @@ const brands = [
   { id: 'b2', name: 'Other', code: 'OTH', color: '#1F5C8B', onSolid: '#FFFFFF', logoUrl: null, cards: 1 },
 ];
 
-export function renderInShell(el: ReactElement, role: Role = 'gm', workspaceId: string | null = 'b1') {
-  return render(
+/** The element renderInShell renders, for `rerender` (same wrapper, new content). */
+export function shellOf(el: ReactElement, role: Role = 'gm', workspaceId: string | null = 'b1') {
+  return (
     <Shell
       session={{
         name: 'Tester',
@@ -66,8 +67,12 @@ export function renderInShell(el: ReactElement, role: Role = 'gm', workspaceId: 
       }}
     >
       {el}
-    </Shell>,
+    </Shell>
   );
+}
+
+export function renderInShell(el: ReactElement, role: Role = 'gm', workspaceId: string | null = 'b1') {
+  return render(shellOf(el, role, workspaceId));
 }
 
 export const cost = {

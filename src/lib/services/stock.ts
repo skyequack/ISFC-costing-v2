@@ -2,18 +2,16 @@ import { z } from 'zod';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
-import { listIngredients } from '../db/repo/ingredients';
+import { ingredientCodesInScope, listIngredients } from '../db/repo/ingredients';
 import type { BrandScope } from '../db/scope';
 import { loadCounts, loadReceipts, visibleSites, type StockCell } from '../db/repo/stock';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
+import { MAX_STOCK_CELLS, MAX_STOCK_QTY } from '../stock-limits';
 import { siteStr } from './planning';
 
 export const STOCK_KINDS = ['count', 'receipt'] as const;
 export type StockKind = (typeof STOCK_KINDS)[number];
-
-/** Most cells one save may carry (the grid shows ~1000 ingredients). */
-export const MAX_STOCK_CELLS = 1500;
 
 export const stockDate = z
   .string()
@@ -32,7 +30,7 @@ export const stockSaveIn = z.object({
       z.object({
         code: z.string().trim().min(1).max(60),
         /** null = clear the stored value (nothing counted / no grid delivery) */
-        qty: z.number().finite().min(0).max(1e9).nullable(),
+        qty: z.number().finite().min(0).max(MAX_STOCK_QTY).nullable(),
       }),
     )
     .min(1)
@@ -110,7 +108,11 @@ export async function saveStock(
     if (seen.has(c.code)) throw new ApiError('bad_request', `${c.code} appears twice`);
     seen.add(c.code);
   }
-  const inScope = new Set((await listIngredients(tx, scope)).map((i) => i.code));
+  const inScope = await ingredientCodesInScope(
+    tx,
+    scope,
+    input.cells.map((c) => c.code),
+  );
   const unknown = input.cells.filter((c) => !inScope.has(c.code)).map((c) => c.code);
   if (unknown.length)
     throw new ApiError('unprocessable', `Not an ingredient you can use: ${unknown.slice(0, 5).join(', ')}`, {
@@ -133,19 +135,25 @@ export async function saveStock(
       [input.site, input.date, keep.map((c) => c.code), keep.map((c) => c.qty), who],
     );
   }
+  let cleared = 0;
   if (drop.length)
-    await tx.query(
-      isCount
-        ? `DELETE FROM stock_count WHERE site = $1 AND count_date = $2::date AND code = ANY($3::text[])`
-        : `DELETE FROM receipt WHERE site = $1 AND receipt_date = $2::date AND code = ANY($3::text[]) AND ref = ''`,
-      [input.site, input.date, drop],
-    );
+    cleared =
+      (
+        await tx.query(
+          isCount
+            ? `DELETE FROM stock_count WHERE site = $1 AND count_date = $2::date AND code = ANY($3::text[])`
+            : `DELETE FROM receipt WHERE site = $1 AND receipt_date = $2::date AND code = ANY($3::text[]) AND ref = ''`,
+          [input.site, input.date, drop],
+        )
+      ).rowCount ?? 0;
 
-  await appendAudit(
-    tx,
-    user,
-    isCount ? 'Stock counts saved' : 'Receipts saved',
-    `${input.site} · ${input.date}: ${keep.length} saved, ${drop.length} cleared`,
-  );
-  return { saved: keep.length, cleared: drop.length };
+  // clearing something that was never stored changes nothing, so it is not audited either
+  if (keep.length || cleared)
+    await appendAudit(
+      tx,
+      user,
+      isCount ? 'Stock counts saved' : 'Receipts saved',
+      `${input.site} · ${input.date}: ${keep.length} saved, ${cleared} cleared`,
+    );
+  return { saved: keep.length, cleared };
 }

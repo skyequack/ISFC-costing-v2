@@ -7,6 +7,7 @@ import { DateField } from '@/components/shared/DateField';
 import { usePerm } from '@/components/shared/session-context';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
+import { MAX_STOCK_QTY } from '@/lib/stock-limits';
 import type { StockGrid } from '@/lib/services/stock';
 
 export const STOCK_PAGE = 100;
@@ -19,7 +20,7 @@ function parseQty(text: string): number | null | undefined {
   const t = text.trim();
   if (t === '') return null;
   const n = Number(t);
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
+  return Number.isFinite(n) && n >= 0 && n <= MAX_STOCK_QTY ? n : undefined;
 }
 
 /** Stock counts and receipts per site and day (D-73): a grid of the ingredients in scope, saved all at once. */
@@ -32,11 +33,13 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
   const [entered, setEntered] = useState(false);
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [dateReset, setDateReset] = useState(0);
   const isCount = grid.kind === 'count';
   const dirty = Object.keys(edits).length;
 
-  // a saved or reloaded grid starts clean
-  useEffect(() => setEdits({}), [grid]);
+  // another site, day or kind starts clean (a refresh of the same one keeps what is being typed)
+  const view = `${grid.site}|${grid.date}|${grid.kind}`;
+  useEffect(() => setEdits({}), [view]);
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -44,9 +47,12 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
 
-  const go = (patch: Partial<{ site: string; date: string; kind: string }>) => {
-    if (dirty && !window.confirm(`${dirty} unsaved change${dirty === 1 ? '' : 's'} will be lost. Continue?`)) return;
+  /** Go to another site, day or kind; with unsaved changes it asks first. Returns false when the user stayed. */
+  const go = (patch: Partial<{ site: string; date: string; kind: string }>): boolean => {
+    if (dirty && !window.confirm(`${dirty} unsaved change${dirty === 1 ? '' : 's'} will be lost. Continue?`))
+      return false;
     router.replace(href(patch.site ?? grid.site, patch.date ?? grid.date, patch.kind ?? grid.kind));
+    return true;
   };
 
   const shown = useMemo(() => {
@@ -66,7 +72,10 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
     setEdits((m) => {
       const { [code]: _drop, ...rest } = m;
       void _drop;
-      const same = (parseQty(text) ?? undefined) === stored || (text.trim() === '' && stored === null);
+      // a blank equals "nothing stored", and on the receipt view 0 means the same (it clears)
+      const norm = (v: number | null | undefined) => (!isCount && v === 0 ? null : v);
+      const typed = norm(parseQty(text));
+      const same = typed === norm(stored);
       return same ? rest : { ...rest, [code]: text };
     });
 
@@ -74,7 +83,7 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
     const cells: { code: string; qty: number | null }[] = [];
     for (const [code, text] of Object.entries(edits)) {
       const qty = parseQty(text);
-      if (qty === undefined) return toast(`${code}: enter a number of 0 or more`);
+      if (qty === undefined) return toast(`${code}: enter a number from 0 to 1,000,000,000`);
       cells.push({ code, qty });
     }
     cells.sort((x, y) => x.code.localeCompare(y.code)); // a stable request
@@ -87,6 +96,7 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
         cells,
       });
       toast(`${r.saved} ${isCount ? 'counts' : 'receipts'} saved${r.cleared ? `, ${r.cleared} cleared` : ''}`);
+      setEdits({});
       router.refresh();
     } catch (e) {
       toast(errText(e));
@@ -110,7 +120,15 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
       <label className="fl" style={s('margin:0')}>
         Date
       </label>
-      <DateField value={grid.date} label="Date" allowBlank={false} onCommit={(v) => go({ date: v })} />
+      <DateField
+        key={`${grid.date}:${dateReset}`}
+        value={grid.date}
+        label="Date"
+        allowBlank={false}
+        onCommit={(v) => {
+          if (!go({ date: v })) setDateReset((n) => n + 1); // stayed: put the field back on the day the grid shows
+        }}
+      />
       <button className={`btn ${isCount ? '' : 'o'}`} onClick={() => go({ kind: 'count' })}>
         Count
       </button>

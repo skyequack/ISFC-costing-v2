@@ -44,7 +44,7 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | GET /api/settings | any | – |
 | PATCH /api/settings | settings.edit (version check) | Settings changed (old→new, cards affected) |
 | GET /api/brands | any (scoped) | – |
-| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count) → `Edited brand sites` |
+| POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count; a site that has stock counts or receipts can be neither renamed nor removed until slice 2e, D-76) → `Edited brand sites` |
 | POST /api/brands/:id/clients | clients.edit | Added client (D-71; name unique per brand, case-insensitive → 409) |
 | PATCH /api/clients/:id | clients.edit | Edited client (`name` and/or `active`, with the `version` read; stale → 409) |
 | DELETE /api/clients/:id | clients.edit | Removed client (409 while production rows reference it: deactivate instead) |
