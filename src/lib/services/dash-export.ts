@@ -5,6 +5,14 @@ import type { PageCtx } from '../screens/ctx';
 import { dashFilters, loadDashAnalytics } from './dash';
 import type { ExportFile, ExportQuery } from './exports';
 
+const VERDICT = { within: 'Within allowance', over: 'Over', under: 'Under (20% tolerance)' } as const;
+const TVA_STATE = { counted: 'compared', 'no-count': 'no opening/closing count', shared: 'shared site' } as const;
+const TVA_REASON = {
+  client: 'stock is not tracked per client',
+  range: 'pick a from and to date to compare with stock counts',
+  'no-count': 'no site has both an opening and a closing count in the range',
+  shared: 'stock covers the whole site, and another brand uses it',
+} as const;
 const QUADRANT = { star: 'Star', plowhorse: 'Plowhorse', puzzle: 'Puzzle', dog: 'Dog' } as const;
 const f = (v: number, d: number) => v.toFixed(d);
 const pc = (v: number) => f(v * 100, 1);
@@ -20,13 +28,21 @@ export async function dashExportRows(
   catalog: Catalog,
   q: ExportQuery,
 ): Promise<ExportFile> {
-  const filters = parseValue({ brand: q.brand, loc: q.loc, from: q.from, to: q.to }, dashFilters);
-  const d = await loadDashAnalytics(db, ctx, catalog, filters);
+  const filters = parseValue({ brand: q.brand, loc: q.loc, client: q.client, from: q.from, to: q.to }, dashFilters);
+  const d = await loadDashAnalytics(db, ctx, catalog, filters, undefined, { full: true });
   const brandName = filters.brand === '*' ? 'All brands' : (ctx.brands.find((b) => b.id === filters.brand)?.name ?? '');
   const out: unknown[][] = [
     ['Dashboard analytics'],
     ['Brand', brandName],
     ['Site', filters.loc === '*' ? 'All sites' : filters.loc],
+    [
+      'Client',
+      filters.client === '*'
+        ? 'All clients'
+        : filters.client === 'none'
+          ? 'Unassigned'
+          : (d.clientOptions.find((c) => c.id === filters.client)?.name ?? ''),
+    ],
     ['From', filters.from ?? 'start'],
     ['To', filters.to ?? 'latest'],
     ['Portions in range', d.portions],
@@ -79,7 +95,57 @@ export async function dashExportRows(
   out.push(['Code', 'Name', 'Portions', 'Unpriced ingredients']);
   for (const r of d.unpriced.rows) out.push([r.code, r.name, f(r.portions, 4), r.missing]);
 
+  const t = d.tva;
+  out.push([], ['Theoretical vs actual usage (purchase units; theoretical = requisition usage without waste buffer)']);
+  out.push([
+    t.mode === 'actual'
+      ? `Compared: ${t.counted} of ${t.total} site(s) with an opening and a closing count`
+      : `Theoretical only: ${TVA_REASON[t.reason ?? 'no-count']}`,
+  ]);
+  for (const s of t.sites)
+    out.push([
+      'Site',
+      s.site,
+      TVA_STATE[s.state],
+      s.state === 'counted' ? `after ${s.from} up to and including ${s.to}` : '',
+    ]);
+  if (t.unallocated)
+    out.push([
+      'Production with no site (not compared)',
+      f(t.unallocated.portions, 4),
+      'theoretical value',
+      f(t.unallocated.value, 2),
+      'ingredients without a price',
+      t.unallocated.unpriced,
+    ]);
+  out.push([
+    'Code',
+    'Ingredient',
+    'Unit',
+    'Theoretical',
+    'Allowed up to',
+    'Actual',
+    'Deviation',
+    'Deviation value',
+    'Verdict',
+    'Note',
+  ]);
+  for (const r of t.rows)
+    out.push([
+      r.code,
+      r.name,
+      r.uom,
+      f(r.theoretical, 4),
+      f(r.ceiling, 4),
+      r.actual === null ? 'n/a' : f(r.actual, 4),
+      r.deviation === null ? 'n/a' : f(r.deviation, 4),
+      r.value === null ? (r.deviation === null ? 'n/a' : 'no price') : f(r.value, 2),
+      r.verdict ? VERDICT[r.verdict] : 'n/a',
+      r.flagged ? 'unconvertible unit on a recipe line: usage understated' : '',
+    ]);
+
   const dataRows =
+    t.rows.length +
     (d.matrix.points?.length ?? 0) +
     d.risk.rows.length +
     d.overTarget.length +

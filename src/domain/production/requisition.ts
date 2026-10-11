@@ -5,7 +5,16 @@
  * '?code' bucket for unknown codes. NEW (D-10/D-28): valuation applies the same unit conversion as costing,
  * and unconvertible lines, depth truncation, and sub-recipe scale mismatches are FLAGGED, never silent.
  */
-import { cost, num, unitBridge, type ConvEntry, type CostItem, type CostRecipe, type CostSettings } from '../costing';
+import {
+  cost,
+  num,
+  unitBridge,
+  type ConvEntry,
+  type CostItem,
+  type CostLine,
+  type CostRecipe,
+  type CostSettings,
+} from '../costing';
 import { buildContext } from '../costing/types';
 
 export interface ReqContext {
@@ -74,12 +83,27 @@ function recipeByCode(list: ReadonlyArray<CostRecipe>, upper: string): CostRecip
   return e.map.get(upper);
 }
 
+/** One ingredient line reached by the expansion (a leaf: the code is a library item). Read-only observation, never changes the math. */
+export interface ReqLineEvent {
+  recipe: CostRecipe;
+  line: CostLine;
+  /** portions of `recipe` being expanded when the line was reached */
+  portions: number;
+  /** the recipe's output, as used for q */
+  out: number;
+  /** unit bridge: false = the line unit cannot be converted (the line adds 0 to purchaseQty) */
+  convertible: boolean;
+  /** divisor from line unit to purchase unit; null = same unit */
+  factor: number | null;
+}
+
 export function reqExpand(
   r: CostRecipe | null | undefined,
   portions: number,
   ctx: ReqContext,
   res: ReqResult,
   depth = 0,
+  onLine?: (e: ReqLineEvent) => void,
 ): void {
   if (!r) return;
   if (depth > 4) {
@@ -110,7 +134,7 @@ export function reqExpand(
             appliedPortions: subPortions,
           });
       }
-      reqExpand(sub, subPortions, ctx, res, depth + 1);
+      reqExpand(sub, subPortions, ctx, res, depth + 1, onLine);
       return;
     }
     const it = ctx.items.get(l.code);
@@ -132,6 +156,7 @@ export function reqExpand(
     /* conversion-aware valuation: identical rule to costing lineCost() */
     const br = unitBridge(l.code, l.unit, it.uom, ctx.conv);
     const ok = !br.need;
+    onLine?.({ recipe: r, line: l, portions, out, convertible: ok, factor: br.factor });
     const pq = br.factor !== null ? q / br.factor : q;
     if (!ok) {
       flag(res, { kind: 'unconvertible', recipe: r.code, code: l.code, lineUnit: l.unit, itemUom: it.uom });
