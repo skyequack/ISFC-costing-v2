@@ -34,9 +34,24 @@ export function useBackupIO() {
         }
         return out;
       };
+      const stock = async (part: 'counts' | 'receipts') => {
+        const out: unknown[] = [];
+        let offset: number | null = 0;
+        while (offset !== null) {
+          const r: { items: unknown[]; nextOffset: number | null } = await api(
+            'GET',
+            `/api/export/backup?part=${part}&from=${core.stockFrom}&offset=${offset}`,
+          );
+          out.push(...r.items);
+          offset = r.nextOffset;
+        }
+        return out;
+      };
+      const stockCounts = await stock('counts');
+      const receipts = await stock('receipts');
       const photos = (await images('photos')).map((p) => ({ recipeCode: p.code, data: p.data }));
       const logos = (await images('logos')).map((l) => ({ brandCode: l.code, data: l.data }));
-      const text = JSON.stringify({ ...core, photos, logos });
+      const text = JSON.stringify({ ...core, stockCounts, receipts, photos, logos });
       saveBlob(
         `ISFC-costing-backup-${new Date().toISOString().slice(0, 10)}.json`,
         new Blob([text], { type: 'application/json' }),
@@ -142,6 +157,16 @@ export function useBackupIO() {
                       <td>Headcounts / production figures</td>
                       <td className="n">
                         {stats.menuPax} / {stats.production}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Stock counts / receipts</td>
+                      <td className="n">
+                        {stats.stockCounts == null && stats.receipts == null
+                          ? 'left as they are (backup has none)'
+                          : `${stats.stockCounts ?? 0} / ${stats.receipts ?? 0}${
+                              stats.stockSkipped ? ` (${stats.stockSkipped} skipped: unknown site or ingredient)` : ''
+                            }`}
                       </td>
                     </tr>
                     <tr>

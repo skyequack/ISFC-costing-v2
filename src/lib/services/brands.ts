@@ -104,8 +104,8 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     );
     const renamedFrom = new Set(renames.map((r) => r.from));
     let updated = 0;
-    for (const r of renames) await assertNoStock(tx, r.from, 'renamed');
     for (const r of renames) {
+      updated += await carryStock(tx, id, r.from, r.to);
       updated +=
         (await tx.query('UPDATE menu_pax SET location = $2 WHERE location = $1', [r.from, r.to])).rowCount ?? 0;
       try {
@@ -125,7 +125,7 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
     }
     const removed = old.filter((s) => !next.includes(s) && !renamedFrom.has(s));
     for (const s of removed) {
-      await assertNoStock(tx, s, 'removed');
+      await assertNoStock(tx, s);
       const n =
         Number((await tx.query('SELECT count(*) AS n FROM menu_pax WHERE location = $1', [s])).rows[0]!.n) +
         Number(
@@ -164,20 +164,53 @@ export async function updateBrand(tx: Queryable, user: SessionUser, id: string, 
   if (siteNote) await appendAudit(tx, user, 'Edited brand sites', `${input.name ?? cur.name}: ${siteNote}`);
 }
 
-/**
- * Stock counts and receipts are keyed by the site's name and are not carried along by a rename yet (D-76 comes with the
- * backup work in slice 2e), so a site that has any cannot be renamed or removed until then: better a refusal than rows
- * left under a name no screen offers any more.
- */
-async function assertNoStock(tx: Queryable, site: string, what: 'renamed' | 'removed'): Promise<void> {
-  const n =
+async function stockRows(tx: Queryable, site: string): Promise<number> {
+  return (
     Number((await tx.query('SELECT count(*) AS n FROM stock_count WHERE site = $1', [site])).rows[0]!.n) +
-    Number((await tx.query('SELECT count(*) AS n FROM receipt WHERE site = $1', [site])).rows[0]!.n);
+    Number((await tx.query('SELECT count(*) AS n FROM receipt WHERE site = $1', [site])).rows[0]!.n)
+  );
+}
+
+/** Stock counts and receipts are keyed by the site's name, so removing a site that has any is refused (D-76). */
+async function assertNoStock(tx: Queryable, site: string): Promise<void> {
+  const n = await stockRows(tx, site);
   if (n)
-    throw new ApiError('conflict', `Stock counts or receipts are recorded for ${site}, so it cannot be ${what} yet`, {
+    throw new ApiError('conflict', `Stock counts or receipts are recorded for ${site}, so it cannot be removed`, {
       site,
       rows: n,
     });
+}
+
+/**
+ * A rename carries the site's stock counts and receipts to the new name (D-76), but only while no other brand still lists
+ * the old name: stock belongs to the physical site, so another brand's view of it must move with it, never be stranded. A
+ * clash with rows already under the new name is a conflict, not a merge. Returns the rows moved.
+ */
+async function carryStock(tx: Queryable, brandId: string, from: string, to: string): Promise<number> {
+  if (!(await stockRows(tx, from))) return 0;
+  const others = Number(
+    (await tx.query('SELECT count(*) AS n FROM brand WHERE id <> $1 AND $2 = ANY(locations)', [brandId, from])).rows[0]!
+      .n,
+  );
+  if (others)
+    throw new ApiError(
+      'conflict',
+      `Stock counts or receipts are recorded for ${from} and another brand also uses it - rename it there too`,
+      { site: from },
+    );
+  await tx.query('SAVEPOINT carry_stock');
+  try {
+    const a = (await tx.query('UPDATE stock_count SET site = $2 WHERE site = $1', [from, to])).rowCount ?? 0;
+    const b = (await tx.query('UPDATE receipt SET site = $2 WHERE site = $1', [from, to])).rowCount ?? 0;
+    return a + b;
+  } catch (e) {
+    await tx.query('ROLLBACK TO SAVEPOINT carry_stock');
+    if ((e as { code?: string }).code === '23505')
+      throw new ApiError('conflict', `Stock already exists under ${to} for the same dates - merge it first`, {
+        site: to,
+      });
+    throw e;
+  }
 }
 
 export async function deleteBrand(tx: Queryable, user: SessionUser, id: string): Promise<void> {
