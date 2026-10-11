@@ -52,5 +52,5 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Dashboard slice 2e: stock in backup/restore, Data Health, site rename carries stock | D-75, D-76, D-83 (D-77 = accepted gaps) | merged to `main` (`eb7fe82`), gates green (2026-10-11); strings approved |
 | Dashboard slice 3: three-stage yield (migration 0007) | D-70, D-85 | merged to `main` (`82ccf36`), gates green (2026-10-11); strings approved |
 | Users: pending invites, revoke, edit access, Select all brands (migration 0005) | D-78…D-81 | merged to `main` (`212e79f`), gates green (2026-10-11); migration 0005 on `dev` and `production` |
-| Backup & Export: Import templates card (price list, recipe, stock counts, stock receipts) | D-86 | built, gates green (2026-10-11); layout and content answered by Omer; new strings pending approval |
+| Backup & Export: Import templates card (price list, recipe, stock counts, stock receipts) | D-86 | built, gates green (2026-10-11); layout, content and strings approved by Omer; checked in the browser as GM on `dev` |
 | Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |
