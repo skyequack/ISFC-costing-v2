@@ -67,7 +67,7 @@ describe('permission matrix', () => {
   it('finds the permission-gated endpoints', () => {
     expect(gated.length).toBeGreaterThanOrEqual(30);
     // the GM-only permissions are used by their endpoints
-    for (const p of ['users.manage', 'data.admin', 'brands.edit', 'menu.edit', 'clients.edit'] as const)
+    for (const p of ['users.manage', 'data.admin', 'brands.edit', 'menu.edit', 'clients.edit', 'stock.edit'] as const)
       expect(
         gated.some((e) => e.perm === p),
         p,

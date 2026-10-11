@@ -20,6 +20,8 @@ export const PERMISSIONS = [
   'data.admin',
   'brands.edit',
   'clients.edit',
+  'stock.edit',
+  'stock.view',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -60,6 +62,8 @@ export const ROLES: Record<Role, RoleDef> = {
       'audit.view',
       'menu.edit',
       'clients.edit',
+      'stock.edit',
+      'stock.view',
     ],
   },
   fin: {
@@ -67,28 +71,28 @@ export const ROLES: Record<Role, RoleDef> = {
     rank: 3,
     colour: 'var(--fin)',
     note: 'Owns the money side: purchase prices from invoices, sales prices, and the cost percentages. Does not write recipes.',
-    perms: ['recipe.price', 'items.edit', 'settings.edit', 'export', 'audit.view'],
+    perms: ['recipe.price', 'items.edit', 'settings.edit', 'export', 'audit.view', 'stock.edit', 'stock.view'],
   },
   chef: {
     label: 'Head Chef',
     rank: 2,
     colour: 'var(--grn-dk)',
     note: 'Builds and edits recipe cards, and submits them for approval. Cannot price, delete or reopen an approved card.',
-    perms: ['recipe.create', 'recipe.edit', 'recipe.lock', 'export'],
+    perms: ['recipe.create', 'recipe.edit', 'recipe.lock', 'export', 'stock.edit', 'stock.view'],
   },
   cook: {
     label: 'Chef',
     rank: 2,
     colour: 'var(--chef)',
     note: 'Writes and edits recipe cards. Cannot approve one, set a price, or delete anything.',
-    perms: ['recipe.create', 'recipe.edit', 'export'],
+    perms: ['recipe.create', 'recipe.edit', 'export', 'stock.edit', 'stock.view'],
   },
   viewer: {
     label: 'Viewer',
     rank: 1,
     colour: 'var(--mute)',
     note: 'Read and print only. Nothing can be changed.',
-    perms: ['export'],
+    perms: ['export', 'stock.view'],
   },
 };
 

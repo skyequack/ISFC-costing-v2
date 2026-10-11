@@ -17,13 +17,19 @@ vm.runInNewContext(
 const LNAV = sandbox.NAV as string[][];
 const LTITLES = sandbox.TITLES as Record<string, [string, string]>;
 
+/** Screens added after the migration (D-64, Phase 8): they are not in the legacy file, so they are left out of the comparison. */
+const PHASE8_ROUTES = ['stock'];
+
 describe('labels stay verbatim (D-41)', () => {
   it('navigation groups and entries match the legacy NAV', () => {
-    const ported = NAV.map((n) => ('group' in n ? ['g', n.group] : [n.route, n.label, n.icon]));
+    const ported = NAV.filter((n) => 'group' in n || !PHASE8_ROUTES.includes(n.route)).map((n) =>
+      'group' in n ? ['g', n.group] : [n.route, n.label, n.icon],
+    );
     expect(ported).toEqual(LNAV.map((n) => (n[0] === 'g' ? ['g', n[1]] : [n[0], n[1], n[2]])));
   });
   it('screen titles and subtitles match the legacy TITLES except the Backup subtitle', () => {
-    const { backup: ported, ...rest } = TITLES;
+    const { backup: ported, ...withNew } = TITLES;
+    const rest = Object.fromEntries(Object.entries(withNew).filter(([k]) => !PHASE8_ROUTES.includes(k)));
     const { backup: legacyBackup, ...legacyRest } = LTITLES;
     expect(rest).toEqual(legacyRest);
     expect(legacyBackup).toEqual(['Backup & Export', 'Your data lives in this browser - back it up']);

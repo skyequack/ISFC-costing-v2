@@ -9,6 +9,7 @@ export const NAV: NavEntry[] = [
   { route: 'dash', label: 'Dashboard', icon: '■' },
   { route: 'prep', label: 'Preparation', icon: '▶' },
   { route: 'prod', label: 'Production', icon: '⚙' },
+  { route: 'stock', label: 'Stock', icon: '▦', perm: 'stock.view' }, // D-73 (Phase 8, not in the legacy NAV)
   { route: 'plan', label: 'Menu Plans', icon: '☷' },
   { route: 'recipes', label: 'Recipe Cards', icon: '▤' },
   { group: 'Data' },
@@ -24,6 +25,7 @@ export const NAV: NavEntry[] = [
 ];
 
 export const TITLES: Record<string, [string, string]> = {
+  stock: ['Stock', 'Counts and receipts per site, per date'], // D-73 (Phase 8)
   prod: ['Daily Production', 'How many portions each section cooks, kept day by day for the month'],
   prep: ['Preparation', 'Site, menu, headcount – then the materials to draw'],
   plan: ['Menu Plans', 'What is served each day, and what a day costs per person'],

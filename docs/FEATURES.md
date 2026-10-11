@@ -45,7 +45,7 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 |---|---|---|
 | Dashboard analytics v2, slice 1: filters (brand/site/date), Menu Matrix, margin-at-risk / Pareto / unpriced / over-target, filtered export | D-65…D-67 | built, gates green (2026-10-10) |
 | Dashboard slice 2a: clients entity + client in the production key (migration 0003) | D-68, D-71, D-72 | built on Neon branch `slice-2a`, gates green; not yet on `dev`/`production` |
-| Dashboard slice 2b: stock tables, API, Stock screen (migration 0004) | D-69, D-72, D-73 | approved, not built |
+| Dashboard slice 2b: stock tables, API, Stock screen (migration 0004) | D-69, D-72, D-73 | built on branch `slice-2a`, gates green; not yet on `dev`/`production` |
 | Dashboard slice 2c: stock upload (dry-run/commit) | D-73 | approved, not built |
 | Dashboard slice 2d: Theoretical vs actual panel + Client filter + export | D-74 | approved, not built |
 | Dashboard slice 2e: backup/restore, Data Health, site rename | D-75, D-76, D-77 | approved, not built |

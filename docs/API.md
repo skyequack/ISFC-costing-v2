@@ -55,6 +55,13 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 **Image upload contract (D-49).** `PUT` body = the raw image bytes with `Content-Type` image/png|jpeg|webp (no base64, no multipart). The server ignores the declared type, sniffs magic bytes, parses width/height, enforces the caps (photo ≤ 1.5 MB / 4096 px, logo ≤ 512 KB / 1024 px), stores `{contentType,data,size,width,height,sha256}` and returns `{url, sha256, size, width, height}`. Errors: 400 not an image / unsupported type (SVG, GIF), 413 over cap, 422 locked card, 404 out of scope. DTOs expose `photoUrl`/`logoUrl` = `/api/…/photo|logo?v=<sha8>` (null when none); list endpoints never include bytes. **Add brand in one step:** the UI creates the brand (`POST /api/brands`) then uploads the logo (`PUT …/logo`); if the second call fails the brand exists without a logo and the UI says so (retry from Edit brand). Same two-step for the optional photo in the New-card dialog.
 | GET /api/users; POST /api/users/invite; PATCH /api/users/:id {role, brandIds, name}; POST /api/users/:id/ban\|unban; DELETE /api/users/:id | users.manage | Invited/Updated/Suspended/Restored/Deleted user |
 
+## Stock (D-72, D-73)
+| Endpoint | Permission | Audit |
+|---|---|---|
+| PUT /api/stock | stock.edit (gm, cc, fin, chef, cook) | Stock counts saved / Receipts saved (site, date, counts only) |
+
+Body `{site, date: YYYY-MM-DD, kind: 'count'|'receipt', cells: [{code, qty: number >= 0 | null}]}` (1-1500 cells, no code twice). The site must be one of the caller's sites (union of `brand.locations` of their brands, else 404); every code an ingredient in their scope (else 422, nothing written); a date later than tomorrow UTC is 400. `qty` null clears; for counts 0 is stored (counted empty); for receipts 0 or null clears the grid row (`ref ''`), uploaded deliveries are never touched. Returns `{saved, cleared}`. Reads go through the `/stock` page (any signed-in role, so the Viewer sees it read-only).
+
 ## Planning & production
 | Method path | Permission | Notes / Audit |
 |---|---|---|

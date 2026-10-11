@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/components/shell/nav-progress';
+import { DATE_COMMIT_MS, DateField } from '@/components/shared/DateField';
 import { Perm } from '@/components/shared/Perm';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
@@ -21,52 +21,7 @@ export function dashHref(f: DashAnalytics['filters']): string {
   return t ? `/dash?${t}` : '/dash';
 }
 
-/** Wait this long after the last keystroke before a typed date is applied (a pick, Enter or leaving the field applies it at once). */
-export const DATE_COMMIT_MS = 700;
-/** A blank date (clears the filter) or a full date in a believable year: typing 2026 passes through 0002, 0020 and 0202. */
-const committable = (v: string) =>
-  v === '' || (/^\d{4}-\d{2}-\d{2}$/.test(v) && +v.slice(0, 4) >= 1900 && +v.slice(0, 4) <= 2200);
-
-/** Date field that keeps what is typed and only changes the URL once the date is complete, so typing never fires a request per keystroke. */
-function DateField({
-  value,
-  label,
-  min,
-  max,
-  onCommit,
-}: {
-  value: string;
-  label: string;
-  min?: string;
-  max?: string;
-  onCommit: (v: string) => void;
-}) {
-  const [draft, setDraft] = useState(value);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => setDraft(value), [value]);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const commit = (v: string) => {
-    clearTimeout(timer.current);
-    if (v !== value && committable(v)) onCommit(v);
-  };
-  return (
-    <input
-      type="date"
-      value={draft}
-      min={min}
-      max={max}
-      aria-label={label}
-      onChange={(e) => {
-        const v = e.target.value;
-        setDraft(v);
-        clearTimeout(timer.current);
-        timer.current = setTimeout(() => commit(v), DATE_COMMIT_MS);
-      }}
-      onBlur={() => commit(draft)}
-      onKeyDown={(e) => e.key === 'Enter' && commit(draft)}
-    />
-  );
-}
+export { DATE_COMMIT_MS }; // the shared date field's pause, for the tests
 
 const active = (f: DashAnalytics['filters']) => f.brand !== '*' || f.loc !== '*' || !!f.from || !!f.to;
 
