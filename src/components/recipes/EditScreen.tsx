@@ -166,16 +166,33 @@ export function EditScreen(props: EditProps) {
     unit: l.unit as EditLine['unit'],
     y: l.y,
     yp: l.yp,
+    yThaw: l.yThaw ?? null,
+    yCut: l.yCut ?? null,
+    yCook: l.yCook ?? null,
   }));
   // Edits are built from the newest lines, not the last render's copy, so two edits in one tick never overwrite each other.
   const linesRef = useRef(lines);
   linesRef.current = lines;
   const commitLines = (next: EditLine[]) => {
-    const withBlank = next.length ? next : [{ code: '', qty: 0, unit: 'Gram' as const, y: 1, yp: null }];
+    const withBlank = next.length
+      ? next
+      : [{ code: '', qty: 0, unit: 'Gram' as const, y: 1, yp: null, yThaw: null, yCut: null, yCook: null }];
     linesRef.current = withBlank;
     save(
       { lines: withBlank },
-      { lines: withBlank.map((l, i) => ({ sortOrder: i, code: l.code, qty: l.qty, unit: l.unit, y: l.y, yp: l.yp })) },
+      {
+        lines: withBlank.map((l, i) => ({
+          sortOrder: i,
+          code: l.code,
+          qty: l.qty,
+          unit: l.unit,
+          y: l.y,
+          yp: l.yp,
+          yThaw: l.yThaw,
+          yCut: l.yCut,
+          yCook: l.yCook,
+        })),
+      },
     );
   };
   const setLine = (i: number, patch: Partial<EditLine>) =>
@@ -580,7 +597,11 @@ export function EditScreen(props: EditProps) {
                           const last = cur0[cur0.length - 1];
                           if (last && !last.code)
                             commitLines(cur0.map((l, j) => (j === cur0.length - 1 ? { ...l, code, unit, y: 1 } : l)));
-                          else commitLines([...cur0, { code, qty: 0, unit, y: 1, yp: null }]);
+                          else
+                            commitLines([
+                              ...cur0,
+                              { code, qty: 0, unit, y: 1, yp: null, yThaw: null, yCut: null, yCook: null },
+                            ]);
                         },
                         toast,
                       )
@@ -593,7 +614,10 @@ export function EditScreen(props: EditProps) {
                   <button
                     className="btn sm o"
                     onClick={() =>
-                      commitLines([...linesRef.current, { code: '', qty: 0, unit: 'Gram', y: 1, yp: null }])
+                      commitLines([
+                        ...linesRef.current,
+                        { code: '', qty: 0, unit: 'Gram', y: 1, yp: null, yThaw: null, yCut: null, yCook: null },
+                      ])
                     }
                   >
                     Add blank row

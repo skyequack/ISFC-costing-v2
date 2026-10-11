@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { batch, num, type CostContext } from '@/domain/costing';
 import { findCycle } from '@/domain/recipes/graph';
+import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
 import { rnorm } from '../import/items';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
@@ -13,6 +14,19 @@ import { can } from '../permissions';
 import { BATCH_UNITS, UNITS } from '../validation/common';
 import { CODE_LOCK } from './ingredients';
 import { nextCode } from './recipes';
+
+/** One stage of the three-stage yield (D-70): a fraction in (0,10], null = blank. */
+const stageZ = z.number().finite().gt(0).max(10).nullable();
+interface StageSet {
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
+}
+/** The stored line the file's line is matched against (D-85). */
+interface PrevStages extends StageSet {
+  code: string;
+  y: number;
+}
 
 export const MAX_IMPORT_CARDS = 100;
 export const MAX_IMPORT_LINES = 3000;
@@ -36,6 +50,7 @@ export const importCardIn = z.object({
         unit: z.enum([...UNITS, '']).default(''),
         y: z.number().finite().gt(0).max(10).default(1),
         yp: z.number().finite().min(0).max(1000).nullable().default(null),
+        stages: z.object({ yThaw: stageZ, yCut: stageZ, yCook: stageZ }).nullable().optional(),
         block: z.object({ scaled: z.boolean() }).optional(),
       }),
     )
@@ -64,6 +79,9 @@ export interface PlannedLine {
   unit: string;
   y: number;
   yp: number | null;
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
 }
 export interface CardPlan {
   index: number;
@@ -197,6 +215,7 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
     };
     cards.push(plan);
     let prevLines: { code: string; yp: number | null }[] = [];
+    let prevStages: PrevStages[] = [];
 
     const block = (reason: string) => {
       plan.action = 'blocked';
@@ -228,10 +247,18 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
         if (canSeeBrand(scope, bid)) plan.movesFrom = brandById.get(target.brandId)?.name;
         else block(`it would move the card out of ${brandById.get(target.brandId)?.name ?? 'its brand'}`);
       }
-      const rows = await tx.query('SELECT code, yp FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order', [
-        target.id,
-      ]);
+      const rows = await tx.query(
+        'SELECT code, yp, y, y_thaw, y_cut, y_cook FROM recipe_line WHERE recipe_id = $1 ORDER BY sort_order',
+        [target.id],
+      );
       prevLines = rows.rows.map((r) => ({ code: r.code as string, yp: r.yp as number | null }));
+      prevStages = rows.rows.map((r) => ({
+        code: r.code as string,
+        y: r.y as number,
+        yThaw: r.y_thaw as number | null,
+        yCut: r.y_cut as number | null,
+        yCook: r.y_cook as number | null,
+      }));
     } else if (code && itemUpper.has(code)) block(`the code ${code} is already used by an ingredient`);
 
     // lines: items visible to the caller (or granted), or visible sub-recipes
@@ -264,7 +291,24 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
         const k = prevLines.findIndex((p) => p.code === l.code);
         if (k >= 0) yp = prevLines.splice(k, 1)[0]!.yp; // D-17: a file without a Waste % column leaves the stored value
       }
-      lines.push({ code: l.code, qty: l.qty, unit, y: l.y, yp });
+      // three-stage yield (D-70, D-85): the file's stage columns win; without them a line keeps its stored stages while the
+      // sheet's Yield % still matches what is stored (an unedited export/import round trip), and loses them when it differs
+      let y = l.y;
+      let st: StageSet = { yThaw: null, yCut: null, yCook: null };
+      const k = prevStages.findIndex((p) => p.code === l.code);
+      const prev = k >= 0 ? prevStages.splice(k, 1)[0]! : undefined;
+      if (l.stages) {
+        st = l.stages;
+        const p = stagedYield(st);
+        if (p !== null) {
+          if (validYield(p)) y = p;
+          else block(`${l.code}: the three stages together must give a yield above 0 and up to 1000%`);
+        }
+      } else if (prev && stagedYield(prev) !== null && Math.abs(l.y - Math.min(prev.y, 1)) < 0.005) {
+        st = { yThaw: prev.yThaw, yCut: prev.yCut, yCook: prev.yCook };
+        y = prev.y;
+      }
+      lines.push({ code: l.code, qty: l.qty, unit, y, yp, ...st });
       if (it) {
         const lu = unit.toLowerCase();
         const pu = it.uom.toLowerCase();
@@ -445,8 +489,8 @@ export async function commitRecipeImport(
     }
     const L = plan.lines;
     await tx.query(
-      `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
-       SELECT $1, o, c, q, u, y, yp FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[]) AS t(o,c,q,u,y,yp)`,
+      `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp, y_thaw, y_cut, y_cook)
+       SELECT $1, o, c, q, u, y, yp, yt, yc, yk FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[], $8::float8[], $9::float8[], $10::float8[]) AS t(o,c,q,u,y,yp,yt,yc,yk)`,
       [
         id,
         L.map((_, i) => i),
@@ -455,6 +499,9 @@ export async function commitRecipeImport(
         L.map((l) => l.unit),
         L.map((l) => l.y),
         L.map((l) => l.yp),
+        L.map((l) => l.yThaw),
+        L.map((l) => l.yCut),
+        L.map((l) => l.yCook),
       ],
     );
     await tx.query(

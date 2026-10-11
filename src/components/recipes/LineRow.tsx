@@ -9,6 +9,9 @@ import { cur } from '@/lib/format';
 import type { LineView } from '@/lib/services/card-view';
 import type { PickOption } from '@/lib/services/catalog-search';
 import { CommitInput } from '@/components/shared/inputs';
+import { usePerm } from '@/components/shared/session-context';
+import { stagedYield } from '@/domain/recipes/yield-stages';
+import { stagePct, useStagesDialog } from './StagesDialog';
 
 export interface EditLine {
   code: string;
@@ -16,6 +19,10 @@ export interface EditLine {
   unit: 'Gram' | 'Ml' | 'Each' | 'Slice';
   y: number;
   yp: number | null;
+  /** three-stage yield (D-70): fractions, null = not set; while any is set `y` is their product */
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
 }
 
 const UNITS = ['Gram', 'Ml', 'Each', 'Slice'] as const;
@@ -32,6 +39,9 @@ export function LineRow(props: {
 }) {
   const { l, lv, brandId, buffer } = props;
   const toast = useToast();
+  const canEdit = usePerm()('recipe.edit');
+  const openStages = useStagesDialog();
+  const staged = stagedYield(l) !== null;
   const [text, setText] = useState(l.code);
   const [opts, setOpts] = useState<{ all: PickOption[]; total: number } | null>(null);
   const [hl, setHl] = useState(-1);
@@ -254,6 +264,21 @@ export function LineRow(props: {
               onCommit={(v) => props.onChange({ yp: Math.min(99, Math.max(0, parseFloat(v) || 0)) })}
             />
           </Perm>
+          {l.code && (staged || canEdit) && (
+            <div style={s('margin-top:3px;text-align:right')}>
+              {canEdit ? (
+                <button
+                  className="btn sm o"
+                  title="Thawing, cutting / trimming and cooking yields, multiplied into the line yield"
+                  onClick={() => openStages(l, (patch) => props.onChange(patch))}
+                >
+                  {staged ? `yield ${stagePct(l.y)}%` : 'Stages'}
+                </button>
+              ) : (
+                <span className="pill p-gr">yield {stagePct(l.y)}%</span>
+              )}
+            </div>
+          )}
         </td>
         <td className="n mono" style={s('font-size:11.5px')}>
           {l.code ? cur((pending ? hint.price : lv?.price) ?? 0, 6) : ''}

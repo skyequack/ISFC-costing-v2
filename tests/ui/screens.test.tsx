@@ -74,7 +74,10 @@ describe('recipe editor (legacy vEdit)', () => {
     await user.tab();
     await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(2));
     const [a, b] = calls.filter((c) => c.method === 'PATCH');
-    expect(a!.body).toMatchObject({ version: 0, lines: [{ code: 'ING-1', qty: 250, unit: 'Gram', y: 1, yp: null }] });
+    expect(a!.body).toMatchObject({
+      version: 0,
+      lines: [{ code: 'ING-1', qty: 250, unit: 'Gram', y: 1, yp: null, yThaw: null, yCut: null, yCook: null }],
+    });
     expect(b!.body).toEqual({ version: 1, sellingPrice: 30 });
   });
 
@@ -146,7 +149,7 @@ describe('recipe editor (legacy vEdit)', () => {
     expect(b!.body).toEqual({
       version: 1,
       category: 'Grill',
-      lines: [{ code: 'ING-1', qty: 250, unit: 'Gram', y: 1, yp: null }],
+      lines: [{ code: 'ING-1', qty: 250, unit: 'Gram', y: 1, yp: null, yThaw: null, yCut: null, yCook: null }],
     });
     expect(p!.body).toEqual({ version: 2, sellingPrice: 30 });
     vi.stubGlobal('fetch', real);

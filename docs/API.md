@@ -13,7 +13,7 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | GET /api/recipes | any (scoped) | filter | – |
 | POST /api/recipes | recipe.create | brand access (brand required) | Created card |
 | GET /api/recipes/:id | any | check (404 if out of scope) | – |
-| PATCH /api/recipes/:id | recipe.edit; price fields need recipe.price; rejected if LOCKED | old+new brand; line codes visible; cycle check; code rename cascade | Edited card / Changed sales price / Changed a line yield |
+| PATCH /api/recipes/:id (`lines[]` may carry `yThaw`, `yCut`, `yCook`: fractions in (0,10], null = not set; while any is set the server writes `y` = their product, product outside (0,10] = 400; D-85) | recipe.edit; price fields need recipe.price; rejected if LOCKED | old+new brand; line codes visible; cycle check; code rename cascade | Edited card / Changed sales price / Changed a line yield |
 | DELETE /api/recipes/:id | recipe.delete (+recipe.unlock if locked) | check | Deleted card (soft) |
 | POST /api/recipes/:id/restore | recipe.delete | check, code collision re-check | Restored card |
 | POST /api/recipes/:id/duplicate | recipe.create | check | Duplicated card |
