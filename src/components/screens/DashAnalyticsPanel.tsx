@@ -5,13 +5,30 @@ import { DateField } from '@/components/shared/DateField';
 import { Perm } from '@/components/shared/Perm';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
-import type { Quadrant } from '@/domain/dash-analytics';
+import { MATRIX_MIN_ITEMS } from '@/domain/dash-analytics';
 import { cur, pct } from '@/lib/format';
 import type { DashAnalytics } from '@/lib/services/dash';
+import { QUAD, QUAD_ORDER, TVA_REASON } from './DashCharts';
+
+/** The dashboard tabs (D-82). The overview is the default and is left out of the URL. */
+export const DASH_TABS = ['overview', 'menu', 'margin', 'ingredients', 'brands'] as const;
+export type DashTab = (typeof DASH_TABS)[number];
+
+/** Reads the URL hash (without the #); anything unknown or missing is the overview. */
+export function dashTab(v: string | null | undefined): DashTab {
+  return DASH_TABS.find((t) => t === v) ?? 'overview';
+}
 
 const h3 = s('font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--org-dk)');
+/** Section heading inside a tab panel (the panel itself already gives the top spacing). */
+const sectionH3 = { ...h3, margin: '0 0 10px' };
+const sub = s('font-size:12px;color:var(--mute);margin-bottom:10px');
 
-export function dashHref(f: DashAnalytics['filters']): string {
+/**
+ * Filters in the query string, the tab in the hash (#menu etc.). The overview has no hash, so the old links still work.
+ * The tab is not a query parameter: a query change re-runs the server page, a hash change does not (D-84).
+ */
+export function dashHref(f: DashAnalytics['filters'], tab: DashTab = 'overview'): string {
   const q = new URLSearchParams();
   if (f.brand !== '*') q.set('brand', f.brand);
   if (f.loc !== '*') q.set('loc', f.loc);
@@ -19,14 +36,17 @@ export function dashHref(f: DashAnalytics['filters']): string {
   if (f.from) q.set('from', f.from);
   if (f.to) q.set('to', f.to);
   const t = q.toString();
-  return t ? `/dash?${t}` : '/dash';
+  const base = t ? `/dash?${t}` : '/dash';
+  return tab === 'overview' ? base : `${base}#${tab}`;
 }
 
 const active = (f: DashAnalytics['filters']) =>
   f.brand !== '*' || f.loc !== '*' || f.client !== '*' || !!f.from || !!f.to;
 
+const CLEAR: DashAnalytics['filters'] = { brand: '*', loc: '*', client: '*', from: '', to: '' };
+
 /** Filter bar (D-65): URL-driven like the Production screen; date and site only reach the production-driven sections. */
-export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }) {
+export function DashFilterBar({ a, error, tab = 'overview' }: { a: DashAnalytics; error?: string; tab?: DashTab }) {
   const router = useRouter();
   const f = a.filters;
   const go = (patch: Partial<DashAnalytics['filters']>) => {
@@ -35,7 +55,7 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
       n.loc = '*'; // a site belongs to its brand(s)
       n.client = '*'; // and so does a client
     }
-    router.replace(dashHref(n));
+    router.replace(dashHref(n, tab));
   };
   const brandName = f.brand === '*' ? 'All brands' : (a.brandOptions.find((b) => b.id === f.brand)?.name ?? '');
   return (
@@ -92,7 +112,7 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
         </label>
         <DateField value={f.to} label="To date" min={f.from || undefined} onCommit={(v) => go({ to: v })} />
         {active(f) && (
-          <button className="btn sm o" onClick={() => router.replace('/dash')}>
+          <button className="btn sm o" onClick={() => router.replace(dashHref(CLEAR, tab))}>
             Reset
           </button>
         )}
@@ -110,9 +130,9 @@ export function DashFilterBar({ a, error }: { a: DashAnalytics; error?: string }
             : f.client === 'none'
               ? 'Unassigned'
               : (a.clientOptions.find((c) => c.id === f.client)?.name ?? '')}{' '}
-          {'·'} {f.from || 'start'} {'–'} {f.to || 'latest'}. Site and dates apply to the Menu Matrix, Margin at Risk,
-          Cost Drivers and Unpriced Exposure. The KPIs, tables and Over Target respond to the brand only. The client
-          choice applies to the same sections, and Theoretical vs Actual follows all of the filters.
+          {'·'} {f.from || 'start'} {'–'} {f.to || 'latest'}. Site and dates apply to the Food-cost spread, Menu Matrix,
+          Margin at Risk, Cost Drivers and Unpriced Exposure. The KPIs, tables and Over Target respond to the brand
+          only. The client choice applies to the same sections, and Theoretical vs Actual follows all of the filters.
         </div>
       )}
     </>
@@ -139,23 +159,18 @@ export function ExportAnalyticsButton({ filters }: { filters: DashAnalytics['fil
   );
 }
 
-const QUAD: Record<Quadrant, { title: string; sub: string; color: string }> = {
-  puzzle: { title: 'Puzzles', sub: 'Unpopular, high margin', color: 'var(--org-dk)' },
-  star: { title: 'Stars', sub: 'Popular, high margin', color: 'var(--grn-dk)' },
-  dog: { title: 'Dogs', sub: 'Unpopular, low margin', color: 'var(--bad)' },
-  plowhorse: { title: 'Plowhorses', sub: 'Popular, low margin', color: 'var(--mute)' },
-};
-const GRID: Quadrant[] = ['puzzle', 'star', 'dog', 'plowhorse'];
-
-/** Menu Matrix (D-66): Kasavana-Smith popularity vs contribution, an HTML grid with clickable chips (prints, keyboard). */
-function Matrix({ a }: { a: DashAnalytics }) {
+/** Menu tab, lower part: the Menu Matrix (D-66), an HTML grid with clickable chips (prints, keyboard). */
+export function MatrixSection({ a }: { a: DashAnalytics }) {
   const router = useRouter();
   const m = a.matrix;
-  const open = (code: string) => a.ids[code] && router.push(`/edit/${a.ids[code]}`);
+  const open = (code: string) => {
+    const id = a.ids[code];
+    if (id) router.push(`/edit/${id}`);
+  };
   return (
     <>
-      <h3 style={{ ...h3, margin: '26px 0 6px' }}>Menu Matrix</h3>
-      <div style={s('font-size:12px;color:var(--mute);margin-bottom:10px')}>
+      <h3 style={sectionH3}>Menu Matrix</h3>
+      <div style={sub}>
         Popularity (portions produced) vs margin per portion; the dividing lines are the weighted averages.
       </div>
       {!m.points ? (
@@ -163,22 +178,22 @@ function Matrix({ a }: { a: DashAnalytics }) {
           <div className="empty">
             <p>Not enough data to classify yet</p>
             <p style={s('font-size:12px;color:var(--mute)')}>
-              {m.classified} of 4 priced menu items with production in range.
+              {m.classified} of {MATRIX_MIN_ITEMS} priced menu items with production in range.
             </p>
           </div>
         </div>
       ) : (
         <>
           <div style={s('display:grid;grid-template-columns:1fr 1fr;gap:10px')}>
-            {GRID.map((q) => {
+            {QUAD_ORDER.map((q) => {
               const pts = m.points!.filter((p) => p.quadrant === q);
               return (
-                <div className="card" key={q} style={s('padding:12px;min-height:120px')}>
+                <div className="card" key={q} style={s('padding:12px;min-height:110px')}>
                   <div style={{ ...s('font-weight:700'), color: QUAD[q].color }}>
                     {QUAD[q].title} <span style={s('font-weight:400;color:var(--mute)')}>({pts.length})</span>
                   </div>
                   <div style={s('font-size:11px;color:var(--mute);margin-bottom:8px')}>{QUAD[q].sub}</div>
-                  <div style={s('display:flex;flex-wrap:wrap;gap:6px;max-height:170px;overflow:auto')}>
+                  <div style={s('display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto')}>
                     {pts.map((p) => (
                       <button
                         key={p.code}
@@ -238,15 +253,17 @@ function Matrix({ a }: { a: DashAnalytics }) {
   );
 }
 
-/** The new analytics sections, below the existing cards (D-66/D-67). */
-export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
+/** Margin & Costs tab: what it costs now (Margin at Risk), which cards are over target, and what is unpriced. */
+export function MarginSection({ a }: { a: DashAnalytics }) {
   const router = useRouter();
   const t = a.target;
+  const openCode = (code: string) => {
+    const id = a.ids[code];
+    if (id) router.push(`/edit/${id}`);
+  };
   return (
     <>
-      <Matrix a={a} />
-
-      <h3 style={{ ...h3, margin: '26px 0 12px' }}>
+      <h3 style={sectionH3}>
         Margin at Risk{' '}
         {a.risk.total > 0 && (
           <>
@@ -271,11 +288,7 @@ export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
             </thead>
             <tbody>
               {a.risk.rows.map((r) => (
-                <tr
-                  key={r.code}
-                  onClick={() => a.ids[r.code] && router.push(`/edit/${a.ids[r.code]}`)}
-                  style={s('cursor:pointer')}
-                >
+                <tr key={r.code} onClick={() => openCode(r.code)} style={s('cursor:pointer')}>
                   <td className="mono">{r.code}</td>
                   <td>
                     <b>{r.name}</b>
@@ -295,12 +308,85 @@ export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
         </div>
       )}
 
-      <h3 style={{ ...h3, margin: '26px 0 12px' }}>Cost Drivers</h3>
+      <h3 style={{ ...sectionH3, marginTop: 22 }}>Over Target</h3>
+      {a.overTarget.length === 0 ? (
+        <div className="note">No card is over the target.</div>
+      ) : (
+        <div className="tw">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Recipe</th>
+                <th className="c">Food Cost %</th>
+                <th className="c">Points over {pct(t)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {a.overTarget.map((r) => (
+                <tr key={r.code} onClick={() => openCode(r.code)} style={s('cursor:pointer')}>
+                  <td className="mono">{r.code}</td>
+                  <td>
+                    <b>{r.name}</b>
+                  </td>
+                  <td className="c">
+                    <span className="pill p-warn">{pct(r.fcPct)}</span>
+                  </td>
+                  <td className="c">{pct(r.gap)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {a.unpriced.count > 0 && (
+        <>
+          <h3 style={{ ...sectionH3, marginTop: 22 }}>
+            Unpriced Exposure {'·'} {a.unpriced.portions} portions
+          </h3>
+          <div className="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Recipe</th>
+                  <th className="n">Portions</th>
+                  <th className="c">Unpriced ingredients</th>
+                </tr>
+              </thead>
+              <tbody>
+                {a.unpriced.rows.map((r) => (
+                  <tr key={r.code} onClick={() => openCode(r.code)} style={s('cursor:pointer')}>
+                    <td className="mono">{r.code}</td>
+                    <td>
+                      <b>{r.name}</b>
+                    </td>
+                    <td className="n">{r.portions}</td>
+                    <td className="c">
+                      <span className="pill p-warn">{r.missing}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+/** Ingredients tab: Cost Drivers (Pareto), Theoretical vs Actual (D-74) and the note about lines that could not be valued. */
+export function IngredientsSection({ a }: { a: DashAnalytics }) {
+  return (
+    <>
+      <h3 style={sectionH3}>Cost Drivers</h3>
       {a.drivers.rows.length === 0 ? (
         <div className="note">No production in this range, so there is no ingredient spend to rank.</div>
       ) : (
         <>
-          <div style={s('font-size:12px;color:var(--mute);margin-bottom:8px')}>
+          <div style={sub}>
             Issue value of the produced portions, excluding the waste buffer. A = the first 80% of spend, B = to 95%.
             Top {a.drivers.rows.length} of {a.drivers.count}.
           </div>
@@ -343,81 +429,10 @@ export function DashAnalyticsSections({ a }: { a: DashAnalytics }) {
         </>
       )}
 
-      <TvaSection a={a} />
+      <div style={{ marginTop: 22 }}>
+        <TvaSection a={a} />
+      </div>
 
-      {a.unpriced.count > 0 && (
-        <>
-          <h3 style={{ ...h3, margin: '26px 0 12px' }}>
-            Unpriced Exposure {'·'} {a.unpriced.portions} portions
-          </h3>
-          <div className="tw">
-            <table>
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Recipe</th>
-                  <th className="n">Portions</th>
-                  <th className="c">Unpriced ingredients</th>
-                </tr>
-              </thead>
-              <tbody>
-                {a.unpriced.rows.map((r) => (
-                  <tr
-                    key={r.code}
-                    onClick={() => a.ids[r.code] && router.push(`/edit/${a.ids[r.code]}`)}
-                    style={s('cursor:pointer')}
-                  >
-                    <td className="mono">{r.code}</td>
-                    <td>
-                      <b>{r.name}</b>
-                    </td>
-                    <td className="n">{r.portions}</td>
-                    <td className="c">
-                      <span className="pill p-warn">{r.missing}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-
-      {a.overTarget.length > 0 && (
-        <>
-          <h3 style={{ ...h3, margin: '26px 0 12px' }}>Over Target</h3>
-          <div className="tw">
-            <table>
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Recipe</th>
-                  <th className="c">Food Cost %</th>
-                  <th className="c">Points over {pct(t)}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {a.overTarget.map((r) => (
-                  <tr
-                    key={r.code}
-                    onClick={() => a.ids[r.code] && router.push(`/edit/${a.ids[r.code]}`)}
-                    style={s('cursor:pointer')}
-                  >
-                    <td className="mono">{r.code}</td>
-                    <td>
-                      <b>{r.name}</b>
-                    </td>
-                    <td className="c">
-                      <span className="pill p-warn">{pct(r.fcPct)}</span>
-                    </td>
-                    <td className="c">{pct(r.gap)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
       {(a.flags.unconvertible > 0 || a.flags.truncated > 0 || a.flags.unknown > 0) && (
         <div className="note" style={s('margin-top:14px')}>
           Some lines could not be valued ({a.flags.unconvertible} with no unit conversion, {a.flags.unknown} codes not
@@ -434,21 +449,14 @@ const VERDICT: Record<'within' | 'over' | 'under', { label: string; cls: string 
   under: { label: 'under', cls: 'p-warn' },
 };
 
-const TVA_REASON = {
-  client: 'Stock is not tracked per client, so only theoretical usage is shown.',
-  range: 'Pick a From and To date to compare with stock counts.',
-  'no-count': 'No site has both an opening and a closing count in this range, so only theoretical usage is shown.',
-  shared: 'Stock covers the whole site and another brand uses it, so only theoretical usage is shown.',
-} as const;
-
 /** Theoretical vs Actual (D-74): requisition usage against opening + receipts - closing, per ingredient. */
-function TvaSection({ a }: { a: DashAnalytics }) {
+export function TvaSection({ a }: { a: DashAnalytics }) {
   const t = a.tva;
   const counted = t.sites.filter((x) => x.state === 'counted');
   return (
     <>
-      <h3 style={{ ...h3, margin: '26px 0 6px' }}>Theoretical vs Actual</h3>
-      <div style={s('font-size:12px;color:var(--mute);margin-bottom:10px')}>
+      <h3 style={sectionH3}>Theoretical vs Actual</h3>
+      <div style={sub}>
         Theoretical is what the produced portions should have used, without the waste buffer. Actual is the opening
         count plus receipts minus the closing count, over the days between each site&apos;s counts.
       </div>

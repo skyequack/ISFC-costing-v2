@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import {
+  fcHistogram,
   marginAtRisk,
   menuMatrix,
   overTarget,
   pareto,
+  type FcBin,
   type MenuMatrix,
   type OverTargetRow,
   type ParetoRow,
@@ -77,6 +79,8 @@ export interface DashAnalytics {
   portions: number;
   producedCards: number;
   matrix: MenuMatrix;
+  /** portions per food-cost band, split at the target (D-84) */
+  spread: FcBin[];
   risk: { rows: RiskRow[]; total: number; count: number };
   overTarget: OverTargetRow[];
   drivers: { rows: ParetoRow<DriverRow>[]; total: number; count: number };
@@ -229,6 +233,10 @@ export async function loadDashAnalytics(
     portions: prod.reduce((a, p) => a + p.portions, 0),
     producedCards: prod.length,
     matrix: menuMatrix(inputs),
+    spread: fcHistogram(
+      menus.map((r) => ({ fcPct: r.c.fcPct, portions: portionsOf.get(r.code) ?? 0 })),
+      target,
+    ),
     risk: { rows: risk.rows.slice(0, TOP_N), total: risk.total, count: risk.rows.length },
     overTarget: over.slice(0, TOP_N),
     drivers: { rows: drivers.slice(0, TOP_N), total: drivers.reduce((a, d) => a + d.cost, 0), count: drivers.length },

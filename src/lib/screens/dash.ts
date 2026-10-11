@@ -11,6 +11,8 @@ export interface DashData {
   priced: number;
   /** D-30: menu cards left out of the average because they have no selling price. */
   excluded: number;
+  /** priced cards averaged in although an ingredient has no price (the cost engine's "no price" error); shown as a note (D-84) */
+  incomplete: number;
   over: number;
   loss: number;
   locked: number;
@@ -86,6 +88,7 @@ export function dashData(
     avgFC: mean(priced.map((r) => r.c.fcPct as number)),
     priced: priced.length,
     excluded: menus.length - priced.length,
+    incomplete: priced.filter((r) => r.c.err === 'no price').length,
     over: priced.filter((r) => (r.c.fcPct as number) > target).length,
     loss: priced.filter((r) => r.c.net < 0).length,
     locked: rows.filter((r) => r.status === 'LOCKED').length,

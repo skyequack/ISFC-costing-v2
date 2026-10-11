@@ -30,6 +30,7 @@ const d: DashData = {
   avgFC: null,
   priced: 0,
   excluded: 0,
+  incomplete: 0,
   over: 0,
   loss: 0,
   locked: 0,
@@ -72,6 +73,7 @@ const empty = (over: Partial<DashAnalytics> = {}): DashAnalytics => ({
     unvalued: 0,
     totalPortions: 0,
   },
+  spread: [],
   risk: { rows: [], total: 0, count: 0 },
   overTarget: [],
   drivers: { rows: [], total: 0, count: 0 },
@@ -150,14 +152,16 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
   it('says which sections respond to which filter, and shows an invalid-filter message', () => {
     const a = empty({ filters: { brand: 'b1', loc: 'NIC', client: '*', from: '2026-10-01', to: '2026-10-31' } });
     renderInShell(<DashScreen d={d} a={a} filterError="not a calendar date" brandNames={{}} />);
-    expect(screen.getByText(/Filtered: Gourmet/).textContent).toMatch(/Site and dates apply to the Menu Matrix/);
+    expect(screen.getByText(/Filtered: Gourmet/).textContent).toMatch(
+      /Site and dates apply to the Food-cost spread, Menu Matrix/,
+    );
     expect(screen.getByText('not a calendar date')).toBeTruthy();
   });
 
   it('exports with exactly the filters on screen', () => {
     const a = empty({ filters: { brand: 'b1', loc: 'NIC', client: '*', from: '2026-10-01', to: '2026-10-31' } });
     const original = window.location;
-    const loc = { href: '' };
+    const loc = { href: '', hash: '', pathname: '/dash', search: '' };
     vi.stubGlobal('location', loc);
     try {
       renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
@@ -242,13 +246,32 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
       },
     });
     renderInShell(<DashScreen d={d} a={a} brandNames={{}} />, 'gm');
-    expect(screen.getByText('Theoretical vs Actual')).toBeTruthy();
+    // the overview card and the Ingredients heading both read "Theoretical vs Actual" (D-84)
+    expect(screen.getAllByText('Theoretical vs Actual').length).toBeGreaterThan(0);
     expect(screen.getByText(/Compared at 1 of 2 sites/)).toBeTruthy();
     expect(screen.getByText('over')).toBeTruthy();
     expect(screen.getAllByText('n/a').length).toBeGreaterThanOrEqual(4);
     expect(screen.getByText(/4 portions were produced with no site/)).toBeTruthy();
     cleanup();
     renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
-    expect(screen.getByText('Pick a From and To date to compare with stock counts.')).toBeTruthy();
+    expect(screen.getAllByText('Pick a From and To date to compare with stock counts.').length).toBeGreaterThan(0);
+  });
+});
+
+describe('Dashboard tabs (D-84)', () => {
+  afterEach(() => window.history.replaceState(null, '', '/dash'));
+
+  it('a metric tile opens its detail tab, and the URL hash follows', () => {
+    renderInShell(<DashScreen d={{ ...d, priced: 5, over: 2 }} a={empty()} brandNames={{}} />, 'gm');
+    expect(screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /Over Target/ }));
+    expect(screen.getByRole('tab', { name: 'Margin & Costs' }).getAttribute('aria-selected')).toBe('true');
+    expect(String(nav.push.mock.calls[0]?.[0])).toMatch(/#margin$/); // through the router, so Back/Forward stay in step
+  });
+
+  it('a deep link to a tab opens it (the hash is read on mount)', () => {
+    window.history.replaceState(null, '', '/dash#ingredients');
+    renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
+    expect(screen.getByRole('tab', { name: 'Ingredients' }).getAttribute('aria-selected')).toBe('true');
   });
 });

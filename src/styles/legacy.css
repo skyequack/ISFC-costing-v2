@@ -436,3 +436,19 @@ body.previewcard #pvbar{display:flex}
 .mealhead td{background:#F3ECEE;color:#471729}
 .daytot td{background:#FBEAD9;color:#471729}
 tr.on td{outline:2px solid #BB5E1E}
+
+/* Dashboard tabs and overview (D-82). Two new classes only; everything else uses legacy classes
+   (.kpi, .kpis, .card, .btn, .btn.sm, .btn.o, .bar, .pill, .note, .tabs, .tw, .mono).
+   Classes added: .kpi-link, .dash-ov. */
+
+/* KPI tile as a button: the legacy .kpi look, reset for a <button> and with its text as block spans. */
+.kpi-link{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.kpi-link .k,.kpi-link .v,.kpi-link .n{display:block}
+.kpi-link:hover{border-color:var(--org)}
+.kpi-link:focus-visible,.dash-ov .btn:focus-visible,.tabs button:focus-visible{outline:2px solid var(--org);outline-offset:2px}
+
+/* Overview grid: 3 columns on desktop, 2 on tablet, 1 on phone (no horizontal page scroll). */
+.dash-ov{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dash-ov>.card{min-width:0}
+@media (max-width:1000px){.dash-ov{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.dash-ov{grid-template-columns:minmax(0,1fr)}}

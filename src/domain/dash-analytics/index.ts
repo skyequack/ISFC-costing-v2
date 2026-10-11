@@ -202,3 +202,43 @@ export function pareto<T>(items: ReadonlyArray<{ item: T; cost: number }>): Pare
     };
   });
 }
+
+/** Food-cost spread (D-84): bands of this many points of food cost, the last band open-ended. */
+export const FC_BAND_STEP = 0.05;
+export const FC_BANDS = 11;
+
+export interface FcBin {
+  /** lower edge, 0..1 */
+  from: number;
+  /** upper edge (exclusive), or null for the open last band */
+  to: number | null;
+  /** portions produced of cards at or under the target */
+  within: number;
+  /** portions produced of cards over the target */
+  over: number;
+  cards: number;
+}
+
+/**
+ * Portions per food-cost band, split at the target (D-84). Only priced cards (finite fcPct) with production are
+ * counted; a card at exactly the target is within. Pure: the caller passes costed values and portions.
+ */
+export function fcHistogram(rows: ReadonlyArray<{ fcPct: number | null; portions: number }>, target: number): FcBin[] {
+  const bins: FcBin[] = Array.from({ length: FC_BANDS }, (_, i) => ({
+    from: i * FC_BAND_STEP,
+    to: i === FC_BANDS - 1 ? null : (i + 1) * FC_BAND_STEP,
+    within: 0,
+    over: 0,
+    cards: 0,
+  }));
+  for (const r of rows) {
+    if (!finite(r.fcPct) || !(r.portions > 0)) continue;
+    // the epsilon keeps a value on a band edge in its own band (0.3 / 0.05 is 5.999…)
+    const i = Math.min(FC_BANDS - 1, Math.max(0, Math.floor(r.fcPct / FC_BAND_STEP + 1e-9)));
+    const b = bins[i]!;
+    b.cards += 1;
+    if (r.fcPct <= target) b.within += r.portions;
+    else b.over += r.portions;
+  }
+  return bins;
+}

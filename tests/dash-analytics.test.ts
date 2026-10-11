@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
-import { marginAtRisk, menuMatrix, overTarget, pareto, type MatrixInput } from '@/domain/dash-analytics';
+import {
+  fcHistogram,
+  FC_BANDS,
+  marginAtRisk,
+  menuMatrix,
+  overTarget,
+  pareto,
+  type MatrixInput,
+} from '@/domain/dash-analytics';
 import { newReqResult, reqExpand, type ReqContext } from '@/domain/production/requisition';
 import type { CostRecipe } from '@/domain/costing';
 import { dashFilters } from '@/lib/services/dash';
@@ -177,5 +185,45 @@ describe('dashFilters (D-65)', () => {
     expect(ok({ from: '2025-01-01', to: '2026-01-02' }).success).toBe(true); // 366 days
     expect(ok({ from: '2025-01-01' }).success).toBe(true); // an open bound is fine
     expect(ok({ loc: 'x'.repeat(41) }).success).toBe(false);
+  });
+});
+
+describe('fcHistogram (D-84)', () => {
+  it('splits portions into bands and sides of the target, weighted by portions', () => {
+    const bins = fcHistogram(
+      [
+        { fcPct: 0.12, portions: 10 }, // band 2, within 0.30
+        { fcPct: 0.3, portions: 5 }, // exactly the target: within, band 6
+        { fcPct: 0.42, portions: 4 }, // band 8, over
+        { fcPct: 0.7, portions: 2 }, // open last band, over
+      ],
+      0.3,
+    );
+    expect(bins).toHaveLength(FC_BANDS);
+    expect(bins[2]).toMatchObject({ within: 10, over: 0, cards: 1 });
+    expect(bins[6]).toMatchObject({ within: 5, over: 0, cards: 1 });
+    expect(bins[8]).toMatchObject({ within: 0, over: 4, cards: 1 });
+    expect(bins[FC_BANDS - 1]).toMatchObject({ to: null, within: 0, over: 2, cards: 1 });
+    expect(bins[0]!.to).toBeCloseTo(0.05);
+    const totals = bins.reduce((x, b) => x + b.within + b.over, 0);
+    expect(totals).toBe(21);
+  });
+
+  it('leaves out unpriced cards, cards with no production, and non-finite costs; a negative cost falls in the first band', () => {
+    const bins = fcHistogram(
+      [
+        { fcPct: null, portions: 9 },
+        { fcPct: Number.NaN, portions: 9 },
+        { fcPct: 0.2, portions: 0 },
+        { fcPct: -0.1, portions: 3 },
+      ],
+      0.3,
+    );
+    expect(bins.reduce((x, b) => x + b.cards, 0)).toBe(1);
+    expect(bins[0]).toMatchObject({ within: 3, cards: 1 });
+  });
+
+  it('returns empty bands for no rows', () => {
+    expect(fcHistogram([], 0.3).every((b) => b.cards === 0 && b.within === 0 && b.over === 0)).toBe(true);
   });
 });
