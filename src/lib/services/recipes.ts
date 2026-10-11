@@ -9,6 +9,7 @@ import { assertBrandVisible, canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can, type Permission } from '../permissions';
 import { money } from '../format';
+import { stagedYield } from '@/domain/recipes/yield-stages';
 import { normY, type LineIn, type RecipeSaveIn } from '../validation/common';
 import { toCostRecipe } from './card-view';
 import { detailFrom, recipeDetail, type RecipeDetail } from './recipe-detail';
@@ -203,11 +204,35 @@ async function graphWith(
   assertAcyclicWith(all, candidate, previousCode);
 }
 
-const sameLines = (a: { code: string; qty: number; unit: string; y: number; yp: number | null }[], b: LineIn[]) =>
+/** What a line is saved as (D-70): while any stage is set `y` is their product, otherwise the line's own yield. */
+const lineY = (l: LineIn): number => normY(stagedYield(l) ?? l.y);
+
+const sameLines = (
+  a: {
+    code: string;
+    qty: number;
+    unit: string;
+    y: number;
+    yp: number | null;
+    yThaw: number | null;
+    yCut: number | null;
+    yCook: number | null;
+  }[],
+  b: LineIn[],
+) =>
   a.length === b.length &&
   a.every((l, i) => {
     const n = b[i]!;
-    return l.code === n.code && l.qty === n.qty && l.unit === n.unit && l.y === normY(n.y) && l.yp === n.yp;
+    return (
+      l.code === n.code &&
+      l.qty === n.qty &&
+      l.unit === n.unit &&
+      l.y === lineY(n) &&
+      l.yp === n.yp &&
+      l.yThaw === (n.yThaw ?? null) &&
+      l.yCut === (n.yCut ?? null) &&
+      l.yCook === (n.yCook ?? null)
+    );
   });
 
 export interface SaveResult {
@@ -299,7 +324,7 @@ async function saveCore(
   }
   const codeChanged = wantedCode !== undefined && wantedCode !== head.code;
   if (codeChanged) fields.push('code');
-  const linesIn = input.lines?.map((l) => ({ ...l, y: normY(l.y) }));
+  const linesIn = input.lines?.map((l) => ({ ...l, y: lineY(l) }));
   const linesChanged = linesIn !== undefined && !sameLines(oldLines, linesIn);
   if (linesChanged) fields.push('lines');
   const methodChanged = input.method !== undefined && JSON.stringify(input.method) !== JSON.stringify(oldMethod);
@@ -389,7 +414,15 @@ async function saveCore(
       detail: `${label}: ${money(head.sellingPrice)} → ${money(input.sellingPrice)}`,
     });
   if (linesChanged) {
-    const ypChanged = linesIn!.some((l, i) => oldLines[i] && l.code === oldLines[i]!.code && l.yp !== oldLines[i]!.yp);
+    const ypChanged = linesIn!.some(
+      (l, i) =>
+        oldLines[i] &&
+        l.code === oldLines[i]!.code &&
+        (l.yp !== oldLines[i]!.yp ||
+          (l.yThaw ?? null) !== oldLines[i]!.yThaw ||
+          (l.yCut ?? null) !== oldLines[i]!.yCut ||
+          (l.yCook ?? null) !== oldLines[i]!.yCook),
+    );
     if (ypChanged)
       audit.push({
         action: 'Changed a line yield',
@@ -429,8 +462,8 @@ async function saveCore(
     const L = linesIn!;
     if (L.length)
       await tx.query(
-        `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
-         SELECT $1, o, c, q, u, y, yp FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[]) AS t(o,c,q,u,y,yp)`,
+        `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp, y_thaw, y_cut, y_cook)
+         SELECT $1, o, c, q, u, y, yp, yt, yc, yk FROM unnest($2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[], $8::float8[], $9::float8[], $10::float8[]) AS t(o,c,q,u,y,yp,yt,yc,yk)`,
         [
           id,
           L.map((_, i) => i),
@@ -439,6 +472,9 @@ async function saveCore(
           L.map((l) => l.unit),
           L.map((l) => l.y),
           L.map((l) => l.yp),
+          L.map((l) => l.yThaw ?? null),
+          L.map((l) => l.yCut ?? null),
+          L.map((l) => l.yCook ?? null),
         ],
       );
   }
@@ -561,8 +597,8 @@ export async function duplicateRecipe(
   );
   const nid = rows[0]!.id as string;
   await tx.query(
-    `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
-     SELECT $2, sort_order, code, qty, unit, y, yp FROM recipe_line WHERE recipe_id = $1`,
+    `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp, y_thaw, y_cut, y_cook)
+     SELECT $2, sort_order, code, qty, unit, y, yp, y_thaw, y_cut, y_cook FROM recipe_line WHERE recipe_id = $1`,
     [id, nid],
   );
   await tx.query(

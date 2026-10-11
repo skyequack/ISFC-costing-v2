@@ -283,11 +283,13 @@ describe('recipe sheet parsing (flat template and kitchen block layout)', () => 
       method: ['a', 'b', 'c'],
     });
     expect(a!.lines).toEqual([
-      { code: 'I-1', qty: 100, unit: 'Gram', y: 0.75, yp: 10 },
-      { code: 'I-2', qty: 2, unit: 'Each', y: 1, yp: null },
+      { code: 'I-1', qty: 100, unit: 'Gram', y: 0.75, yp: 10, stages: { yThaw: null, yCut: null, yCook: null } },
+      { code: 'I-2', qty: 2, unit: 'Each', y: 1, yp: null, stages: { yThaw: null, yCut: null, yCook: null } },
     ]);
     expect(b).toMatchObject({ name: 'Second', type: 'Sub-Recipe' });
-    expect(b!.lines).toEqual([{ code: 'I-5', qty: 1500, unit: '', y: 1, yp: null }]);
+    expect(b!.lines).toEqual([
+      { code: 'I-5', qty: 1500, unit: '', y: 1, yp: null, stages: { yThaw: null, yCut: null, yCook: null } },
+    ]);
     expect(p.warn).toHaveLength(2);
     expect(p.hasBrandColumn).toBe(true);
   });

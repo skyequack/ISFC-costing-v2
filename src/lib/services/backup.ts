@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { z } from 'zod';
 import { assertAcyclic } from '@/domain/recipes/graph';
+import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
@@ -48,13 +49,23 @@ const ingB = z.object({
   brandCodes: z.array(z.string().max(8)).max(60),
   conv: z.object({ recipeUnit: z.string().max(12), factor: z.number().finite().gt(0) }).nullable(),
 });
-const lineB = z.object({
-  code: z.string().max(60),
-  qty: z.number().finite().min(0),
-  unit: z.string().max(12),
-  y: z.number().finite().gt(0),
-  yp: z.number().finite().nullable(),
-});
+const stageB = z.number().finite().gt(0).max(10).nullable().optional();
+const lineB = z
+  .object({
+    code: z.string().max(60),
+    qty: z.number().finite().min(0),
+    unit: z.string().max(12),
+    y: z.number().finite().gt(0),
+    yp: z.number().finite().nullable(),
+    /** three-stage yield (D-70, D-85): optional, so files from before restore with no stages */
+    yThaw: stageB,
+    yCut: stageB,
+    yCook: stageB,
+  })
+  .refine((l) => {
+    const p = stagedYield(l);
+    return p === null || validYield(p);
+  }, 'The three stages together must give a yield above 0 and up to 1000%');
 const recB = z.object({
   code: z.string().min(1).max(60),
   name: z.string().max(200),
@@ -206,7 +217,7 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
   ).rows;
   const lines = (
     await db.query(
-      `SELECT l.recipe_id, l.code, l.qty, l.unit, l.y, l.yp FROM recipe_line l JOIN recipe r ON r.id = l.recipe_id AND r.deleted_at IS NULL ORDER BY l.recipe_id, l.sort_order`,
+      `SELECT l.recipe_id, l.code, l.qty, l.unit, l.y, l.yp, l.y_thaw, l.y_cut, l.y_cook FROM recipe_line l JOIN recipe r ON r.id = l.recipe_id AND r.deleted_at IS NULL ORDER BY l.recipe_id, l.sort_order`,
     )
   ).rows;
   const steps = (
@@ -310,7 +321,16 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       lockedBy: r.locked_by,
       lockedAt: iso(r.locked_at),
       costAtLock: r.cost_at_lock,
-      lines: (L.get(r.id) ?? []).map((l) => ({ code: l.code, qty: l.qty, unit: l.unit, y: l.y, yp: l.yp })),
+      lines: (L.get(r.id) ?? []).map((l) => ({
+        code: l.code,
+        qty: l.qty,
+        unit: l.unit,
+        y: l.y,
+        yp: l.yp,
+        yThaw: l.y_thaw ?? null,
+        yCut: l.y_cut ?? null,
+        yCook: l.y_cook ?? null,
+      })),
       method: (S.get(r.id) ?? []).map((x) => x.text),
       history: (H.get(r.id) ?? []).map((h) => ({ action: h.action, who: h.who, at: iso(h.created_at)! })),
     })),
@@ -633,19 +653,44 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
   const ids = [...idByCode.values()];
   for (const t of ['recipe_line', 'recipe_method_step', 'recipe_history_entry'])
     await tx.query(`DELETE FROM ${t} WHERE recipe_id = ANY($1::text[])`, [ids]);
-  type LRow = [string, number, string, number, string, number, number | null];
+  type LRow = [
+    string,
+    number,
+    string,
+    number,
+    string,
+    number,
+    number | null,
+    number | null,
+    number | null,
+    number | null,
+  ];
   const lrows: LRow[] = [];
   const srows: [string, number, string][] = [];
   const hrows: [string, string, string, string][] = [];
   for (const r of bk.recipes) {
     const id = idByCode.get(r.code)!;
-    r.lines.forEach((l, i) => lrows.push([id, i, l.code, l.qty, l.unit, l.y, l.yp]));
+    // while any stage is set y is their product (D-70), whatever the file says
+    r.lines.forEach((l, i) =>
+      lrows.push([
+        id,
+        i,
+        l.code,
+        l.qty,
+        l.unit,
+        stagedYield(l) ?? l.y,
+        l.yp,
+        l.yThaw ?? null,
+        l.yCut ?? null,
+        l.yCook ?? null,
+      ]),
+    );
     r.method.forEach((t, i) => srows.push([id, i + 1, t]));
     r.history.forEach((h) => hrows.push([id, h.action, h.who, h.at]));
   }
   for (const part of chunks(lrows, 3000))
     await tx.query(
-      `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp) SELECT * FROM unnest($1::text[], $2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[])`,
+      `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp, y_thaw, y_cut, y_cook) SELECT * FROM unnest($1::text[], $2::int[], $3::text[], $4::float8[], $5::text[], $6::float8[], $7::float8[], $8::float8[], $9::float8[], $10::float8[])`,
       [
         part.map((x) => x[0]),
         part.map((x) => x[1]),
@@ -654,6 +699,9 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
         part.map((x) => x[4]),
         part.map((x) => x[5]),
         part.map((x) => x[6]),
+        part.map((x) => x[7]),
+        part.map((x) => x[8]),
+        part.map((x) => x[9]),
       ],
     );
   for (const part of chunks(srows, 3000))

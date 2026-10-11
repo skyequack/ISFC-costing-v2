@@ -31,6 +31,10 @@ export interface RecipeLineDto {
   y: number;
   /** null = fall back to the card buffer (NOT 0). */
   yp: number | null;
+  /** three-stage yield (D-70): fractions, null = not set. While any is set, `y` is their product. */
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
 }
 
 export interface RecipeDto extends RecipeListDto {
@@ -61,7 +65,8 @@ export async function listRecipes(db: Queryable, scope: BrandScope): Promise<Rec
 /** The columns of a full card: head + lines + method + lock history aggregated in order (one statement, no round trips). */
 export const RECIPE_FULL_SELECT = `${COLS}, r.sub_qty, r.sub_uom, r.batch_out, r.batch_uom, r.locked_at, r.cost_at_lock,
             coalesce((SELECT json_agg(json_build_object('sortOrder', l.sort_order, 'code', l.code, 'qty', l.qty,
-                                                        'unit', l.unit, 'y', l.y, 'yp', l.yp) ORDER BY l.sort_order)
+                                                        'unit', l.unit, 'y', l.y, 'yp', l.yp, 'yThaw', l.y_thaw, 'yCut', l.y_cut,
+                                                        'yCook', l.y_cook) ORDER BY l.sort_order)
                         FROM recipe_line l WHERE l.recipe_id = r.id), '[]'::json) AS lines_json,
             coalesce((SELECT json_agg(m.text ORDER BY m.step_number)
                         FROM recipe_method_step m WHERE m.recipe_id = r.id), '[]'::json) AS method_json,

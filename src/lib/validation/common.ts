@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
 
 export const UNITS = ['Gram', 'Ml', 'Each', 'Slice'] as const;
 export const BATCH_UNITS = ['Gram', 'Ml', 'Each'] as const;
@@ -10,13 +11,30 @@ export const idStr = z.string().min(1).max(64);
 /** Codes: trimmed, no control characters, <= 60. */
 export const codeStr = trimmed(60).refine((s) => !/[\u0000-\u001f]/.test(s), 'invalid characters');
 
-export const lineIn = z.object({
-  code: codeStr, // '' = blank row
-  qty: z.number().finite().min(0).max(1e9),
-  unit: z.enum(UNITS),
-  y: z.number().finite().default(1),
-  yp: z.number().finite().min(0).max(1000).nullable().default(null),
-});
+/** One stage of the three-stage yield (D-70): a fraction in (0,10]; null or absent = not set. */
+const stageIn = z.number().finite().gt(0).max(10).nullable().optional();
+
+export const lineIn = z
+  .object({
+    code: codeStr, // '' = blank row
+    qty: z.number().finite().min(0).max(1e9),
+    unit: z.enum(UNITS),
+    y: z.number().finite().default(1),
+    yp: z.number().finite().min(0).max(1000).nullable().default(null),
+    yThaw: stageIn,
+    yCut: stageIn,
+    yCook: stageIn,
+  })
+  .superRefine((l, ctx) => {
+    // the stages multiply into the line's yield, which costing only accepts in (0,10]: refuse rather than read it as 1
+    const p = stagedYield(l);
+    if (p !== null && !validYield(p))
+      ctx.addIssue({
+        code: 'custom',
+        path: ['yCook'],
+        message: 'The three stages together must give a yield above 0 and up to 1000%',
+      });
+  });
 export type LineIn = z.output<typeof lineIn>;
 
 /** D-36: a line yield outside (0,10] is normalised to 1, exactly as the costing engine treats it. */

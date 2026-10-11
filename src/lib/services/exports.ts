@@ -255,15 +255,25 @@ export async function buildExport(
         `SELECT r.code, array_agg(s.text ORDER BY s.step_number) AS steps FROM recipe r JOIN recipe_method_step s ON s.recipe_id = r.id WHERE r.deleted_at IS NULL GROUP BY r.code`,
       );
       const stepsOf = new Map(methods.rows.map((r) => [r.code as string, r.steps as string[]]));
+      // three-stage yield (D-70, D-85): per card, one [thaw, cut, cook] triple per stored line, in line order
+      const stageRows = await db.query(
+        `SELECT r.code, json_agg(json_build_array(l.y_thaw, l.y_cut, l.y_cook) ORDER BY l.sort_order) AS st
+           FROM recipe r JOIN recipe_line l ON l.recipe_id = r.id WHERE r.deleted_at IS NULL GROUP BY r.code
+         HAVING bool_or(l.y_thaw IS NOT NULL OR l.y_cut IS NOT NULL OR l.y_cook IS NOT NULL)`,
+      );
+      const stagesOf = new Map(stageRows.rows.map((r) => [r.code as string, r.st as (number | null)[][]]));
+      const stagePct = (v: number | null | undefined) => (v == null ? '' : String(Math.round(v * 10000) / 100));
       const rows: unknown[][] = [];
       for (const r of list) {
-        const lines = r.lines.filter((l) => l.code);
+        const stg = stagesOf.get(r.code);
+        const lines = r.lines.map((l, k) => ({ l, st: stg?.[k] })).filter((x) => x.l.code);
         const steps = (stepsOf.get(r.code) ?? []).filter((s) => String(s).trim());
         const n = Math.max(lines.length, steps.length, 1);
         const bc = brandCode.get(catalog.cards[r.code]!.brandId) ?? '';
         const buf = buffers.get(r.code);
         for (let i = 0; i < n; i++) {
-          const l = lines[i];
+          const l = lines[i]?.l;
+          const st = lines[i]?.st;
           const lc = l ? lineCost(l, catalog.context) : null;
           rows.push([
             i === 0 ? bc : '',
@@ -283,6 +293,9 @@ export async function buildExport(
             steps[i] || '',
             l && l.yp != null ? String(l.yp) : '',
             i === 0 && buf != null ? String(+(buf * 100).toFixed(4)) : '',
+            stagePct(st?.[0]),
+            stagePct(st?.[1]),
+            stagePct(st?.[2]),
           ]);
         }
       }

@@ -25,6 +25,9 @@ export const RTPL_HEAD = [
   'Method Step',
   'Waste %',
   'Card Buffer',
+  'Thaw %',
+  'Cut %',
+  'Cook %',
 ];
 
 export const RCOLS: Record<string, string[]> = {
@@ -69,6 +72,10 @@ export const RCOLS: Record<string, string[]> = {
   step: ['methodstep', 'method', 'step', 'instruction', 'instructions', 'procedure', 'preparation', 'directions'],
   yp: ['wastepct', 'waste', 'wastepercent', 'wastage', 'wastagepercent'],
   buf: ['cardbuffer', 'buffer', 'variablebuffer', 'cardbufferpct'],
+  // three-stage line yield (D-70, D-85), percent
+  ythaw: ['thawpct', 'thaw', 'thawing', 'thawingpct', 'thawyield'],
+  ycut: ['cutpct', 'cut', 'cutting', 'cuttingpct', 'trimpct', 'trim', 'trimming', 'cutyield'],
+  ycook: ['cookpct', 'cook', 'cooking', 'cookingpct', 'cookyield'],
 };
 
 export type Unit = 'Gram' | 'Ml' | 'Each' | 'Slice';
@@ -411,6 +418,9 @@ export interface ImportLine {
   y: number;
   /** waste % (D-17); null = not in the file, leave the stored value */
   yp: number | null;
+  /** three-stage yield (D-70): fractions as written in the Thaw % / Cut % / Cook % columns (null = blank). null overall = the
+   *  file has no such columns, so the stored stages are kept while the Yield % still matches (D-85). */
+  stages?: { yThaw: number | null; yCut: number | null; yCook: number | null } | null;
   /** block-sheet line: a different library unit wins unless the quantity was converted from kg / litres */
   block?: { scaled: boolean };
 }
@@ -513,6 +523,7 @@ export function parseRecipeSheets(sheets: Sheet[]): ParsedRecipes {
   let lastKey = '';
   const exampleCodes = new Set<string>();
   const hasBrandColumn = map.brand !== undefined;
+  const hasStages = map.ythaw !== undefined || map.ycut !== undefined || map.ycook !== undefined;
 
   for (let i = start; i < rows.length; i++) {
     const r = rows[i]!;
@@ -590,12 +601,23 @@ export function parseRecipeSheets(sheets: Sheet[]): ParsedRecipes {
     }
     const blockInfo = start === 1 && blockRows.length && i - 1 < blockFlat.length ? blockFlat[i - 1] : undefined;
     const ypv = num(G(r, 'yp'));
+    const stage = (k: string, label: string): number | null => {
+      const n = num(G(r, k));
+      if (n == null) return null;
+      const f = n / 100;
+      if (f > 0 && f <= 10) return f;
+      warn.push(`Row ${ln}: ${label} ${n} is out of range (above 0 and up to 1000) – ignored`);
+      return null;
+    };
     g.lines.push({
       code: ic,
       qty,
       unit: RUOM[rnorm(G(r, 'unit'))] ?? '',
       y: parseYield(G(r, 'yld')),
       yp: ypv == null ? null : Math.min(99, Math.max(0, ypv)),
+      stages: hasStages
+        ? { yThaw: stage('ythaw', 'Thaw %'), yCut: stage('ycut', 'Cut %'), yCook: stage('ycook', 'Cook %') }
+        : null,
       ...(blockInfo ? { block: { scaled: blockInfo.scaled } } : {}),
     });
   }
