@@ -312,6 +312,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('render every screen to public/_
       'gm',
       ws,
       <BackupScreen
+        sites={['NIC', 'NEOM']}
         counts={{
           items: items.length,
           recipes: rows.length,

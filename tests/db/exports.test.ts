@@ -7,7 +7,7 @@ import { previewRecipeImport, recipeImportIn } from '@/lib/services/import-recip
 import { visibleBrandIds } from '@/lib/db/scope';
 import { readSheets } from '@/lib/xlsx/read';
 import { xlsxBytes } from '@/lib/xlsx/write';
-import { connect, hasTestDb, insertBrand } from './helpers';
+import { connect, hasTestDb, insertBrand, insertIngredient } from './helpers';
 
 const h = vi.hoisted(() => ({ client: null as unknown as import('pg').Client, session: null as unknown }));
 vi.mock('@/lib/db/client', async (orig) => {
@@ -197,5 +197,77 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
       expect(card.lines.map((l) => [l.code, l.qty])).toEqual(nonBlank.map((l) => [l.code, l.qty]));
       expect(card.lines.map((l) => l.yp)).toEqual(nonBlank.map((l) => l.yp));
     }
+  });
+});
+
+describe.skipIf(!hasTestDb)('stock templates (D-86)', { timeout: 120_000 }, () => {
+  let c: pg.Client;
+  beforeAll(async () => {
+    c = await connect();
+    h.client = c;
+  }, 60_000);
+  afterAll(async () => {
+    await c.end();
+  });
+  beforeEach(async () => {
+    await c.query('ROLLBACK').catch(() => undefined);
+    await c.query('BEGIN');
+  });
+
+  async function mkUser(role: Role, brandIds: string[]): Promise<SessionUser> {
+    const { rows } = await c.query(`INSERT INTO app_user (clerk_user_id, name) VALUES ($1,$2) RETURNING id`, [
+      `clerk-${role}-${Math.random()}`,
+      `T ${role}`,
+    ]);
+    for (const b of brandIds)
+      await c.query('INSERT INTO user_brand_access (user_id, brand_id) VALUES ($1,$2)', [rows[0]!.id, b]);
+    return { id: rows[0]!.id as string, clerkUserId: 'c', email: null, name: `T ${role}`, role };
+  }
+  const as = (u: SessionUser) => (h.session = { status: 'ok', user: u });
+  const get = async (kind: string, qs = '') => {
+    const { GET } = await import('@/app/api/export/[kind]/route');
+    return GET(new Request(`http://x/api/export/${kind}${qs}`), ctx(kind));
+  };
+  async function brandWithSite(code: string, site: string): Promise<string> {
+    const id = await insertBrand(c, code);
+    await c.query('UPDATE brand SET locations = $2 WHERE id = $1', [id, [site]]);
+    return id;
+  }
+
+  it('a stock editor gets every ingredient in scope for the chosen site and day, quantity empty, and it is audited', async () => {
+    const brand = await brandWithSite('ZTA', 'ZT-A');
+    await insertIngredient(c, 'ZT-ING1');
+    const chef = await mkUser('chef', [brand]);
+    as(chef);
+    for (const [kind, noun] of [
+      ['stock-counts-template', 'counts'],
+      ['stock-receipts-template', 'receipts'],
+    ] as const) {
+      const res = await get(kind, '?loc=ZT-A&date=2026-10-10');
+      expect(res.status, kind).toBe(200);
+      expect(res.headers.get('content-disposition')).toContain(`ISFC-stock-${noun}-ZT-A-2026-10-10.csv`);
+      const lines = (await res.text()).split('\n');
+      expect(lines[0]).toBe('Site,Date,Code,Item Name,Unit,Quantity');
+      const row = lines.find((l) => l.includes('ZT-ING1'));
+      expect(row).toBe('ZT-A,2026-10-10,ZT-ING1,n,Gram,');
+    }
+    const a = await c.query(
+      `SELECT detail FROM audit_log WHERE action = 'Exported data' AND user_id = $1 AND detail LIKE 'stock-%'`,
+      [chef.id],
+    );
+    expect(a.rows).toHaveLength(2);
+  });
+
+  it("a viewer is refused; a site outside the caller's brands is a 404; a bad or missing date is a 400", async () => {
+    const mine = await brandWithSite('ZTB', 'ZT-B');
+    await brandWithSite('ZTC', 'ZT-C');
+    as(await mkUser('viewer', [mine]));
+    expect((await get('stock-counts-template', '?loc=ZT-B&date=2026-10-10')).status).toBe(403);
+    as(await mkUser('cook', [mine]));
+    expect((await get('stock-counts-template', '?loc=ZT-C&date=2026-10-10')).status).toBe(404);
+    expect((await get('stock-counts-template', '?loc=*&date=2026-10-10')).status).toBe(404);
+    expect((await get('stock-counts-template', '?loc=ZT-B&date=2026-02-30')).status).toBe(400);
+    expect((await get('stock-receipts-template', '?loc=ZT-B')).status).toBe(400);
+    expect((await get('stock-receipts-template', '?loc=ZT-B&date=2026-10-10')).status).toBe(200);
   });
 });

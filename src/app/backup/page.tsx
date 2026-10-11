@@ -1,5 +1,6 @@
 import { db } from '@/lib/db/client';
 import { listIngredients } from '@/lib/db/repo/ingredients';
+import { visibleSites } from '@/lib/db/repo/stock';
 import { pageCatalog, pageCtx } from '@/lib/page';
 import { recipeRows } from '@/lib/screens/rows';
 import { BackupScreen } from '@/components/screens/BackupScreen';
@@ -15,6 +16,7 @@ export default async function Page() {
   );
   return (
     <BackupScreen
+      sites={await visibleSites(db, ctx.scope)}
       counts={{
         items: items.length,
         recipes: recipeRows(catalog, ctx.scope).length,

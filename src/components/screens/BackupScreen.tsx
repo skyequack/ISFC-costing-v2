@@ -3,6 +3,7 @@
 import { useBackupIO } from '@/components/io/backup-io';
 import { useItemIO } from '@/components/io/items-io';
 import { useRecipeIO } from '@/components/io/recipes-io';
+import { useStockTemplate } from '@/components/io/stock-template';
 import { Perm } from '@/components/shared/Perm';
 import { usePerm } from '@/components/shared/session-context';
 import { s } from '@/components/ui';
@@ -16,11 +17,12 @@ export interface BackupCounts {
 }
 
 /** Legacy vBackup (4371) minus the browser-storage controls that no longer exist (D-54). */
-export function BackupScreen({ counts }: { counts: BackupCounts }) {
+export function BackupScreen({ counts, sites }: { counts: BackupCounts; sites: string[] }) {
   const can = usePerm();
   const io = useBackupIO();
   const items = useItemIO([]);
   const recipes = useRecipeIO();
+  const stockTemplate = useStockTemplate(sites);
 
   return (
     <>
@@ -79,17 +81,9 @@ export function BackupScreen({ counts }: { counts: BackupCounts }) {
                   />
                 </label>
               </Perm>
-              <button className="btn o" onClick={items.template}>
-                Download a price list template
-              </button>
               <Perm perm="items.edit">
                 <button className="btn o" onClick={items.upload}>
                   Upload a raw material price list
-                </button>
-              </Perm>
-              <Perm perm="recipe.create">
-                <button className="btn o" onClick={recipes.templateMenu}>
-                  Download a recipe template
                 </button>
               </Perm>
               <Perm perm="recipe.create">
@@ -109,6 +103,34 @@ export function BackupScreen({ counts }: { counts: BackupCounts }) {
               {counts.photoKb > 4000 && (
                 <span style={s('color:var(--bad);font-weight:700')}> {'–'} getting heavy, consider removing some</span>
               )}
+            </div>
+          </div>
+        </div>
+        <div className="card">
+          <h3>Import templates</h3>
+          <div className="bd">
+            <p style={s('font-size:13px;color:var(--mute);margin-bottom:14px')}>
+              Fill one in, then upload it back where it belongs. Keep the heading row as it is.
+            </p>
+            <div style={s('display:flex;flex-direction:column;gap:9px')}>
+              <button className="btn o" onClick={items.template}>
+                Download a price list template
+              </button>
+              <Perm perm="recipe.create">
+                <button className="btn o" onClick={recipes.templateMenu}>
+                  Download a recipe template
+                </button>
+              </Perm>
+              <Perm perm="stock.edit">
+                <button className="btn o" onClick={() => stockTemplate('count')}>
+                  Download a stock counts template
+                </button>
+              </Perm>
+              <Perm perm="stock.edit">
+                <button className="btn o" onClick={() => stockTemplate('receipt')}>
+                  Download a stock receipts template
+                </button>
+              </Perm>
             </div>
           </div>
         </div>

@@ -3,10 +3,12 @@ import { cost, lineCost } from '@/domain/costing';
 import { dayTotals, daysIn, pad2, ProdIndex, type ProdCard } from '@/domain/production/day';
 import { sectionOf, SECTIONS } from '@/data';
 import { RTPL_HEAD } from '../import/recipes';
+import { STOCK_TPL_HEAD } from '../import/stock';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { loadCatalog } from '../db/catalog';
 import { listIngredients } from '../db/repo/ingredients';
+import { visibleSites } from '../db/repo/stock';
 import { canSeeBrand } from '../db/scope';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
@@ -19,6 +21,7 @@ import { auditExport } from './audit';
 import { resolveClientChoice } from './clients';
 import { loadMenus, loadProduction } from './planning';
 import { dashExportRows } from './dash-export';
+import { stockDate } from './stock';
 
 export const EXPORT_KINDS = [
   'recipes',
@@ -31,6 +34,8 @@ export const EXPORT_KINDS = [
   'recipes-data',
   'price-template',
   'dash',
+  'stock-counts-template',
+  'stock-receipts-template',
 ] as const;
 export type ExportKind = (typeof EXPORT_KINDS)[number];
 
@@ -52,6 +57,8 @@ export const exportQuery = z.object({
   /** dashboard range, day-level inclusive (D-65) */
   from: z.string().max(10).optional(),
   to: z.string().max(10).optional(),
+  /** day of a stock template, YYYY-MM-DD (D-86) */
+  date: z.string().max(10).optional(),
 });
 export type ExportQuery = z.output<typeof exportQuery>;
 
@@ -64,6 +71,29 @@ export interface ExportFile {
 
 const f = (v: number, d: number) => v.toFixed(d);
 
+/**
+ * The sheet staff fill in for the Stock upload (D-73, D-86): one row per ingredient in the caller's scope, Quantity left empty.
+ * Needs stock.edit as well as export; `loc` must be one of the caller's sites (404 otherwise), `date` a calendar day.
+ */
+async function stockTemplate(
+  db: Queryable,
+  user: SessionUser,
+  ctx: PageCtx,
+  kind: 'stock-counts-template' | 'stock-receipts-template',
+  q: ExportQuery,
+): Promise<ExportFile> {
+  if (!can(user.role, 'stock.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
+  const date = stockDate.safeParse(q.date);
+  if (!date.success) throw new ApiError('bad_request', 'date must be YYYY-MM-DD');
+  if (!(await visibleSites(db, ctx.scope)).includes(q.loc)) throw new ApiError('not_found', 'Not found');
+  const items = await listIngredients(db, ctx.scope);
+  const noun = kind === 'stock-counts-template' ? 'counts' : 'receipts';
+  return {
+    filename: `ISFC-stock-${noun}-${q.loc.replace(/[^\w.-]+/g, '-')}-${date.data}.csv`,
+    rows: [STOCK_TPL_HEAD, ...items.map((i) => [q.loc, date.data, i.code, i.name, i.uom, ''])],
+  };
+}
+
 /** Build one export (data only). Permission `export`; brand scope applies to every kind (D-07). Auditing is done by exportAndAudit. */
 export async function buildExport(
   db: Queryable,
@@ -74,6 +104,8 @@ export async function buildExport(
 ): Promise<ExportFile> {
   if (!can(user.role, 'export')) throw new ApiError('forbidden', 'Your role cannot do that');
   const ctx = ctxIn ?? (await buildCtx(db, user));
+  if (kind === 'stock-counts-template' || kind === 'stock-receipts-template')
+    return stockTemplate(db, user, ctx, kind, q); // needs no catalog
   const catalog = await loadCatalog(db);
   if (kind === 'dash') return dashExportRows(db, ctx, catalog, q); // needs neither the lock info nor the maps below
   const brandName = new Map(ctx.brands.map((b) => [b.id, b.name]));
