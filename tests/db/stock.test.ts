@@ -304,25 +304,25 @@ describe.skipIf(!hasTestDb)('stock counts and receipts (D-72, D-73)', { timeout:
       ).toEqual({ saved: 0, cleared: 1 });
     }));
 
-  it('a site that has stock cannot be renamed or removed yet (until slice 2e carries the rows along); one without can', () =>
+  it('stock follows a site rename (D-76); removing a site that has stock is refused; one without stock can go', () =>
     inRollback(c, async () => {
       const { a } = await fixture();
       const gm = await mkUser('gm');
       await put(gm, await scopeOf(gm), { cells: [{ code: 'ZS-A-ING', qty: 1 }] });
       const rename = (from: string, to: string) =>
         updateBrand(c, gm, a, { locations: ['ZS-SHARED', to], renamedSites: [{ from, to }] });
-      const e1 = await fail(rename('ZS-A', 'ZS-A2'));
-      expect(e1.status).toBe(409);
-      expect((await fail(updateBrand(c, gm, a, { locations: ['ZS-SHARED'] }))).status).toBe(409); // removal
-      expect((await c.query('SELECT locations FROM brand WHERE id = $1', [a])).rows[0]!.locations).toEqual([
-        'ZS-SHARED',
-        'ZS-A',
-      ]);
-      await c.query("DELETE FROM stock_count WHERE site = 'ZS-A'");
       await rename('ZS-A', 'ZS-A2');
       expect((await c.query('SELECT locations FROM brand WHERE id = $1', [a])).rows[0]!.locations).toEqual([
         'ZS-SHARED',
         'ZS-A2',
+      ]);
+      expect(Number((await c.query("SELECT count(*) AS n FROM stock_count WHERE site = 'ZS-A2'")).rows[0]!.n)).toBe(1);
+      expect(Number((await c.query("SELECT count(*) AS n FROM stock_count WHERE site = 'ZS-A'")).rows[0]!.n)).toBe(0);
+      expect((await fail(updateBrand(c, gm, a, { locations: ['ZS-SHARED'] }))).status).toBe(409); // removal
+      await c.query("DELETE FROM stock_count WHERE site = 'ZS-A2'");
+      await updateBrand(c, gm, a, { locations: ['ZS-SHARED'] });
+      expect((await c.query('SELECT locations FROM brand WHERE id = $1', [a])).rows[0]!.locations).toEqual([
+        'ZS-SHARED',
       ]);
     }));
 

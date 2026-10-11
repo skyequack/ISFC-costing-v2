@@ -7,6 +7,7 @@ import { appendAudit } from '../db/repo/audit';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
 import { pgImageStore, validateImage } from '../images';
+import { MAX_STOCK_QTY } from '../stock-limits';
 import { UNITS } from '../validation/common';
 import { CODE_LOCK } from './ingredients';
 
@@ -16,6 +17,14 @@ import { CODE_LOCK } from './ingredients';
  * not part of it (accounts live in Clerk; the log is append-only). Needs data.admin.
  */
 export const BACKUP_FORMAT = 'isfc-backup';
+
+const isoDay = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((s) => {
+    const d = new Date(`${s}T00:00:00Z`);
+    return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+  }, 'not a calendar date');
 
 const brandB = z.object({
   legacyId: z.string().max(80),
@@ -129,6 +138,34 @@ export const backupSchema = z.object({
     .array(z.object({ id: z.string().max(64), brandCode: z.string(), name: z.string().max(80), active: z.boolean() }))
     .max(5000)
     .optional(),
+  /**
+   * Stock (D-75, D-83): optional, so files from before stock restore unchanged. `stockFrom` is the first day of the window
+   * the file covers (the last 13 months when it was made); a restore replaces the rows from that day on and leaves older ones.
+   */
+  stockFrom: isoDay.optional(),
+  stockCounts: z
+    .array(
+      z.object({
+        site: z.string().min(1).max(60),
+        date: isoDay,
+        code: z.string().min(1).max(60),
+        qty: z.number().finite().min(0).max(MAX_STOCK_QTY),
+      }),
+    )
+    .max(600000)
+    .optional(),
+  receipts: z
+    .array(
+      z.object({
+        site: z.string().min(1).max(60),
+        date: isoDay,
+        code: z.string().min(1).max(60),
+        qty: z.number().finite().gt(0).max(MAX_STOCK_QTY),
+        ref: z.string().max(100),
+      }),
+    )
+    .max(600000)
+    .optional(),
   /** present only when the images were exported too */
   photos: z.array(z.object({ recipeCode: z.string(), data: z.string() })).optional(),
   logos: z.array(z.object({ brandCode: z.string(), data: z.string() })).optional(),
@@ -210,6 +247,9 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
     )
   ).rows;
 
+  const stockFrom = (
+    await db.query(`SELECT to_char((current_date - interval '${STOCK_MONTHS} months')::date, 'YYYY-MM-DD') AS d`)
+  ).rows[0]!.d as string;
   const clientRows = (
     await db.query(
       'SELECT c.id, b.code AS brand_code, c.name, c.active FROM client c JOIN brand b ON b.id = c.brand_id ORDER BY b.code, lower(c.name)',
@@ -311,7 +351,38 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       portions: p.portions,
     })),
     clients: clientRows.map((c) => ({ id: c.id, brandCode: c.brand_code, name: c.name, active: c.active })),
+    stockFrom,
   };
+}
+
+/** Months of stock a backup carries (D-75). */
+export const STOCK_MONTHS = 13;
+/** Rows per stock page, so no response passes the platform limit. */
+export const STOCK_PAGE = 20000;
+
+/** One page of the stock a backup carries: the counts or the receipts dated from `stockFrom` on, oldest first. */
+export async function buildStockChunk(
+  db: Queryable,
+  user: SessionUser,
+  kind: 'counts' | 'receipts',
+  stockFrom: string,
+  offset: number,
+): Promise<{ items: unknown[]; nextOffset: number | null }> {
+  needAdmin(user);
+  const d = "to_char(%c, 'YYYY-MM-DD')";
+  const { rows } =
+    kind === 'counts'
+      ? await db.query(
+          `SELECT site, ${d.replace('%c', 'count_date')} AS date, code, qty FROM stock_count WHERE count_date >= $1::date
+            ORDER BY count_date, site, code OFFSET $2 LIMIT $3`,
+          [stockFrom, offset, STOCK_PAGE],
+        )
+      : await db.query(
+          `SELECT site, ${d.replace('%c', 'receipt_date')} AS date, code, qty, ref FROM receipt WHERE receipt_date >= $1::date
+            ORDER BY receipt_date, site, code, ref OFFSET $2 LIMIT $3`,
+          [stockFrom, offset, STOCK_PAGE],
+        );
+  return { items: rows, nextOffset: rows.length === STOCK_PAGE ? offset + rows.length : null };
 }
 
 /** A chunk of images (photos or logos) under a byte budget, so no response passes the platform limit. */
@@ -347,6 +418,11 @@ export interface RestoreStats {
   menus: { added: number; updated: number; deactivated: number };
   menuPax: number;
   production: number;
+  /** null = the file carries no stock (stock left as it is) */
+  stockCounts: number | null;
+  receipts: number | null;
+  /** stock rows skipped: a site no brand lists or a code that is not an ingredient */
+  stockSkipped: number;
   photos: number | null;
   logos: number | null;
 }
@@ -374,6 +450,9 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
     menus: { added: 0, updated: 0, deactivated: 0 },
     menuPax: 0,
     production: 0,
+    stockCounts: null,
+    receipts: null,
+    stockSkipped: 0,
     photos: null,
     logos: null,
   };
@@ -714,6 +793,54 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
       ],
     );
   stats.production = bk.production.length;
+
+  // stock (D-75, D-83): only when the file carries it. Rows dated from the file's window start on are replaced, older rows stay.
+  if (bk.stockCounts || bk.receipts) {
+    const counts = bk.stockCounts;
+    const rcpts = bk.receipts;
+    const days = [...(counts ?? []).map((r) => r.date), ...(rcpts ?? []).map((r) => r.date)];
+    const from = bk.stockFrom ?? (days.length ? days.reduce((a, b) => (a < b ? a : b)) : null);
+    const sites = new Set(
+      (await tx.query('SELECT DISTINCT unnest(locations) AS s FROM brand')).rows.map((r) => r.s as string),
+    );
+    const codes = [...new Set([...(counts ?? []).map((r) => r.code), ...(rcpts ?? []).map((r) => r.code)])];
+    const known = new Set(
+      codes.length
+        ? (await tx.query('SELECT code FROM ingredient WHERE code = ANY($1::text[])', [codes])).rows.map(
+            (r) => r.code as string,
+          )
+        : [],
+    );
+    const ok = <T extends { site: string; code: string }>(r: T) => sites.has(r.site) && known.has(r.code);
+    if (counts) {
+      if (from) await tx.query('DELETE FROM stock_count WHERE count_date >= $1::date', [from]);
+      const keep = counts.filter(ok);
+      stats.stockSkipped += counts.length - keep.length;
+      for (const part of chunks(keep, 5000))
+        await tx.query(
+          `INSERT INTO stock_count (site, count_date, code, qty) SELECT s, d::date, c, q FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[]) AS t(s,d,c,q) ON CONFLICT DO NOTHING`,
+          [part.map((r) => r.site), part.map((r) => r.date), part.map((r) => r.code), part.map((r) => r.qty)],
+        );
+      stats.stockCounts = keep.length;
+    }
+    if (rcpts) {
+      if (from) await tx.query('DELETE FROM receipt WHERE receipt_date >= $1::date', [from]);
+      const keep = rcpts.filter(ok);
+      stats.stockSkipped += rcpts.length - keep.length;
+      for (const part of chunks(keep, 5000))
+        await tx.query(
+          `INSERT INTO receipt (site, receipt_date, code, qty, ref) SELECT s, d::date, c, q, f FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::text[]) AS t(s,d,c,q,f) ON CONFLICT DO NOTHING`,
+          [
+            part.map((r) => r.site),
+            part.map((r) => r.date),
+            part.map((r) => r.code),
+            part.map((r) => r.qty),
+            part.map((r) => r.ref),
+          ],
+        );
+      stats.receipts = keep.length;
+    }
+  }
 
   // images, only when the backup carries them (a data-only backup leaves pictures alone)
   if (bk.photos) {
