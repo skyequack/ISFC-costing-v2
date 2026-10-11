@@ -50,4 +50,5 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Dashboard slice 2d: Theoretical vs actual panel + Client filter + export | D-74 | approved, not built |
 | Dashboard slice 2e: backup/restore, Data Health, site rename | D-75, D-76, D-77 | approved, not built |
 | Dashboard slice 3: three-stage yield | D-70 | approved, not built |
+| Users: pending invites, revoke, edit access, Select all brands (migration 0005) | D-78…D-81 | built, gates green on branch `slice-2a` (2026-10-11) |
 | Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |

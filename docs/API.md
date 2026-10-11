@@ -54,6 +54,7 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 
 **Image upload contract (D-49).** `PUT` body = the raw image bytes with `Content-Type` image/png|jpeg|webp (no base64, no multipart). The server ignores the declared type, sniffs magic bytes, parses width/height, enforces the caps (photo ≤ 1.5 MB / 4096 px, logo ≤ 512 KB / 1024 px), stores `{contentType,data,size,width,height,sha256}` and returns `{url, sha256, size, width, height}`. Errors: 400 not an image / unsupported type (SVG, GIF), 413 over cap, 422 locked card, 404 out of scope. DTOs expose `photoUrl`/`logoUrl` = `/api/…/photo|logo?v=<sha8>` (null when none); list endpoints never include bytes. **Add brand in one step:** the UI creates the brand (`POST /api/brands`) then uploads the logo (`PUT …/logo`); if the second call fails the brand exists without a logo and the UI says so (retry from Edit brand). Same two-step for the optional photo in the New-card dialog.
 | GET /api/users; POST /api/users/invite; PATCH /api/users/:id {role, brandIds, name}; POST /api/users/:id/ban\|unban; DELETE /api/users/:id | users.manage | Invited/Updated/Suspended/Restored/Deleted user |
+| POST /api/users/invite {email, role, brandIds?}; PATCH /api/users/invites/:id {role?, brandIds?} (returns the new invitation id when the role changes); DELETE /api/users/invites/:id | users.manage | Invited user / Updated invite / Revoked invite (D-78..D-80). `:id` is the Clerk invitation id, accepted only if it is in a fresh pending list (else 404) |
 
 ## Stock (D-72, D-73)
 | Endpoint | Permission | Audit |
@@ -68,8 +69,8 @@ Body `{site, date: YYYY-MM-DD, kind: 'count'|'receipt', cells: [{code, qty: numb
 
 Body `{kind, rows: [{site, date, code, qty, line}], file, hash?}` (1-5000 rows, 2 MB, the whole file in one call). `dry-run` writes nothing and returns `{counts: {add, update, same, blocked}, blocked[], sample[], sites, dates, hash, alreadyImported}`. `commit` needs that `hash` (409 when the content changed), refuses a file with any blocked row (422) and, for receipts, a content already loaded (409). Counts are upserted (only changed rows written); receipts are inserted with `ref = 'file:<hash16>'`. `?mode=undo` with `{hash}` (the dry-run's hash) deletes that upload's deliveries at the caller's sites (404 when none are left), never the grid's own rows: audit `Undid a receipts upload`.
 
-| Method path | Permission | Notes / Audit |
 ## Planning & production
+| Method path | Permission | Notes / Audit |
 |---|---|---|
 | GET /api/menus; POST /api/menus; PUT /api/menus/:id; POST /api/menus/:id/deactivate | read: any (SSEM-scoped); write: menu.edit | Menu edited |
 | PUT /api/menu-pax | recipe.edit | none (legacy) |

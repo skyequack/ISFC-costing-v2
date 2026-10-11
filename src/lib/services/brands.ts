@@ -202,11 +202,15 @@ export async function deleteBrand(tx: Queryable, user: SessionUser, id: string):
         clients: k,
       },
     );
-  if (u || s)
-    throw new ApiError('conflict', `${cur.name} is still assigned to ${u} user(s) and ${s} ingredient(s)`, {
-      users: u,
-      items: s,
-    });
+  const inv = Number(
+    (await tx.query('SELECT count(*) AS n FROM invite_brand_access WHERE brand_id = $1', [id])).rows[0]!.n,
+  );
+  if (u || s || inv)
+    throw new ApiError(
+      'conflict',
+      `${cur.name} is still assigned to ${u} user(s)${inv ? `, ${inv} pending invitation(s)` : ''} and ${s} ingredient(s)`,
+      { users: u, items: s, invites: inv },
+    );
   await tx.query('DELETE FROM brand WHERE id = $1', [id]);
   await appendAudit(tx, user, 'Removed brand', cur.name as string);
 }

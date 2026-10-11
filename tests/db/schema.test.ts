@@ -11,6 +11,7 @@ const EXPECTED_TABLES = [
   'cost_settings',
   'ingredient',
   'ingredient_price_history',
+  'invite_brand_access',
   'item_brand_scope',
   'menu',
   'menu_cell',
@@ -46,9 +47,9 @@ describe.skipIf(!hasTestDb)('schema (db/migrations) on a real Neon branch', () =
     );
     expect(rows.map((r) => r.table_name)).toEqual(EXPECTED_TABLES);
     const m = await c.query(
-      `SELECT name FROM schema_migrations WHERE name IN ('0002_restore_staging.sql', '0003_client.sql', '0004_stock.sql')`,
+      `SELECT name FROM schema_migrations WHERE name IN ('0002_restore_staging.sql', '0003_client.sql', '0004_stock.sql', '0005_invite_brand_access.sql')`,
     );
-    expect(m.rowCount).toBe(3);
+    expect(m.rowCount).toBe(4);
   });
 
   it('audit_log is append-only (update, delete and truncate are refused)', () =>
