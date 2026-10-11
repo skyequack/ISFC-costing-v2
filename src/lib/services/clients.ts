@@ -60,7 +60,7 @@ export async function updateClient(
   input: z.output<typeof clientPatchIn>,
 ): Promise<void> {
   needClients(user);
-  const cur = await getClient(tx, scope, id);
+  const cur = await getClient(tx, scope, id, 'update');
   if (cur.version !== input.version)
     throw new ApiError('conflict', 'This client was changed by someone else - reload and try again');
   const name = input.name ?? cur.name;
@@ -81,7 +81,7 @@ export async function updateClient(
 /** Only a client no production row refers to can be deleted; otherwise deactivate it (D-71). */
 export async function deleteClient(tx: Queryable, user: SessionUser, scope: BrandScope, id: string): Promise<void> {
   needClients(user);
-  const cur = await getClient(tx, scope, id);
+  const cur = await getClient(tx, scope, id, 'update');
   const n = Number(
     (await tx.query('SELECT count(*) AS n FROM production_entry WHERE client_id = $1', [id])).rows[0]!.n,
   );
@@ -94,17 +94,42 @@ export async function deleteClient(tx: Queryable, user: SessionUser, scope: Bran
 }
 
 /**
- * A production row may name a client only when it is active and belongs to the card's brand (D-71, no foreign key).
- * '' (unassigned) always passes. 404 for an unknown client, 422 for an inactive one or one of another brand.
+ * A production row may name a client only when the client belongs to the card's brand (D-71, no foreign key).
+ * '' (unassigned) always passes. 404 for an unknown client, 422 for one of another brand. The client row is locked
+ * (FOR SHARE) until the transaction ends so it cannot be deleted underneath the row being written.
+ *
+ * An inactive client takes no NEW rows, but rows it already has can still be changed or cleared: `existingKey` names the
+ * row being written, and the inactive check is skipped when that row exists. Otherwise a deactivated client's numbers
+ * would be stuck for good.
  */
 export async function assertClientForCard(
   tx: Queryable,
   scope: BrandScope,
   clientId: string,
   cardBrandId: string,
+  existingKey?: { month: string; day: string; location: string; recipeCode: string },
 ): Promise<void> {
   if (clientId === '') return;
-  const c = await getClient(tx, scope, clientId);
+  const c = await getClient(tx, scope, clientId, 'share');
   if (c.brandId !== cardBrandId) throw new ApiError('unprocessable', 'That client belongs to another brand');
-  if (!c.active) throw new ApiError('unprocessable', `${c.name} is inactive - reactivate it first`);
+  if (c.active) return;
+  const has =
+    existingKey &&
+    (
+      await tx.query(
+        'SELECT 1 FROM production_entry WHERE month = $1 AND day = $2 AND location = $3 AND client_id = $4 AND recipe_code = $5',
+        [existingKey.month, existingKey.day, existingKey.location, clientId, existingKey.recipeCode],
+      )
+    ).rows[0];
+  if (!has) throw new ApiError('unprocessable', `${c.name} is inactive - reactivate it first`);
+}
+
+/**
+ * A client choice from a URL or an export query: '*' (every client), 'none' (unassigned) or a client id the caller can see.
+ * Anything else is a 404, so an export never silently covers a different set of rows than the screen did.
+ */
+export async function resolveClientChoice(db: Queryable, scope: BrandScope, choice: string): Promise<string> {
+  if (choice === '*' || choice === 'none') return choice;
+  await getClient(db, scope, choice);
+  return choice;
 }

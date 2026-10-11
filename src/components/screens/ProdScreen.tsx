@@ -118,7 +118,7 @@ export function ProdScreen({ data }: { data: ProdData }) {
     });
   }
   function exportCsv() {
-    const q = new URLSearchParams({ month: p.month, day: p.day, brand: p.brand, loc: p.loc });
+    const q = new URLSearchParams({ month: p.month, day: p.day, brand: p.brand, loc: p.loc, client: p.client });
     window.location.href = `/api/export/${p.view === 'req' ? 'requisition' : 'production'}?${q.toString()}`;
     toast(p.view === 'req' ? 'Requisition exported' : 'Production exported');
   }
@@ -178,6 +178,7 @@ export function ProdScreen({ data }: { data: ProdData }) {
             {data.clientChoices.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
+                {c.active ? '' : ' (inactive)'}
               </option>
             ))}
           </select>

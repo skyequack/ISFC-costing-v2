@@ -128,7 +128,6 @@ describe('every non-gated handler is still wrapped (deny by default)', () => {
       'GET catalog/search',
       'GET menus',
       'GET brands/[id]/logo',
-      'GET brands/[id]/clients', // any signed-in role; the brand must be in scope (404 otherwise)
       'POST recipes/references',
       'POST workspace',
     ]);

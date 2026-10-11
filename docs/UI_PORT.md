@@ -52,3 +52,5 @@ New UI on the Dashboard only; legacy classes reused (`.card .tw .kpis .pill .btn
 
 ### Slice 2a (D-71): Clients and Production
 New strings (approved with the plan): Cost Settings card **Clients** with help "Clients belong to a brand. Production can be entered per client, and the Dashboard can be filtered by client.", "Client name", Add client, Deactivate, Reactivate, Remove, Active, Inactive, "No clients yet.", toasts Client added / renamed / deactivated / reactivated / removed. Production: label **Client**, options **All clients**, **Unassigned**; note "Every client is added together here. Pick a client, or Unassigned, above to enter numbers."; tooltip "Pick a client above to enter numbers". Legacy classes only (`.card .tw .pill .btn .rolebar`).
+
+Slice 2a review additions: Production client options show "(inactive)" after an inactive client's name; Cost Settings toast "A client needs a name".

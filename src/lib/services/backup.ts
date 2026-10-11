@@ -646,6 +646,15 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
   // clients deactivates the ones it lacks (production rows may still point at them), never deletes
   const clientMap = new Map<string, string>();
   if (bk.clients) {
+    const seen = new Set<string>();
+    for (const c of bk.clients) {
+      if (!brandId.has(c.brandCode))
+        throw new ApiError('unprocessable', `The backup has the client ${c.name} for the unknown brand ${c.brandCode}`);
+      const k = `${c.brandCode}|${c.name.toLowerCase()}`;
+      if (seen.has(k))
+        throw new ApiError('unprocessable', `The backup holds the client ${c.name} twice for brand ${c.brandCode}`);
+      seen.add(k);
+    }
     const have = (await tx.query('SELECT id, brand_id, name FROM client')).rows;
     const kept = new Set<string>();
     for (const c of bk.clients) {

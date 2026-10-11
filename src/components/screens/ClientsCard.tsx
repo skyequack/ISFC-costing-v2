@@ -31,6 +31,7 @@ export function ClientsCard({
   const can = usePerm();
   const [brandId, setBrandId] = useState(brands[0]?.id ?? '');
   const [name, setName] = useState('');
+  const [bump, setBump] = useState(0); // remounts the name fields to drop an edit that was not sent
 
   async function run(fn: () => Promise<unknown>, done?: string) {
     try {
@@ -70,10 +71,16 @@ export function ClientsCard({
                     <td>
                       {can('clients.edit') ? (
                         <CommitInput
+                          key={`${c.id}:${c.version}:${bump}`}
                           className="cell"
                           value={c.name}
                           style={s('width:100%')}
-                          onCommit={(v) => v.trim() && patch(c, { name: v.trim() }, 'Client renamed')}
+                          onCommit={(v) => {
+                            const t = v.trim();
+                            if (!t) toast('A client needs a name');
+                            if (!t || t === c.name) return setBump((n) => n + 1); // nothing to send: put the field back
+                            return patch(c, { name: t }, 'Client renamed');
+                          }}
                         />
                       ) : (
                         <b>{c.name}</b>

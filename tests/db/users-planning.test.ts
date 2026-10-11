@@ -22,6 +22,7 @@ import {
   setMenuPax,
   setProduction,
 } from '@/lib/services/planning';
+import { createClient } from '@/lib/services/clients';
 import { applyMenuDay } from '@/lib/services/planning-apply';
 import { createRecipe } from '@/lib/services/recipes';
 import { connect, hasTestDb, inRollback, insertBrand } from './helpers';
@@ -301,6 +302,22 @@ describe.skipIf(!hasTestDb)(
         const prod = await loadProduction(c, scope, '2099-03');
         expect(prod.length).toBeGreaterThanOrEqual(out.dishes);
         expect(prod.find((p) => p.code === stray)!.portions).toBe(9); // stale code NOT cleared (legacy)
+        // D-71: it writes the unassigned rows only and never touches a client's row for the same dish, day and site
+        const dish = prod.find((p) => p.code !== stray)!.code;
+        expect(prod.filter((p) => p.code === dish).every((p) => p.clientId === '')).toBe(true);
+        const cid = await createClient(c, gm, scope, ssemId, { name: 'Apply Co' });
+        await setProduction(c, gm, scope, {
+          month: '2099-03',
+          day: '07',
+          location: 'NIC',
+          recipeCode: dish,
+          clientId: cid,
+          portions: 33,
+        });
+        await applyMenuDay(c, gm, scope, { month: '2099-03', day: '07', location: 'NIC' });
+        const again = (await loadProduction(c, scope, '2099-03')).filter((p) => p.code === dish);
+        expect(again.find((p) => p.clientId === cid)!.portions).toBe(33);
+        expect(again.filter((p) => p.clientId === '')).toHaveLength(1);
         const a = await c.query(
           `SELECT detail FROM audit_log WHERE action = 'Turned the menus into production' ORDER BY created_at DESC LIMIT 1`,
         );

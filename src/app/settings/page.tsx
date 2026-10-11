@@ -8,9 +8,8 @@ import { SettingsScreen } from '@/components/screens/SettingsScreen';
 export default async function Page() {
   const ctx = await pageCtx();
   const catalog = await pageCatalog();
-  const settings = await getSettings(db);
+  const [settings, clientRows] = await Promise.all([getSettings(db), listClients(db, ctx.scope)]);
   const rows = recipeRows(catalog, ctx.scope);
-  const clientRows = await listClients(db, ctx.scope);
   const brands = ctx.brands.map((b) => {
     const rs = rows.filter((r) => r.brandId === b.id);
     return {

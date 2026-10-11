@@ -16,6 +16,7 @@ import { buildCtx, type PageCtx } from '../screens/ctx';
 import { loadPrep } from '../screens/plan';
 import { loadProd } from '../screens/prod';
 import { auditExport } from './audit';
+import { resolveClientChoice } from './clients';
 import { loadMenus, loadProduction } from './planning';
 import { dashExportRows } from './dash-export';
 
@@ -44,6 +45,8 @@ export const exportQuery = z.object({
     .optional(),
   brand: z.string().max(64).default('*'),
   loc: z.string().max(40).default('*'),
+  /** '*' = every client, 'none' = unassigned, or a client id (D-71) */
+  client: z.string().max(64).default('*'),
   wd: z.string().max(12).optional(),
   menuId: z.string().max(64).optional(),
   /** dashboard range, day-level inclusive (D-65) */
@@ -294,7 +297,7 @@ export async function buildExport(
         day: q.day,
         brand: q.brand,
         loc: q.loc,
-        client: '*',
+        client: await resolveClientChoice(db, ctx.scope, q.client),
       });
       const out: unknown[][] = [
         ['Store requisition', `${q.month}-${q.day}`, `Site: ${q.loc === '*' ? 'all' : q.loc}`],
@@ -316,7 +319,10 @@ export async function buildExport(
     case 'production': {
       // D-19: the intended columns (legacy threw). One row per site/dish/day, plus a DAY TOTAL row.
       if (!q.month) throw new ApiError('bad_request', 'month is required');
-      const entries = await loadProduction(db, ctx.scope, q.month);
+      const wantedClient = await resolveClientChoice(db, ctx.scope, q.client);
+      const entries = (await loadProduction(db, ctx.scope, q.month)).filter(
+        (e) => wantedClient === '*' || e.clientId === (wantedClient === 'none' ? '' : wantedClient),
+      );
       const idx = new ProdIndex(
         entries.map((e) => ({ day: e.day, location: e.location, code: e.code, portions: e.portions })),
       );

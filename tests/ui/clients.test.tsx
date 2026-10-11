@@ -64,6 +64,21 @@ describe('Clients card in Cost Settings (D-68/D-71)', () => {
     await waitFor(() => expect(calls.some((c) => c.method === 'DELETE')).toBe(true));
   });
 
+  it('a rename that changes nothing sends nothing, and a blank name is refused and put back', async () => {
+    renderInShell(<ClientsCard clients={clients} brands={brands} />, 'cc');
+    const name = screen.getByDisplayValue('Acme') as HTMLInputElement;
+    fireEvent.change(name, { target: { value: 'Acme  ' } });
+    fireEvent.blur(name);
+    const nameField = () =>
+      screen.getAllByRole('textbox').find((i) => (i as HTMLInputElement).value.trim() === 'Acme') as HTMLInputElement;
+    expect(nameField().value).toBe('Acme'); // the unchanged edit was dropped and the field put back
+    fireEvent.change(nameField(), { target: { value: '   ' } });
+    fireEvent.blur(screen.getAllByRole('textbox').find((i) => (i as HTMLInputElement).value === '   ')!);
+    expect(await screen.findByText('A client needs a name')).toBeTruthy();
+    expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(0);
+    expect(nameField().value).toBe('Acme');
+  });
+
   it('a client with production cannot be removed: the server message is shown', async () => {
     onFetch((c) =>
       c.method === 'DELETE'
@@ -95,7 +110,12 @@ const prodData = (over: Partial<ProdData['params']> = {}, locked = false, choice
     nd: 30,
     locs: [],
     brandOptions: brands,
-    clientChoices: choices ? [{ id: 'c1', name: 'Acme' }] : [],
+    clientChoices: choices
+      ? [
+          { id: 'c1', name: 'Acme', active: true },
+          { id: 'c2', name: 'Old Co', active: false },
+        ]
+      : [],
     brandName: 'Gourmet',
     nCards: 1,
     currency: 'SAR',
@@ -122,7 +142,12 @@ describe('Production screen Client field (D-71)', () => {
   it('the Client select appears with a client choice, and picking one goes in the URL', () => {
     renderInShell(<ProdScreen data={prodData()} />, 'gm', 'b1');
     const select = screen.getByDisplayValue('All clients') as HTMLSelectElement;
-    expect([...select.options].map((o) => o.textContent)).toEqual(['All clients', 'Unassigned', 'Acme']);
+    expect([...select.options].map((o) => o.textContent)).toEqual([
+      'All clients',
+      'Unassigned',
+      'Acme',
+      'Old Co (inactive)', // an inactive client stays listed so its rows can be corrected
+    ]);
     fireEvent.change(select, { target: { value: 'c1' } });
     expect(String(nav.replace.mock.calls.at(-1)?.[0])).toContain('c=c1');
   });

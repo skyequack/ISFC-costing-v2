@@ -9,6 +9,7 @@ import { buildCtx } from '@/lib/screens/ctx';
 import { loadProd } from '@/lib/screens/prod';
 import { applyRestore, backupSchema, buildBackupCore } from '@/lib/services/backup';
 import { createClient, deleteClient, updateClient } from '@/lib/services/clients';
+import { buildExport, exportQuery } from '@/lib/services/exports';
 import { deleteBrand } from '@/lib/services/brands';
 import { loadProduction, setProduction } from '@/lib/services/planning';
 import { connect, expectFails, hasTestDb, inRollback, insertBrand, insertRecipe } from './helpers';
@@ -151,10 +152,17 @@ describe.skipIf(!hasTestDb)('clients and the production key (D-68, D-71)', { tim
       await put(c1, 0); // 0 deletes that client's row only
       expect(await read()).toEqual({ '': 5, [c2]: 20 });
       expect((await fail(put(other, 1))).status).toBe(422); // a client of another brand
-      await updateClient(c, gm, s, c2, { active: false, version: 0 });
-      expect((await fail(put(c2, 1))).status).toBe(422); // inactive
       expect((await fail(put('no-such-client', 1))).status).toBe(404);
-      expect(await read()).toEqual({ '': 5, [c2]: 20 });
+      await updateClient(c, gm, s, c2, { active: false, version: 0 });
+      // an inactive client takes no NEW row ...
+      const putOn = (day: string, portions: number) =>
+        setProduction(c, gm, s, { month: '2097-06', day, location: '', recipeCode: 'ZE-1', clientId: c2, portions });
+      expect((await fail(putOn('08', 1))).status).toBe(422);
+      // ... but the rows it already has can still be corrected and cleared
+      await putOn('07', 25);
+      expect(await read()).toEqual({ '': 5, [c2]: 25 });
+      await putOn('07', 0);
+      expect(await read()).toEqual({ '': 5 });
       // a Cost Controller of another brand cannot name this brand's client at all
       const cc = await mkUser('cc', [b]);
       expect(
@@ -211,6 +219,30 @@ describe.skipIf(!hasTestDb)('clients and the production key (D-68, D-71)', { tim
       expect((await card(b, c1, 'ZH-1')).client).toBe('*');
     }));
 
+  it('the production export follows the Client choice: one client, unassigned or all; a client the caller cannot see is a 404', () =>
+    inRollback(c, async () => {
+      const a = await insertBrand(c, 'ZJ');
+      const other = await insertBrand(c, 'ZK');
+      await insertRecipe(c, a, 'ZJ-1');
+      const gm = await mkUser('gm');
+      const s = await scopeOf(gm);
+      const c1 = await createClient(c, gm, s, a, { name: 'One' });
+      await prod('2097-06', '12', '', '', 'ZJ-1', 5);
+      await prod('2097-06', '12', '', c1, 'ZJ-1', 12);
+      const portions = async (client: string) => {
+        const f = await buildExport(c, gm, 'production', exportQuery.parse({ month: '2097-06', client }));
+        const row = f.rows.find((r) => r[6] === 'ZJ-1');
+        return row ? Number(row[7]) : 0;
+      };
+      expect(await portions('*')).toBe(17);
+      expect(await portions('none')).toBe(5);
+      expect(await portions(c1)).toBe(12);
+      const cc = await mkUser('cc', [other]);
+      expect(
+        (await fail(buildExport(c, cc, 'production', exportQuery.parse({ month: '2097-06', client: c1 })))).status,
+      ).toBe(404);
+    }));
+
   it("backup round trip keeps clients and each row's client; a file from before clients restores everything as unassigned", () =>
     inRollback(c, async () => {
       const brand = await insertBrand(c, 'ZI');
@@ -242,6 +274,15 @@ describe.skipIf(!hasTestDb)('clients and the production key (D-68, D-71)', { tim
       };
       const text = JSON.stringify(slim);
       expect(backupSchema.safeParse(JSON.parse(text)).success).toBe(true);
+
+      // a file whose clients repeat a name (any case) or name an unknown brand is refused before anything is written
+      const dup = {
+        ...JSON.parse(text),
+        clients: [...slim.clients!, { ...slim.clients![0]!, id: 'x', name: slim.clients![0]!.name.toUpperCase() }],
+      };
+      expect((await fail(applyRestore(c, gm, backupSchema.parse(dup), 'dup.json'))).status).toBe(422);
+      const orphan = { ...JSON.parse(text), clients: [{ id: 'y', brandCode: 'NOPE', name: 'Lost', active: true }] };
+      expect((await fail(applyRestore(c, gm, backupSchema.parse(orphan), 'orphan.json'))).status).toBe(422);
 
       // restoring the same file changes nothing (clients matched by brand + name, the row's client id translated)
       await applyRestore(c, gm, backupSchema.parse(JSON.parse(text)), 'self.json');

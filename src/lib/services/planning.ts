@@ -288,7 +288,12 @@ export async function setProduction(
   if (!can(user.role, 'recipe.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   const { brandId } = await cardForProduction(tx, scope, input.recipeCode);
   await siteAllowed(tx, brandId, input.location);
-  await assertClientForCard(tx, scope, clientId, brandId);
+  await assertClientForCard(tx, scope, clientId, brandId, {
+    month: input.month,
+    day: input.day,
+    location: input.location,
+    recipeCode: input.recipeCode,
+  });
   const q = Math.max(0, Math.round(input.portions));
   if (q)
     await tx.query(

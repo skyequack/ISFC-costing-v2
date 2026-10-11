@@ -45,7 +45,6 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 | PATCH /api/settings | settings.edit (version check) | Settings changed (old→new, cards affected) |
 | GET /api/brands | any (scoped) | – |
 | POST/PATCH/DELETE /api/brands/:id | brands.edit | Added/Edited/Removed brand; PATCH may carry `locations` (D-52: rename cascades to `menu_pax`/`production_entry` rows in one transaction, removing a site that has stored rows → 409 with the row count) → `Edited brand sites` |
-| GET /api/brands/:id/clients | any (brand in scope, else 404) | – (`{clients}`) |
 | POST /api/brands/:id/clients | clients.edit | Added client (D-71; name unique per brand, case-insensitive → 409) |
 | PATCH /api/clients/:id | clients.edit | Edited client (`name` and/or `active`, with the `version` read; stale → 409) |
 | DELETE /api/clients/:id | clients.edit | Removed client (409 while production rows reference it: deactivate instead) |
@@ -61,7 +60,7 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 |---|---|---|
 | GET /api/menus; POST /api/menus; PUT /api/menus/:id; POST /api/menus/:id/deactivate | read: any (SSEM-scoped); write: menu.edit | Menu edited |
 | PUT /api/menu-pax | recipe.edit | none (legacy) |
-| PUT /api/production | recipe.edit | none (legacy). Body `{month, day, location, recipeCode, portions, clientId?}`; `clientId` `''` or omitted = unassigned (D-71). A client must exist (404), be active and belong to the card's brand (422). `portions` 0 deletes only that client's row. |
+| PUT /api/production | recipe.edit | none (legacy). Body `{month, day, location, recipeCode, portions, clientId?}`; `clientId` `''` or omitted = unassigned (D-71). A client must exist (404), be active and belong to the card's brand (422). `portions` 0 deletes only that client's row. An inactive client takes no new row but its existing rows can still be changed or cleared. |
 | POST /api/production/apply-menu-day | recipe.edit | Turned the menus into production |
 | POST /api/menu-price | items.edit | Priced a menu item from the menu plan (writes Ingredient.price + history) |
 | GET /api/production/{prep,requisition,day,month} | any (brand-scoped) | – |

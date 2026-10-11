@@ -107,8 +107,8 @@ export interface ProdData {
   nd: number;
   locs: string[];
   brandOptions: { id: string; name: string }[];
-  /** active clients of the chosen brand (empty under All brands), for the Client select (D-71) */
-  clientChoices: { id: string; name: string }[];
+  /** clients of the chosen brand (empty under All brands), for the Client select (D-71); inactive ones stay so their rows can be cleared */
+  clientChoices: { id: string; name: string; active: boolean }[];
   brandName: string;
   nCards: number;
   currency: string;
@@ -169,7 +169,7 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
   const clientChoices =
     p.brand === '*'
       ? []
-      : clients.filter((c) => c.brandId === p.brand && c.active).map((c) => ({ id: c.id, name: c.name }));
+      : clients.filter((c) => c.brandId === p.brand).map((c) => ({ id: c.id, name: c.name, active: c.active }));
   const wantedClient = p.client === 'none' ? '' : p.client;
   const entries = (await loadProduction(db, ctx.scope, p.month)).filter(
     (e) => p.client === '*' || e.clientId === wantedClient,
