@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import '@/styles/legacy.css';
 import '@/styles/loading.css';
+import '@/styles/factory.css';
 import { db } from '@/lib/db/client';
 import { palette } from '@/lib/brand/palette';
 import { pageCtx, pageSession } from '@/lib/page';

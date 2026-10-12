@@ -277,11 +277,11 @@ export function EditScreen(props: EditProps) {
         <button className="btn o" onClick={() => printMenu(d, brand)}>
           Print
         </button>
-        <button className="btn d" onClick={() => act.confirmDelete([facts], () => router.push('/recipes'))}>
-          Delete
-        </button>
         <button className="btn g" onClick={() => act.lock([facts])}>
           {'🔒'} Lock &amp; approve
+        </button>
+        <button className="btn d apart" onClick={() => act.confirmDelete([facts], () => router.push('/recipes'))}>
+          Delete
         </button>
       </Acts>
 
@@ -525,7 +525,7 @@ export function EditScreen(props: EditProps) {
             <h3>Ingredients</h3>
             <div style={s('padding:0')}>
               <div className="tw" style={s('border:0;box-shadow:none;border-radius:0')}>
-                <table>
+                <table className="ied">
                   <thead>
                     <tr>
                       <th style={s('width:150px')}>Code</th>

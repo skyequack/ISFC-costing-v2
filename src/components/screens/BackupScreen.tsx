@@ -66,8 +66,18 @@ export function BackupScreen({ counts, sites }: { counts: BackupCounts; sites: s
               Restoring replaces everything currently in the system.
             </p>
             <div style={s('display:flex;flex-direction:column;gap:9px')}>
+              <Perm perm="items.edit">
+                <button className="btn o" onClick={items.upload}>
+                  Upload a raw material price list
+                </button>
+              </Perm>
+              <Perm perm="recipe.create">
+                <button className="btn o" onClick={recipes.upload}>
+                  Upload recipe cards (Excel)
+                </button>
+              </Perm>
               <Perm perm="data.admin">
-                <label className="btn o" style={s('justify-content:center')}>
+                <label className="btn d" style={s('justify-content:center')}>
                   Restore from backup file
                   <input
                     type="file"
@@ -80,16 +90,6 @@ export function BackupScreen({ counts, sites }: { counts: BackupCounts; sites: s
                     }}
                   />
                 </label>
-              </Perm>
-              <Perm perm="items.edit">
-                <button className="btn o" onClick={items.upload}>
-                  Upload a raw material price list
-                </button>
-              </Perm>
-              <Perm perm="recipe.create">
-                <button className="btn" onClick={recipes.upload}>
-                  Upload recipe cards (Excel)
-                </button>
               </Perm>
             </div>
             <div

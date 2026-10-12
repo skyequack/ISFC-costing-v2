@@ -240,7 +240,7 @@ export function ConvScreen({ items, used }: { items: ConvItem[]; used: Record<st
                       </span>
                     )}
                   </td>
-                  <td className="c">
+                  <td className="c nw">
                     <Perm perm="conv.edit">
                       <button className="btn sm o" onClick={() => edit(it.code)}>
                         Edit

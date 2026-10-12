@@ -1,0 +1,160 @@
+/* Factory-floor ergonomics (D-61). Added next to the legacy CSS, never inside it. Screen only (print untouched),
+   no breakpoints, no new colours: it only enlarges hit areas, protects numeric entry and fixes clipping. */
+@media screen {
+  :root {
+    --mute: #6f6256; /* legacy #8A7B6D is ~3.6:1 on the cream page; this is ~5.6:1 for small meta text */
+  }
+
+  /* ---------- hit areas ---------- */
+  .btn {
+    min-height: 38px;
+  }
+  .btn.sm {
+    min-height: 32px;
+    padding: 6px 12px;
+  }
+  input[type='checkbox'] {
+    width: 19px;
+    height: 19px;
+  }
+  td.ck,
+  th.ck {
+    width: 44px;
+  }
+  .tabs button {
+    min-height: 40px;
+  }
+  nav button {
+    min-height: 40px;
+  }
+  .tw td {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+  th {
+    font-size: 11px;
+  }
+  .kpi .k {
+    font-size: 11px;
+  }
+  .nw {
+    white-space: nowrap;
+  }
+  .nw .btn + .btn,
+  .nw .btn + * {
+    margin-left: 6px;
+  }
+
+  /* ---------- numeric entry ---------- */
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    font-variant-numeric: tabular-nums;
+  }
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  td input.cell {
+    min-height: 38px;
+    font-size: 15px;
+    min-width: 0;
+  }
+
+  /* ---------- long tables: codes stay on one line, rows are easy to follow ---------- */
+  td.mono {
+    white-space: nowrap;
+  }
+  :where(.tw tbody tr:nth-child(even)) td {
+    background: #fffcf9;
+  }
+
+  /* ---------- search stays usable: it takes its own full row, the filters wrap below it ---------- */
+  .row:has(> #q_rec),
+  .row:has(> #q_it) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .row:has(> #q_rec) > select,
+  .row:has(> #q_it) > select {
+    flex: 1 1 180px;
+    width: auto;
+  }
+  #q_rec,
+  #q_it {
+    flex: 1 1 100%;
+    min-height: 42px;
+    font-size: 14px;
+  }
+
+  /* ---------- Production: day stepper, entered rows, sticky header ---------- */
+  .daystep + select {
+    width: auto;
+    min-width: 76px;
+  }
+  .btn.daystep {
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .daylbl {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--org-dk);
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .daylbl.off {
+    background: var(--bad-lt);
+    border-color: #ebd3cf;
+    color: var(--bad);
+  }
+  .tw.pg {
+    overflow: visible;
+  }
+  .tw.pg th {
+    position: sticky;
+    top: 76px; /* header.top height at desktop width (tabs row); wraps taller on narrow screens */
+    z-index: 3;
+  }
+  tr.filled td {
+    background: var(--org-lt);
+    font-weight: 600;
+  }
+  tr.filled td:first-child {
+    box-shadow: inset 4px 0 0 var(--org);
+  }
+
+  /* ---------- recipe editor ---------- */
+  .row > * {
+    min-width: 0;
+  }
+  table.ied {
+    min-width: 720px;
+  }
+  table.ied input.cell {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 14px;
+  }
+  .apart {
+    margin-left: 18px;
+    position: relative;
+  }
+  .apart::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 4px;
+    bottom: 4px;
+    border-left: 1px solid var(--line);
+  }
+  header.top .btn {
+    white-space: nowrap;
+  }
+}

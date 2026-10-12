@@ -148,6 +148,15 @@ export function ProdScreen({ data }: { data: ProdData }) {
           <label className="fl" style={s('margin:0')}>
             Day
           </label>
+          <button
+            type="button"
+            className="btn sm o daystep"
+            aria-label="Previous day"
+            disabled={Number(p.day) <= 1}
+            onClick={() => go({ day: pad2(Number(p.day) - 1) })}
+          >
+            {'‹'}
+          </button>
           <select value={p.day} onChange={(e) => go({ day: e.target.value })}>
             {Array.from({ length: data.nd }, (_, i) => pad2(i + 1)).map((x) => (
               <option key={x} value={x}>
@@ -155,6 +164,16 @@ export function ProdScreen({ data }: { data: ProdData }) {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            className="btn sm o daystep"
+            aria-label="Next day"
+            disabled={Number(p.day) >= data.nd}
+            onClick={() => go({ day: pad2(Number(p.day) + 1) })}
+          >
+            {'›'}
+          </button>
+          <DayLabel month={p.month} day={p.day} />
         </>
       )}
       <label className="fl" style={s('margin:0')}>
@@ -356,6 +375,18 @@ function DrawRows({ rows }: { rows: ReqRow[] }) {
   );
 }
 
+/** Full weekday + date next to the day picker, tinted when the chosen day is not today (wrong-day guard). */
+function DayLabel({ month, day }: { month: string; day: string }) {
+  const d = new Date(Number(month.slice(0, 4)), Number(month.slice(5)) - 1, Number(day));
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  return (
+    <span className={isToday ? 'daylbl' : 'daylbl off'}>
+      {d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+    </span>
+  );
+}
+
 function DayView({ data, cu, setProd }: { data: ProdData; cu: string; setProd: (code: string, v: string) => void }) {
   const p = data.params;
   const t = data.totals;
@@ -406,7 +437,7 @@ function DayView({ data, cu, setProd }: { data: ProdData; cu: string; setProd: (
             </span>
           </h3>
           <div className="bd">
-            <div className="tw">
+            <div className="tw pg">
               <table>
                 <thead>
                   <tr>
@@ -424,7 +455,7 @@ function DayView({ data, cu, setProd }: { data: ProdData; cu: string; setProd: (
                 </thead>
                 <tbody>
                   {sec.cards.map((r) => (
-                    <tr key={r.code}>
+                    <tr key={r.code} className={r.qty ? 'filled' : undefined}>
                       <td>
                         {r.name}
                         <div style={s('font-size:11px;color:var(--mute)')}>

@@ -90,6 +90,10 @@ Every route has a skeleton (`src/app/*/loading.tsx` → `src/components/shell/Sk
 
 The sidebar footer (`src/components/shell/Shell.tsx`) shows "Made by Omer for ISFC" / "omer.mohammd.m@gmail.com" (D-60, D-63 sidebar restyle) in place of the static "All changes saved" and "v8.7" lines (user request; the legacy save-status text was never wired in the React shell).
 
+## Factory-floor ergonomics (2026-10-10, D-61)
+
+From a UI/UX review of the running app: `src/styles/factory.css` (screen-only, imported in `src/app/layout.tsx`), `CommitInput` (select-on-focus, numeric keypad, wheel-blur, `navGroup` Enter-to-next), Production (day steppers + weekday label, sticky header, filled-row highlight, Enter flow), editor (`table.ied` scrolls instead of clipping, Delete separated from Lock), Conversions (Edit/× on one line), Backup (restore last, destructive style). Open: type-to-confirm, "Today", sticky menu-plan columns, sidebar compaction (wording/breakpoint decisions, see D-61).
+
 ## Open items for the user (decisions that were NOT made for you)
 
 - ~~Stale PIN / "stored in this file" wording~~ — resolved by D-58 (approved 2026-10-10).
