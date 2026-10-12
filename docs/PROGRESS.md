@@ -11,12 +11,13 @@ Last updated: 2026-10-12. **Phases 0–6 are done. Phase 7 (deploy, D-62) is par
 ## Gate status
 - **2026-10-12, after the debloat (below):** typecheck ✅ · lint ✅ · prettier ✅ · `npm test` 717 passed / 155 skipped ✅ (same as after rate-limiting slice 3; the DB suites need `TEST_DATABASE_URL`) · not run: `next build`, coverage, the DB suite.
 - On Windows use `npx prettier --check --end-of-line auto .` (the working tree is CRLF and the repo stores LF through `core.autocrlf`, so a plain check flags every file).
-- **Last full DB suite:** Neon `dev`, 2026-10-12, after `48ca819`: 153 passed, 2 failed, both in `seed.test.ts`, which checks against pristine seed data (`dev` has been edited by hand: 129 unpriced ingredients against the seed's 135, MNU-0002 repriced). The same file passes in CI, which seeds a fresh branch. About 12 min, because every statement is a network round trip (command in `docs/TESTING.md`).
+- **Last full DB suite:** local Postgres 18 container (D-92), 2026-10-12, after `3c879f6`: 155 passed in 20 s, including `seed.test.ts` (fresh seed). Before that: Neon `dev`, 2026-10-12, after `48ca819`: 153 passed, 2 failed, both in `seed.test.ts`, which checks against pristine seed data (`dev` has been edited by hand: 129 unpriced ingredients against the seed's 135, MNU-0002 repriced). The same file passes in CI, which seeds a fresh branch. About 12 min, because every statement is a network round trip (command in `docs/TESTING.md`).
 
 ## Open items
 **Waiting on Omer**
 - [ ] Finish the Neon move (D-91): sign in as GM and reassign the second user's brands; reconnect the Neon MCP with the new account (the CLI is logged in and linked, `dev` = `br-purple-bonus-b9blhb4x` exists and `.env.local` points at it).
 - [ ] Clerk session-token claim `{"role":"{{user.public_metadata.role}}"}` (RUNBOOK §3). This is also the cheapest remaining speed-up: without it every request calls Clerk for the role (docs/PERF_PLAN.md).
+- [ ] Optional: delete the GitHub secret `NEON_API_KEY` and variable `NEON_PROJECT_ID` and revoke that Neon key; CI no longer uses them (D-92).
 - [x] GitHub repo variable `NEON_PROJECT_ID` (= `dark-credit-83519706`) and secret `NEON_API_KEY` (new account) for the CI `db` job (RUNBOOK §4a), set 2026-10-12. Vercel `DATABASE_URL*` point at the new `production`; after the redeploy `/api/health` answered `{"ok":true}` (2026-10-12).
 - [ ] Clerk **production** instance keys and domain at final handoff (decision 2026-10-10: stay on dev keys until then, so sign-in shows "Development mode").
 - [ ] Manual checks the assistant cannot do: a backup **restore commit** on a throwaway Neon branch (only dry-runs so far), a user invitation (emails a real address), a second-device persistence check, real printing (`window.print` is blocked in the pane), non-GM roles in a real browser (covered by the 243-case authz matrix only).

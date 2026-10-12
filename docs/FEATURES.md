@@ -38,7 +38,7 @@ OUT OF SCOPE: <explicit>
 5. Questions only Omer can answer.
 
 ## Definition of done (per slice)
-typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch (never `production`); golden diff still exact (or the row says why not); authz-matrix updated for new endpoints; `docs/PROGRESS.md`, `docs/API.md` and other affected docs updated in the same change; anything skipped reported. `/code-review` (and `/security-review` once the repo is on GitHub) at each feature's gate.
+typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway local Postgres 18 (D-92; never on Neon, never `production`); golden diff still exact (or the row says why not); authz-matrix updated for new endpoints; `docs/PROGRESS.md`, `docs/API.md` and other affected docs updated in the same change; anything skipped reported. `/code-review` (and `/security-review` once the repo is on GitHub) at each feature's gate.
 
 ## Feature log
 | Feature | Decision | Status |
@@ -55,4 +55,5 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Backup & Export: Import templates card (price list, recipe, stock counts, stock receipts) | D-86 | built, gates green (2026-10-11); layout, content and strings approved by Omer; checked in the browser as GM on `dev` |
 | Rate limiting (429): slice 1 limiter core + migration 0008 + withAuth hook; slice 2 route tagging + meta-test + budget replay; slice 3 browser handling | D-87…D-90 | plan approved by Omer 2026-10-12; slices 1-2 committed (`48ca819`); slice 3 built, gates green, strings reviewed by Opus on Omer's instruction; not committed |
 | Factory-floor ergonomics (screen-only CSS, select-on-focus numeric inputs, Production day steppers and Enter-to-next, Backup/editor button order) | D-61 | merged to `main` from a stash (2026-10-12), typecheck/lint/unit tests green, DB suite not run; checked in the browser as GM on `dev` (Production, editor, Backup); new strings are only the aria-labels "Previous day" / "Next day" |
+| DB tests on a local Postgres 18 instead of Neon branches (CI service container, local Docker) | D-92 | done 2026-10-12: 155/155 DB tests in ~20 s locally; CI job not yet run on GitHub |
 | Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |

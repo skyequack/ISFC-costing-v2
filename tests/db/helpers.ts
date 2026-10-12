@@ -2,9 +2,9 @@ import pg from 'pg';
 import { normalizeConnectionString } from '@/lib/db/conn';
 
 /**
- * Database tests run only when TEST_DATABASE_URL (a direct/unpooled URL of a migrated Neon branch) is set:
- * CI creates a throwaway branch per run; locally point it at the `dev` branch. Every schema test runs inside
- * a transaction that is rolled back, so nothing persists. Never point this at production.
+ * Database tests run only when TEST_DATABASE_URL (a direct URL of a migrated, seeded database) is set: a throwaway
+ * local Postgres 18, in CI a service container (D-92, docs/TESTING.md). Not Neon: test runs used up its transfer quota.
+ * Every schema test runs inside a transaction that is rolled back, so nothing persists. Never point this at production.
  */
 export const TEST_DB_URL = process.env.TEST_DATABASE_URL;
 export const hasTestDb = Boolean(TEST_DB_URL);
