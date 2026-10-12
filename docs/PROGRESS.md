@@ -5,7 +5,7 @@ Last updated: 2026-10-12. **Phases 0–6 are done. Phase 7 (deploy, D-62) is par
 ## Current state
 - **Git:** only `main` exists, locally and on GitHub (`skyequack/ISFC-costing-v2`). Merged feature branches were deleted 2026-10-12.
 - **Deploy:** https://isfc-costing-v2.vercel.app (functions in `fra1`). Production served `98955e8` on 2026-10-12 (confirmed by Omer).
-- **Databases:** Neon `dev` and `production` are both on migrations 0001–0008; checksums equal the files in `db/migrations/`. 0008 went to `production` on 2026-10-12, after the snapshot `production-before-0008-2026-10-12` (`snap-ancient-cake-b24ar119`); data counts were identical before and after (1046 ingredients, 321 live cards, 7327 lines, 14 brands, 2 users, 43 audit rows). Kept: `production`, `dev` and that snapshot. CI creates and expires its own `ci-*` branches.
+- **Databases (D-91, 2026-10-12):** moved to a new Neon account, project `dark-credit-83519706` (free plan, Frankfurt, Postgres 18). `production` (`br-curly-waterfall-b9ib4yqh`) was migrated (0001–0008) and freshly seeded: 1046 ingredients (135 unpriced), 321 cards, 7321 lines, 34 conversions, 14 brands, 8 menus, 9 logos; 0 users, 0 audit rows. Everything entered on the old `production` after the first seed (2 users and their brand access, 43 audit rows, stock, hand edits) was **not carried over**: the old project was over its free 5 GB data-transfer quota (6.7 GB used since 2026-10-09), so it could not be read, and Omer chose a fresh seed. The old project (`old-butterfly-59479439`) is kept untouched; its quota resets 2026-11-01. CI creates and expires its own `ci-*` branches.
 - **This dev machine:** Node needs `NODE_OPTIONS="--dns-result-order=ipv4first --no-network-family-autoselection"` for Neon (IPv6 times out). `.claude/launch.json` has `isfc-dev-3100` (port 3000 can be taken) and `isfc-dev-trace` (`SQL_TRACE=2`).
 
 ## Gate status
@@ -15,8 +15,9 @@ Last updated: 2026-10-12. **Phases 0–6 are done. Phase 7 (deploy, D-62) is par
 
 ## Open items
 **Waiting on Omer**
+- [ ] Finish the Neon move (D-91): sign in as GM and reassign the second user's brands; reconnect the Neon MCP with the new account (the CLI is logged in and linked, `dev` = `br-purple-bonus-b9blhb4x` exists and `.env.local` points at it).
 - [ ] Clerk session-token claim `{"role":"{{user.public_metadata.role}}"}` (RUNBOOK §3). This is also the cheapest remaining speed-up: without it every request calls Clerk for the role (docs/PERF_PLAN.md).
-- [ ] GitHub repo variable `NEON_PROJECT_ID` and secret `NEON_API_KEY` for the CI `db` job (RUNBOOK §4a).
+- [x] GitHub repo variable `NEON_PROJECT_ID` (= `dark-credit-83519706`) and secret `NEON_API_KEY` (new account) for the CI `db` job (RUNBOOK §4a), set 2026-10-12. Vercel `DATABASE_URL*` point at the new `production`; after the redeploy `/api/health` answered `{"ok":true}` (2026-10-12).
 - [ ] Clerk **production** instance keys and domain at final handoff (decision 2026-10-10: stay on dev keys until then, so sign-in shows "Development mode").
 - [ ] Manual checks the assistant cannot do: a backup **restore commit** on a throwaway Neon branch (only dry-runs so far), a user invitation (emails a real address), a second-device persistence check, real printing (`window.print` is blocked in the pane), non-GM roles in a real browser (covered by the 243-case authz matrix only).
 - [ ] Re-measure latency in production, then decide PERF_PLAN R7/R9.
