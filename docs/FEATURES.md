@@ -48,7 +48,7 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Dashboard slice 2b: stock tables, API, Stock screen (migration 0004) | D-69, D-72, D-73 | merged to `main` (`212e79f`), gates green; migration 0004 on `dev` and `production` |
 | Dashboard slice 2c: stock upload (dry-run/commit) | D-73 | merged to `main` (`212e79f`), gates green (2026-10-11) |
 | Dashboard slice 2d: Theoretical vs actual panel + Client filter + export | D-74, D-82 | merged to `main` (`759e300`), gates green (2026-10-11); strings approved |
-| Dashboard redesign: tabs and overview, histogram, incomplete-card note, Ingredients KPI by brand | D-84 | merged to `main` (`b41f684`), gates green (2026-10-11); not checked in a browser; architect data review requested; new strings pending approval |
+| Dashboard redesign: tabs and overview, histogram, incomplete-card note, Ingredients KPI by brand | D-84 | merged to `main` (`b41f684`), gates green (2026-10-11); not checked in a browser; architect data review requested; new strings approved by Omer 2026-10-12 |
 | Dashboard slice 2e: stock in backup/restore, Data Health, site rename carries stock | D-75, D-76, D-83 (D-77 = accepted gaps) | merged to `main` (`eb7fe82`), gates green (2026-10-11); strings approved |
 | Dashboard slice 3: three-stage yield (migration 0007) | D-70, D-85 | merged to `main` (`82ccf36`), gates green (2026-10-11); strings approved |
 | Users: pending invites, revoke, edit access, Select all brands (migration 0005) | D-78…D-81 | merged to `main` (`212e79f`), gates green (2026-10-11); migration 0005 on `dev` and `production` |
