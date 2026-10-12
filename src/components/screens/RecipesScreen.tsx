@@ -2,7 +2,10 @@
 
 import { useRouter } from '@/components/shell/nav-progress';
 import { useMemo, useState } from 'react';
+import { downloadFile } from '@/components/io/download';
 import { useRecipeIO } from '@/components/io/recipes-io';
+import { errText } from '@/components/shared/api-client';
+import { useToast } from '@/components/shared/Toast';
 import { NewRecipeButton } from '@/components/recipes/NewRecipeButton';
 import { trashCount, useRecipeActions, type CardFacts } from '@/components/recipes/actions';
 import { Acts } from '@/components/shell/Shell';
@@ -46,6 +49,7 @@ const facts = (r: RecipeRow): CardFacts => ({
 
 /** Legacy vRecipes (2752). The page loads the lightweight list once; filtering and paging happen here so typing never remounts. */
 export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProps) {
+  const toast = useToast();
   const router = useRouter();
   const act = useRecipeActions(target);
   const io = useRecipeIO();
@@ -116,8 +120,12 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
       <Acts>
         <button
           className="btn o"
-          onClick={() => {
-            window.location.href = '/api/export/recipes';
+          onClick={async () => {
+            try {
+              await downloadFile('/api/export/recipes');
+            } catch (e) {
+              toast(errText(e));
+            }
           }}
         >
           Export CSV

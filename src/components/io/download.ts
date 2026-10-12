@@ -2,6 +2,7 @@
 
 import { csvLine } from '@/lib/csv';
 import { xlsxBytes } from '@/lib/xlsx/write';
+import { apiErrorOf, fetchRetry } from '@/components/shared/api-client';
 import { downloadText } from '@/components/shared/print-doc';
 
 export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
@@ -28,6 +29,18 @@ export function saveXlsx(name: string, rows: unknown[][]): void {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     }),
   );
+}
+
+/**
+ * Download a file the server builds (CSV or Excel rows) through fetch instead of navigating to it (D-90): a refusal such as
+ * "too many tries" becomes a message the caller can show, not a page of JSON that replaces the screen. One automatic retry
+ * on a short 429, like every other call. Throws ClientApiError.
+ */
+export async function downloadFile(url: string, fallbackName = 'ISFC-export.csv'): Promise<void> {
+  const res = await fetchRetry(url, { cache: 'no-store' });
+  if (!res.ok) throw await apiErrorOf(res, url, () => 'Download failed');
+  const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? fallbackName;
+  saveBlob(name, await res.blob());
 }
 
 export async function readFileBytes(file: File): Promise<Uint8Array> {

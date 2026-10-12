@@ -2,6 +2,7 @@
 
 import { useRouter } from '@/components/shell/nav-progress';
 import { Acts } from '@/components/shell/Shell';
+import { downloadFile } from '@/components/io/download';
 import { api, errText } from '@/components/shared/api-client';
 import { CommitInput } from '@/components/shared/inputs';
 import { Perm } from '@/components/shared/Perm';
@@ -42,11 +43,15 @@ export function PrepScreen({ data }: { data: PrepData }) {
     }
   }
 
-  function csv() {
+  async function csv() {
     if (!R.rows.length) return toast('Nothing to export yet');
     const q = new URLSearchParams({ month: p.month, day: p.day, loc: p.loc, wd: p.weekday });
-    window.location.href = `/api/export/prep?${q.toString()}`;
-    toast('Requisition exported');
+    try {
+      await downloadFile(`/api/export/prep?${q.toString()}`);
+      toast('Requisition exported');
+    } catch (e) {
+      toast(errText(e));
+    }
   }
 
   async function send() {

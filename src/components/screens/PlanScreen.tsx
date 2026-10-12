@@ -3,6 +3,7 @@
 import { useRouter } from '@/components/shell/nav-progress';
 import { useState } from 'react';
 import { Acts } from '@/components/shell/Shell';
+import { downloadFile } from '@/components/io/download';
 import { api, errText } from '@/components/shared/api-client';
 import { createStore, useStore, type Store } from '@/components/shared/form-store';
 import { CommitInput } from '@/components/shared/inputs';
@@ -105,9 +106,13 @@ export function PlanScreen({ data }: { data: PlanData }) {
     }
   }
 
-  function exportCsv() {
-    window.location.href = `/api/export/plan?menuId=${encodeURIComponent(m!.id)}`;
-    toast('Menu exported');
+  async function exportCsv() {
+    try {
+      await downloadFile(`/api/export/plan?menuId=${encodeURIComponent(m!.id)}`);
+      toast('Menu exported');
+    } catch (e) {
+      toast(errText(e));
+    }
   }
 
   let lastMeal = '';

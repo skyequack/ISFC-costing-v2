@@ -189,3 +189,43 @@ describe('Stock upload dialog (D-73, slice 2c)', () => {
     expect(posts('undo')[0]!.body).toEqual({ hash: 'h'.repeat(64) });
   });
 });
+
+describe('Stock upload when the server says "too many tries" (D-90)', () => {
+  const refused = (retryAfter: number) => ({
+    status: 429,
+    json: { error: { code: 'rate_limited', message: 'Too many tries in a short time. Try again shortly.' } },
+    headers: { 'retry-after': String(retryAfter) },
+  });
+
+  it('a refused commit keeps the dialog and the parsed file, and the same button sends the same hash again', async () => {
+    let commits = 0;
+    onFetch((c) => {
+      if (c.url.includes('mode=dry-run')) return { json: plan() };
+      if (c.url.includes('mode=commit'))
+        return ++commits === 1 ? refused(600) : { json: { added: 1, updated: 1, same: 0 } };
+      return undefined;
+    });
+    renderInShell(<StockScreen grid={grid()} />, 'chef');
+    await choose('Code,Quantity\nrice,3\nflour,6\n');
+    fireEvent.click(await screen.findByText('Load 2 rows'));
+    const note = await screen.findByRole('alert');
+    expect(note.textContent).toMatch(
+      /^Too many tries in a short time\. Nothing was loaded and your file is still here – wait about 10 minutes \(after \d\d:\d\d\), then press Load again\.$/,
+    );
+    expect(screen.getByText('Check the stock counts before loading')).toBeTruthy(); // the dialog stayed
+    fireEvent.click(screen.getByText('Load 2 rows'));
+    await waitFor(() => expect(posts('commit')).toHaveLength(2));
+    expect(posts('commit')[1]!.body).toEqual(posts('commit')[0]!.body); // same rows, same hash
+    expect(posts('dry-run')).toHaveLength(1); // the file was not checked again
+    await waitFor(() => expect(nav.refresh).toHaveBeenCalled());
+  });
+
+  it('refused while checking: the title is "Please wait" and the file is said to be fine', async () => {
+    onFetch((c) => (c.url.includes('mode=dry-run') ? refused(600) : undefined));
+    renderInShell(<StockScreen grid={grid()} />, 'chef');
+    await choose('Code,Quantity\nrice,3\n');
+    expect(await screen.findByText('Please wait')).toBeTruthy();
+    expect(screen.getByText(/Your file is fine – choose it again in about 10 minutes/)).toBeTruthy();
+    expect(screen.queryByText('Could not read that file')).toBeNull();
+  });
+});

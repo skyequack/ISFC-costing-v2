@@ -3,6 +3,8 @@
 import { useRouter } from '@/components/shell/nav-progress';
 import { DateField } from '@/components/shared/DateField';
 import { Perm } from '@/components/shared/Perm';
+import { downloadFile } from '@/components/io/download';
+import { errText } from '@/components/shared/api-client';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { MATRIX_MIN_ITEMS } from '@/domain/dash-analytics';
@@ -145,12 +147,16 @@ export function ExportAnalyticsButton({ filters }: { filters: DashAnalytics['fil
     <Perm perm="export">
       <button
         className="btn o"
-        onClick={() => {
+        onClick={async () => {
           const q = new URLSearchParams({ brand: filters.brand, loc: filters.loc, client: filters.client });
           if (filters.from) q.set('from', filters.from);
           if (filters.to) q.set('to', filters.to);
-          window.location.href = `/api/export/dash?${q.toString()}`;
-          toast('Analytics exported');
+          try {
+            await downloadFile(`/api/export/dash?${q.toString()}`);
+            toast('Analytics exported');
+          } catch (e) {
+            toast(errText(e));
+          }
         }}
       >
         Export analytics

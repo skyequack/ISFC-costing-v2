@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nav, renderInShell, resetFetch, installFetch } from './harness';
+
+const downloaded = vi.hoisted(() => ({ urls: [] as string[] }));
+vi.mock('@/components/io/download', async (orig) => {
+  const actual = await orig<typeof import('@/components/io/download')>();
+  return { ...actual, downloadFile: async (url: string) => void downloaded.urls.push(url) };
+});
 
 vi.mock('next/navigation', () => ({
   usePathname: () => nav.path,
@@ -18,7 +24,10 @@ beforeAll(() => {
   installFetch();
   window.scrollTo = vi.fn();
 });
-beforeEach(() => resetFetch());
+beforeEach(() => {
+  resetFetch();
+  downloaded.urls.length = 0;
+});
 afterEach(() => cleanup());
 
 const lastReplace = () => nav.replace.mock.calls.at(-1)?.[0];
@@ -158,18 +167,13 @@ describe('Dashboard filters and analytics (D-65…D-67)', () => {
     expect(screen.getByText('not a calendar date')).toBeTruthy();
   });
 
-  it('exports with exactly the filters on screen', () => {
+  it('exports with exactly the filters on screen', async () => {
     const a = empty({ filters: { brand: 'b1', loc: 'NIC', client: '*', from: '2026-10-01', to: '2026-10-31' } });
-    const original = window.location;
-    const loc = { href: '', hash: '', pathname: '/dash', search: '' };
-    vi.stubGlobal('location', loc);
-    try {
-      renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
-      fireEvent.click(screen.getByText('Export analytics'));
-      expect(loc.href).toBe('/api/export/dash?brand=b1&loc=NIC&client=*&from=2026-10-01&to=2026-10-31');
-    } finally {
-      vi.stubGlobal('location', original); // do not leak the fake into the tests that follow
-    }
+    renderInShell(<DashScreen d={d} a={a} brandNames={{}} />);
+    fireEvent.click(screen.getByText('Export analytics'));
+    await waitFor(() => expect(downloaded.urls).toHaveLength(1));
+    expect(downloaded.urls[0]).toBe('/api/export/dash?brand=b1&loc=NIC&client=*&from=2026-10-01&to=2026-10-31');
+    expect(await screen.findByText('Analytics exported')).toBeTruthy();
   });
 
   it('the matrix: not-enough-data state, then classes with clickable chips that open the card', () => {

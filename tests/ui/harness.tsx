@@ -14,7 +14,7 @@ export interface Call {
   body: unknown;
 }
 export const calls: Call[] = [];
-type Handler = (c: Call) => { status?: number; json?: unknown } | undefined;
+type Handler = (c: Call) => { status?: number; json?: unknown; headers?: Record<string, string> } | undefined;
 const handlers: Handler[] = [];
 
 export function onFetch(h: Handler): void {
@@ -40,7 +40,7 @@ export function installFetch(): void {
         if (r)
           return new Response(JSON.stringify(r.json ?? {}), {
             status: r.status ?? 200,
-            headers: { 'content-type': 'application/json' },
+            headers: { 'content-type': 'application/json', ...r.headers },
           });
       }
       return new Response(JSON.stringify({}), { status: 200, headers: { 'content-type': 'application/json' } });

@@ -1,12 +1,14 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { LONG_TOAST_MS, LONG_TOAST_PREFIX, RATE_WAIT_EVENT, WAITING_TOAST } from './rate-limit-text';
 
 export interface ToastAction {
   label: string;
   fn: () => void;
 }
-type ToastFn = (message: string, action?: ToastAction) => void;
+/** `ms` overrides how long the toast stays (D-90: rate-limit messages stay longer so they can be read). */
+type ToastFn = (message: string, action?: ToastAction, ms?: number) => void;
 
 const Ctx = createContext<ToastFn | null>(null);
 
@@ -18,13 +20,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   });
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const toast = useCallback<ToastFn>((message, action) => {
+  const toast = useCallback<ToastFn>((message, action, ms) => {
     setState({ message, action, on: true });
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setState((s) => ({ ...s, on: false })), action ? 8000 : 2200);
+    const long = message.startsWith(LONG_TOAST_PREFIX) ? LONG_TOAST_MS : 2200;
+    timer.current = setTimeout(() => setState((s) => ({ ...s, on: false })), ms ?? (action ? 8000 : long));
   }, []);
 
   useEffect(() => () => clearTimeout(timer.current), []);
+  // the API client waits for its one automatic retry (D-90): say so, or the screen looks frozen
+  useEffect(() => {
+    const onWait = () => toast(WAITING_TOAST, undefined, 6000);
+    window.addEventListener(RATE_WAIT_EVENT, onWait);
+    return () => window.removeEventListener(RATE_WAIT_EVENT, onWait);
+  }, [toast]);
   const value = useMemo(() => toast, [toast]);
 
   return (

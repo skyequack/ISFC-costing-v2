@@ -14,7 +14,7 @@ import { parseItemRows, TPL_HEAD, tplRows } from '@/lib/import/items';
 import { readTable } from '@/lib/xlsx/read';
 import type { ItemImportIn, ItemImportPlan, ItemPlanRow } from '@/lib/services/import-items';
 import { ITEM_IMPORT_PART } from '@/lib/io-limits';
-import { readFileBytes, saveCsv } from './download';
+import { downloadFile, readFileBytes, saveCsv } from './download';
 
 type Brand = { id: string; name: string; code: string };
 
@@ -34,17 +34,10 @@ export function useItemIO(brandsIn: Brand[]) {
         if (kind === 'blank') saveCsv('ISFC-price-list-template.csv', [TPL_HEAD, ...tplRows()], false);
         else {
           const q = kind === 'brand' && workspace ? `?brand=${encodeURIComponent(workspace.id)}` : '?brand=*';
-          const res = await fetch(`/api/export/price-template${q}`, { cache: 'no-store' });
-          if (!res.ok) throw new Error('Download failed');
-          const blob = await res.blob();
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download =
-            kind === 'brand' && workspace ? `ISFC-${workspace.code}-price-list.csv` : 'ISFC-all-ingredients.csv';
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+          await downloadFile(
+            `/api/export/price-template${q}`,
+            kind === 'brand' && workspace ? `ISFC-${workspace.code}-price-list.csv` : 'ISFC-all-ingredients.csv',
+          );
         }
         toast('Template downloaded');
       } catch (e) {

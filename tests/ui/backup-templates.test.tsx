@@ -10,16 +10,18 @@ vi.mock('next/navigation', () => ({
 vi.mock('@clerk/nextjs', () => ({ useClerk: () => ({ signOut: vi.fn() }) }));
 
 const saved = vi.hoisted(() => ({ names: [] as string[] }));
-vi.mock('@/components/io/download', async (orig) => {
-  const actual = await orig<typeof import('@/components/io/download')>();
-  return { ...actual, saveBlob: (name: string) => void saved.names.push(name) };
-});
 
 import { BackupScreen } from '@/components/screens/BackupScreen';
 
 beforeAll(() => {
   installFetch();
   window.scrollTo = vi.fn();
+  // the real download path: fetch, blob, then an anchor click; record the file name the click would save
+  URL.createObjectURL = vi.fn(() => 'blob:test');
+  URL.revokeObjectURL = vi.fn();
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    saved.names.push(this.download);
+  });
 });
 beforeEach(() => {
   resetFetch();

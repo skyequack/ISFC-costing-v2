@@ -46,13 +46,16 @@ export async function checkRate(
       err: e instanceof Error ? e.message : 'unknown',
     });
     if (rule.failClosed)
-      throw new ApiError('internal', 'Could not check the request limit just now. Try again shortly.');
+      throw new ApiError(
+        'internal',
+        'The system could not check this just now. Nothing was changed – try again in a minute.',
+      );
     return;
   }
   if (hit.n > rule.budget) {
     throw new ApiError(
       'rate_limited',
-      'Too many requests. Try again shortly.',
+      'Too many tries in a short time. Try again shortly.',
       undefined,
       Math.max(1, Math.ceil(hit.retryAfter)),
     );

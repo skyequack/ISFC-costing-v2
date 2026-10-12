@@ -2,6 +2,7 @@
 
 import { useRouter } from '@/components/shell/nav-progress';
 import { Acts } from '@/components/shell/Shell';
+import { downloadFile } from '@/components/io/download';
 import { api, errText } from '@/components/shared/api-client';
 import { CommitInput } from '@/components/shared/inputs';
 import { useModal } from '@/components/shared/Modal';
@@ -117,10 +118,14 @@ export function ProdScreen({ data }: { data: ProdData }) {
       ),
     });
   }
-  function exportCsv() {
+  async function exportCsv() {
     const q = new URLSearchParams({ month: p.month, day: p.day, brand: p.brand, loc: p.loc, client: p.client });
-    window.location.href = `/api/export/${p.view === 'req' ? 'requisition' : 'production'}?${q.toString()}`;
-    toast(p.view === 'req' ? 'Requisition exported' : 'Production exported');
+    try {
+      await downloadFile(`/api/export/${p.view === 'req' ? 'requisition' : 'production'}?${q.toString()}`);
+      toast(p.view === 'req' ? 'Requisition exported' : 'Production exported');
+    } catch (e) {
+      toast(errText(e));
+    }
   }
 
   const head = (

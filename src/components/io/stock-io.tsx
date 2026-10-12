@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { api, errText } from '@/components/shared/api-client';
+import { api, errText, isRateLimited } from '@/components/shared/api-client';
+import { STOCK_CHECK_TITLE, stockCheckNote, stockCommitNote } from '@/components/shared/rate-limit-text';
 import { useModal } from '@/components/shared/Modal';
 import { useToast } from '@/components/shared/Toast';
 import { useRouter } from '@/components/shell/nav-progress';
@@ -72,7 +73,9 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
         });
         review(file.name, parsed, plan);
       } catch (e) {
-        back(errText(e));
+        // refused for now: the file is fine, the user picks it again later
+        if (isRateLimited(e)) back(stockCheckNote(e.retryAfter), STOCK_CHECK_TITLE);
+        else back(errText(e));
       }
     }
 
@@ -109,7 +112,7 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
       });
     }
 
-    function review(file: string, parsed: ReturnType<typeof parseStockRows>, plan: StockImportPlan) {
+    function review(file: string, parsed: ReturnType<typeof parseStockRows>, plan: StockImportPlan, note?: string) {
       const problems = [...parsed.rejected, ...plan.blocked.map((b) => `Row ${b.line} ${b.code}: ${b.reason}`)];
       const nProblems = parsed.rejected.length + plan.counts.blocked;
       const writes = plan.counts.add + plan.counts.update;
@@ -129,7 +132,9 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
             toast(`${r.added} counts added · ${r.updated} changed`);
           } else loaded(r.added, plan.hash);
         } catch (e) {
-          toast(errText(e));
+          // refused for now: keep the dialog and the parsed file in the browser, the same button sends the same hash again
+          if (isRateLimited(e)) review(file, parsed, plan, stockCommitNote(e.retryAfter));
+          else toast(errText(e));
         }
       }
 
@@ -137,6 +142,11 @@ export function useStockIO(grid: Pick<StockGrid, 'site' | 'date' | 'kind' | 'row
         title: `Check the ${isCount ? 'stock counts' : 'receipts'} before loading`,
         body: (
           <>
+            {note && (
+              <div className="note r" role="alert" style={s('margin:0 0 12px')}>
+                {note}
+              </div>
+            )}
             <div className="row r3" style={s('margin-bottom:14px')}>
               <div className="kpi g" style={s('border-top-width:3px')}>
                 <div className="k">{isCount ? 'New' : 'Deliveries'}</div>

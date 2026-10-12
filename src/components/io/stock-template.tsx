@@ -4,7 +4,8 @@ import { useCallback, useState } from 'react';
 import { useModal } from '@/components/shared/Modal';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
-import { saveBlob } from './download';
+import { errText } from '@/components/shared/api-client';
+import { downloadFile } from './download';
 
 type Kind = 'count' | 'receipt';
 
@@ -43,17 +44,14 @@ function TemplateBody({ kind, sites, onDone }: { kind: Kind; sites: string[]; on
   async function download() {
     setBusy(true);
     try {
-      const res = await fetch(
+      await downloadFile(
         `/api/export/${TEXT[kind].path}?loc=${encodeURIComponent(site)}&date=${encodeURIComponent(date)}`,
-        { cache: 'no-store' },
+        'ISFC-stock.csv',
       );
-      if (!res.ok) throw new Error('Download failed');
-      const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'ISFC-stock.csv';
-      saveBlob(name, await res.blob());
       toast('Template downloaded');
       onDone();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Download failed');
+      toast(errText(e));
     } finally {
       setBusy(false);
     }
