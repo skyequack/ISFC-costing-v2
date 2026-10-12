@@ -77,7 +77,10 @@ export function DashScreen({
     if (next === tab) return;
     // Through the router, like the filters, so Back and Forward keep the URL and the data in step (D-84).
     const { pathname, search } = window.location;
-    router.push(next === 'overview' ? `${pathname}${search}` : `${pathname}${search}#${next}`);
+    // The overview has no hash. router.push to the same path would be a no-op and leave the old #tab in the URL, so
+    // that one goes through history.pushState (the app router syncs with it); every other tab pushes its own hash.
+    if (next === 'overview') window.history.pushState(null, '', `${pathname}${search}`);
+    else router.push(`${pathname}${search}#${next}`);
     setTab(next);
     window.scrollTo({ top: 0 });
   };

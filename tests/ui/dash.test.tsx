@@ -269,6 +269,16 @@ describe('Dashboard tabs (D-84)', () => {
     expect(String(nav.push.mock.calls[0]?.[0])).toMatch(/#margin$/); // through the router, so Back/Forward stay in step
   });
 
+  it('going back to the Overview clears the hash, so a reload or a copied link opens the Overview', () => {
+    window.history.replaceState(null, '', '/dash#menu');
+    renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
+    expect(screen.getByRole('tab', { name: 'Menu' }).getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(screen.getByRole('tab', { name: 'Overview' }));
+    expect(screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected')).toBe('true');
+    expect(window.location.hash).toBe('');
+    expect(window.location.pathname).toBe('/dash');
+  });
+
   it('a deep link to a tab opens it (the hash is read on mount)', () => {
     window.history.replaceState(null, '', '/dash#ingredients');
     renderInShell(<DashScreen d={d} a={empty()} brandNames={{}} />, 'gm');
