@@ -13,7 +13,7 @@ Node 24 (tested 24.19), npm 11, a Neon account/project (Docker not needed), a Cl
 | NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY | Clerk publishable key | |
 | CLERK_SECRET_KEY | Clerk secret | server-only |
 | INITIAL_GM_EMAILS | comma list of emails granted GM on first login (verified emails only) | server-only |
-| (optional) UPSTASH_REDIS_REST_URL/TOKEN | rate limiting | |
+| (not used) UPSTASH_REDIS_REST_URL/TOKEN | rate limiting is in Neon (D-87), no vendor needed | |
 Neon variables are written to `.env.local` by the Neon CLI; the user pastes Clerk keys and `INITIAL_GM_EMAILS` into `.env.local`. `.env*` is gitignored. Never print or commit secrets.
 
 ### Neon project (set up 2026-10-09)
@@ -45,7 +45,7 @@ Project `isfc-costing` (`old-butterfly-59479439`), org `org-cool-shadow-74874401
 Preview deployment per PR with its own Neon branch. Prod: Neon branch backup → `npm run db:migrate` against production (DATABASE_URL_UNPOOLED) → seed (first time only, `--confirm`) → deploy → smoke tests (login, role handling, ingredient price edit, recipe edit/cost, lock/unlock, menu/production/requisition, audit, export/import, print) → second browser/device persistence check. Use `/engineering:deploy-checklist`. Set `maxDuration` on import/restore/seed routes. Rollback: redeploy previous Vercel build; for data, restore Neon branch/PITR; migrations are forward-only so schema rollback = restore.
 
 ## 7. Operations
-Structured logs (no bodies/photos); `requestId` returned on 500s. Rate limits on import/export/photo/user routes. Monitor `/api/health`. Back up: Neon PITR; plus admin JSON/CSV backup screen. Audit log immutable (DB triggers); never grant the app role UPDATE/DELETE/TRUNCATE on `audit_log`; run migrations under a separate owner role.
+Structured logs (no bodies/photos); `requestId` returned on 500s. Rate limits on import/export/restore/photo/user routes (D-87…D-89, table `rate_limit`; a refused request shows as `status 429` with `rl:{cls,retryAfter}` in the request log line, and `rate_limit_store_down` warnings mean the counter store did not answer). Monitor `/api/health`. Back up: Neon PITR; plus admin JSON/CSV backup screen. Audit log immutable (DB triggers); never grant the app role UPDATE/DELETE/TRUNCATE on `audit_log`; run migrations under a separate owner role.
 
 ## 8. Added in Phases 3–6 (2026-10-09)
 - **Migration `0002_restore_staging.sql`** (staging table for chunked restores) is applied to Neon `dev` only. Before deploying, run `npm run db:migrate` against `production` after the usual branch/PITR step (Phase 7).

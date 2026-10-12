@@ -53,4 +53,5 @@ typecheck, lint, prettier, `npm test` pass; DB tests on a throwaway Neon branch 
 | Dashboard slice 3: three-stage yield (migration 0007) | D-70, D-85 | merged to `main` (`82ccf36`), gates green (2026-10-11); strings approved |
 | Users: pending invites, revoke, edit access, Select all brands (migration 0005) | D-78…D-81 | merged to `main` (`212e79f`), gates green (2026-10-11); migration 0005 on `dev` and `production` |
 | Backup & Export: Import templates card (price list, recipe, stock counts, stock receipts) | D-86 | built, gates green (2026-10-11); layout, content and strings approved by Omer; checked in the browser as GM on `dev` |
+| Rate limiting (429): slice 1 limiter core + migration 0008 + withAuth hook; slice 2 route tagging + meta-test + budget replay; slice 3 browser handling | D-87…D-90 | plan approved by Omer 2026-10-12; slices 1-2 in progress, slice 3 waits for string approval |
 | Dashboard slice 4 (optional): menu-mix shift, price-change impact, locked-card drift | — | proposed |

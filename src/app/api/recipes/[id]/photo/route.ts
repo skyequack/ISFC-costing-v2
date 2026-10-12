@@ -19,7 +19,7 @@ export const GET = withAuth<{ id: string }>({}, async (req, { user, params }) =>
   return imageResponse(req, img);
 });
 
-export const PUT = withAuth<{ id: string }>({ perm: 'recipe.edit' }, async (req, { user, params }) => {
+export const PUT = withAuth<{ id: string }>({ perm: 'recipe.edit', limit: 'upload' }, async (req, { user, params }) => {
   const bytes = await readImageBody(req, 'photo');
   const image = validateImage(bytes, 'photo'); // the declared content-type is ignored
   await inTx(user, async (tx, scope) => {
@@ -41,11 +41,14 @@ export const PUT = withAuth<{ id: string }>({ perm: 'recipe.edit' }, async (req,
   });
 });
 
-export const DELETE = withAuth<{ id: string }>({ perm: 'recipe.edit' }, async (_req, { user, params }) => {
-  await inTx(user, async (tx, scope) => {
-    const card = await assertEditableCard(tx, user, scope, params.id);
-    if (await pgImageStore(tx, 'photo').delete(params.id))
-      await appendAudit(tx, user, 'Removed the dish photo', card.code || card.name);
-  });
-  return Response.json({ ok: true });
-});
+export const DELETE = withAuth<{ id: string }>(
+  { perm: 'recipe.edit', limit: 'upload' },
+  async (_req, { user, params }) => {
+    await inTx(user, async (tx, scope) => {
+      const card = await assertEditableCard(tx, user, scope, params.id);
+      if (await pgImageStore(tx, 'photo').delete(params.id))
+        await appendAudit(tx, user, 'Removed the dish photo', card.code || card.name);
+    });
+    return Response.json({ ok: true });
+  },
+);

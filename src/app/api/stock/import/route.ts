@@ -18,7 +18,7 @@ export const maxDuration = 60;
  * Stock count or receipt upload (D-73), the whole file in one call (<= 5000 rows, 2 MB). `?mode=dry-run` returns the plan and a
  * hash and writes nothing; `?mode=commit` must carry that hash and loads the file in one transaction; `?mode=undo` `{hash}` takes back a receipts upload. Needs stock.edit.
  */
-export const POST = withAuth({ perm: 'stock.edit' }, async (req, { user }) => {
+export const POST = withAuth({ perm: 'stock.edit', limit: 'import' }, async (req, { user }) => {
   const mode = new URL(req.url).searchParams.get('mode');
   if (mode !== 'dry-run' && mode !== 'commit' && mode !== 'undo')
     throw new ApiError('bad_request', 'mode must be dry-run, commit or undo');

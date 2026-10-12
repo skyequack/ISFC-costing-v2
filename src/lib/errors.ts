@@ -32,6 +32,8 @@ export class ApiError extends Error {
     readonly code: ErrorCode,
     message: string,
     readonly details?: unknown,
+    /** seconds, for `rate_limited`: sent as the Retry-After header (D-87) */
+    readonly retryAfter?: number,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -44,5 +46,7 @@ export function errorResponse(err: unknown, requestId: string): Response {
   const body = {
     error: { code: e.code, message: e.message, ...(e.details !== undefined ? { details: e.details } : {}), requestId },
   };
-  return Response.json(body, { status: e.status, headers: { 'x-request-id': requestId } });
+  const headers: Record<string, string> = { 'x-request-id': requestId };
+  if (e.retryAfter !== undefined) headers['retry-after'] = String(e.retryAfter);
+  return Response.json(body, { status: e.status, headers });
 }

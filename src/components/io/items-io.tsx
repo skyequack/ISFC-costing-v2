@@ -13,11 +13,12 @@ import { cur } from '@/lib/format';
 import { parseItemRows, TPL_HEAD, tplRows } from '@/lib/import/items';
 import { readTable } from '@/lib/xlsx/read';
 import type { ItemImportIn, ItemImportPlan, ItemPlanRow } from '@/lib/services/import-items';
+import { ITEM_IMPORT_PART } from '@/lib/io-limits';
 import { readFileBytes, saveCsv } from './download';
 
 type Brand = { id: string; name: string; code: string };
 
-const PART = 500;
+const PART = ITEM_IMPORT_PART;
 
 /** Price-list template menu + upload (legacy templateMenu 4563 / importItems 4519 / doImportItems 4660). */
 export function useItemIO(brandsIn: Brand[]) {

@@ -18,6 +18,7 @@ const EXPECTED_TABLES = [
   'menu_pax',
   'menu_row',
   'production_entry',
+  'rate_limit',
   'receipt',
   'recipe',
   'recipe_history_entry',

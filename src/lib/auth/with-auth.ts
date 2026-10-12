@@ -2,6 +2,7 @@ import { ApiError, errorResponse } from '../errors';
 import { withSqlStats, type SqlStats } from '../db/trace';
 import { log } from '../logger';
 import { can, type Permission } from '../permissions';
+import { enforceRateLimit, type RateClass } from '../rate-limit';
 import { getSession } from './session';
 import type { SessionUser } from './types';
 
@@ -24,6 +25,7 @@ function finish(
   res: Response,
   clerkUserId: string | null,
   sql?: SqlStats,
+  limit?: RateClass,
 ): Response {
   log('info', 'request', {
     reqId: requestId,
@@ -31,16 +33,22 @@ function finish(
     route: `${req.method} ${new URL(req.url).pathname}`,
     status: res.status,
     ms: Date.now() - start,
+    ...(res.status === 429 && limit ? { rl: { cls: limit, retryAfter: Number(res.headers.get('retry-after')) } } : {}),
     ...(sql ? { sql: sql.n, sqlMs: Math.round(sql.ms), ...(sql.q ? { q: sql.q } : {}) } : {}),
   });
   return res;
 }
 
 /**
- * Wraps EVERY API route handler (a meta-test enforces it). Order: session → active/role → permission → handler.
+ * Wraps EVERY API route handler (a meta-test enforces it). Order: session → active/role → permission → rate limit → handler.
+ * `limit` (D-87, D-88) names the route's rate-limit class; the check runs after the permission check, so a 401/403 is never
+ * counted or replaced by a 429, and before the handler, so a refused request has no side effect.
  * Errors are mapped to {error:{code,message,details?,requestId}}; unexpected errors never leak internals.
  */
-export function withAuth<P = Record<string, string>>(opts: { perm?: Permission }, handler: AuthHandler<P>) {
+export function withAuth<P = Record<string, string>>(
+  opts: { perm?: Permission; limit?: RateClass },
+  handler: AuthHandler<P>,
+) {
   return async (req: Request, routeCtx: RouteCtx<P>): Promise<Response> => {
     const requestId = crypto.randomUUID();
     const start = Date.now();
@@ -54,6 +62,7 @@ export function withAuth<P = Record<string, string>>(opts: { perm?: Permission }
         if (s.status === 'pending') throw new ApiError('pending', 'Your account is pending role assignment');
         if (opts.perm && !can(s.user.role, opts.perm)) throw new ApiError('forbidden', 'Your role cannot do that');
         const params = (routeCtx?.params ? await routeCtx.params : {}) as P;
+        if (opts.limit) await enforceRateLimit(s.user.clerkUserId, opts.limit);
         const res = await handler(req, { user: s.user, params, requestId });
         res.headers.set('x-request-id', requestId);
         return res;
@@ -63,7 +72,7 @@ export function withAuth<P = Record<string, string>>(opts: { perm?: Permission }
         return errorResponse(err, requestId);
       }
     });
-    return finish(req, requestId, start, out, clerkUserId, stats);
+    return finish(req, requestId, start, out, clerkUserId, stats, opts.limit);
   };
 }
 

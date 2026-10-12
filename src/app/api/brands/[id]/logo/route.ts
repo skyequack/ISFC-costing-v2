@@ -18,7 +18,7 @@ export const GET = withAuth<{ id: string }>({}, async (req, { user, params }) =>
   return imageResponse(req, img);
 });
 
-export const PUT = withAuth<{ id: string }>({ perm: 'brands.edit' }, async (req, { user, params }) => {
+export const PUT = withAuth<{ id: string }>({ perm: 'brands.edit', limit: 'upload' }, async (req, { user, params }) => {
   const bytes = await readImageBody(req, 'logo');
   const image = validateImage(bytes, 'logo');
   await inTx(user, async (tx) => {
@@ -41,12 +41,15 @@ export const PUT = withAuth<{ id: string }>({ perm: 'brands.edit' }, async (req,
   });
 });
 
-export const DELETE = withAuth<{ id: string }>({ perm: 'brands.edit' }, async (_req, { user, params }) => {
-  await inTx(user, async (tx) => {
-    const b = await tx.query('SELECT name FROM brand WHERE id = $1', [params.id]);
-    if (!b.rows[0]) throw new ApiError('not_found', 'Not found');
-    if (await pgImageStore(tx, 'logo').delete(params.id))
-      await appendAudit(tx, user, 'Brand logo changed', `${b.rows[0].name}: removed`);
-  });
-  return Response.json({ ok: true });
-});
+export const DELETE = withAuth<{ id: string }>(
+  { perm: 'brands.edit', limit: 'upload' },
+  async (_req, { user, params }) => {
+    await inTx(user, async (tx) => {
+      const b = await tx.query('SELECT name FROM brand WHERE id = $1', [params.id]);
+      if (!b.rows[0]) throw new ApiError('not_found', 'Not found');
+      if (await pgImageStore(tx, 'logo').delete(params.id))
+        await appendAudit(tx, user, 'Brand logo changed', `${b.rows[0].name}: removed`);
+    });
+    return Response.json({ ok: true });
+  },
+);

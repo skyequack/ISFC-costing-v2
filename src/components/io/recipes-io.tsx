@@ -12,10 +12,11 @@ import { cur } from '@/lib/format';
 import { blockTplRows, parseRecipeSheets, RTPL_HEAD, recipeTplRows, type ImportCard } from '@/lib/import/recipes';
 import { readSheets } from '@/lib/xlsx/read';
 import type { RecipeImportIn, RecipeImportPlan } from '@/lib/services/import-recipes';
+import { RECIPE_PART_CARDS, RECIPE_PART_LINES } from '@/lib/io-limits';
 import { readFileBytes, saveCsv, saveXlsx } from './download';
 
-const PART_CARDS = 40;
-const PART_LINES = 1000;
+const PART_CARDS = RECIPE_PART_CARDS;
+const PART_LINES = RECIPE_PART_LINES;
 
 interface ExportFile {
   filename: string;

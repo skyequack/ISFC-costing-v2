@@ -12,7 +12,7 @@ export const maxDuration = 60;
  * Price-list import, one part (<= 500 rows) per call. `?mode=dry-run` returns the per-item plan with variance and a hash;
  * `?mode=commit` must carry that hash and writes the part in one transaction (D-37, D-43). Needs items.edit.
  */
-export const POST = withAuth({ perm: 'items.edit' }, async (req, { user }) => {
+export const POST = withAuth({ perm: 'items.edit', limit: 'import' }, async (req, { user }) => {
   const mode = new URL(req.url).searchParams.get('mode');
   if (mode !== 'dry-run' && mode !== 'commit') throw new ApiError('bad_request', 'mode must be dry-run or commit');
   const body = await parseJson(req, itemImportIn, 1_500_000);

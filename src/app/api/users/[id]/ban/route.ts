@@ -6,7 +6,10 @@ import { setUserBanned } from '@/lib/services/users';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export const POST = withAuth<{ id: string }>({ perm: 'users.manage' }, async (_req, { user, params }) => {
-  await inTx(user, (tx) => setUserBanned(tx, clerkPort(), user, params.id, true));
-  return Response.json({ ok: true });
-});
+export const POST = withAuth<{ id: string }>(
+  { perm: 'users.manage', limit: 'user_admin' },
+  async (_req, { user, params }) => {
+    await inTx(user, (tx) => setUserBanned(tx, clerkPort(), user, params.id, true));
+    return Response.json({ ok: true });
+  },
+);

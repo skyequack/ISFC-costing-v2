@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 /** Recipe-card upload, one part (<= 100 cards) per call; dry-run then commit with the dry-run hash (D-37). Needs recipe.create. */
-export const POST = withAuth({ perm: 'recipe.create' }, async (req, { user }) => {
+export const POST = withAuth({ perm: 'recipe.create', limit: 'import' }, async (req, { user }) => {
   const mode = new URL(req.url).searchParams.get('mode');
   if (mode !== 'dry-run' && mode !== 'commit') throw new ApiError('bad_request', 'mode must be dry-run or commit');
   const body = await parseJson(req, recipeImportIn, 3_000_000);

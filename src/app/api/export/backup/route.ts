@@ -20,7 +20,7 @@ const query = z.object({
 });
 
 /** Backup in parts so no response exceeds the platform limit: `core` (all data), then `photos` / `logos` chunks. Needs data.admin. */
-export const GET = withAuth({ perm: 'data.admin' }, async (req, { user }) => {
+export const GET = withAuth({ perm: 'data.admin', limit: 'export_backup' }, async (req, { user }) => {
   const q = parseQuery(req, query);
   if (q.part === 'core') {
     const core = await withScope(user, (db) => buildBackupCore(db, user));

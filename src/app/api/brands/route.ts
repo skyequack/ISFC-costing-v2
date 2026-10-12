@@ -17,7 +17,7 @@ export const GET = withAuth({}, async (_req, { user }) => {
   });
 });
 
-export const POST = withAuth({ perm: 'brands.edit' }, async (req, { user }) => {
+export const POST = withAuth({ perm: 'brands.edit', limit: 'admin_write' }, async (req, { user }) => {
   const body = await parseJson(req, brandCreateIn);
   const id = await inTx(user, (tx) => createBrand(tx, user, body));
   return Response.json({ id }, { status: 201 });

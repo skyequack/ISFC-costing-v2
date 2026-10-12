@@ -8,6 +8,7 @@ import { appendAudit } from '../db/repo/audit';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
 import { pgImageStore, validateImage } from '../images';
+import { IMAGE_CHUNK_BYTES } from '../io-limits';
 import { MAX_STOCK_QTY } from '../stock-limits';
 import { UNITS } from '../validation/common';
 import { CODE_LOCK } from './ingredients';
@@ -411,7 +412,7 @@ export async function buildImageChunk(
   user: SessionUser,
   kind: 'photos' | 'logos',
   offset: number,
-  budget = 3_000_000,
+  budget = IMAGE_CHUNK_BYTES,
 ): Promise<{ items: { code: string; data: string }[]; nextOffset: number | null }> {
   needAdmin(user);
   const sql =

@@ -7,9 +7,10 @@ import { useModal } from '@/components/shared/Modal';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import type { RestoreStats } from '@/lib/services/backup';
+import { RESTORE_SLICE_CHARS } from '@/lib/io-limits';
 import { MAX_UPLOAD_BYTES, saveBlob } from './download';
 
-const SLICE = 1_200_000; // characters per upload slice; the server limit is 1.5 MB
+const SLICE = RESTORE_SLICE_CHARS;
 
 /** Full backup (assembled in the browser from the server's parts), CSV downloads and chunked restore (D-37). */
 export function useBackupIO() {
