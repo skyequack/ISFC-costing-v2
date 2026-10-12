@@ -60,7 +60,7 @@ Checked against the repo, git, and a read-only `node --env-file=.env.local scrip
 
 ## Gate status (re-run 2026-10-11)
 
-typecheck ✅ · lint ✅ · prettier ✅ (on Windows use `npx prettier --check --end-of-line auto .`: the working tree is CRLF and the repo stores LF through `core.autocrlf`, so a plain check flags every file) · `npm test` 650 passed, 148 skipped (the DB suites need `TEST_DATABASE_URL`) ✅ · **not re-run on 2026-10-11:** `next build`, domain coverage, the DB suite (last full DB run was against Neon `dev` on 2026-10-09; see `docs/TESTING.md` for the command, ~12 min because every statement is a network round trip)
+typecheck ✅ · lint ✅ · prettier ✅ (on Windows use `npx prettier --check --end-of-line auto .`: the working tree is CRLF and the repo stores LF through `core.autocrlf`, so a plain check flags every file) · `npm test` 650 passed, 148 skipped (the DB suites need `TEST_DATABASE_URL`) ✅ · **not re-run on 2026-10-11:** `next build`, domain coverage, the DB suite (last full DB run: Neon `dev`, 2026-10-12, after the rate-limiting commit `48ca819`: 153 passed, 2 failed, both in `seed.test.ts` (checks against pristine seed data: `dev` has been edited by hand, 129 unpriced ingredients against the seed's 135 and MNU-0002 repriced; the same file passes in CI, which seeds a fresh throwaway branch); see `docs/TESTING.md` for the command, ~12 min because every statement is a network round trip)
 
 ## Not verified / needs you
 
