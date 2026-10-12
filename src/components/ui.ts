@@ -24,8 +24,3 @@ export function s(css: string): CSSProperties {
   cache.set(css, out as CSSProperties);
   return out as CSSProperties;
 }
-
-/** Brand CSS custom properties as a style object (legacy brandVars string). */
-export function vars(map: Record<string, string>): CSSProperties {
-  return map as CSSProperties;
-}

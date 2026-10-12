@@ -7,7 +7,7 @@ import { appendAudit } from '../db/repo/audit';
 import type { BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
-import { UNITS } from '../validation/common';
+import { UNITS } from '../units';
 import { addPriceHistory, CODE_LOCK } from './ingredients';
 
 /** Rows per request (D-37). The browser splits bigger files into parts. */

@@ -42,5 +42,3 @@ export const TITLES: Record<string, [string, string]> = {
   health: ['Data Health', 'Problems that will produce a wrong cost'],
   backup: ['Backup & Export', 'Your data is stored securely in the database. Download a backup copy at any time.'],
 };
-
-export const SCREEN_ROUTES = Object.keys(TITLES);

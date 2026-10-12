@@ -13,6 +13,7 @@ import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
 import type { IngredientDto } from '@/lib/db/repo/ingredients';
+import { UNITS } from '@/lib/units';
 
 const PAGE = 60;
 
@@ -320,7 +321,7 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
         <div className="field">
           <label className="fl">UOM</label>
           <select value={f.uom} onChange={(e) => st.set({ uom: e.target.value })}>
-            {['Gram', 'Ml', 'Each', 'Slice'].map((u) => (
+            {UNITS.map((u) => (
               <option key={u}>{u}</option>
             ))}
           </select>

@@ -7,14 +7,13 @@ import type { useModal } from '@/components/shared/Modal';
 import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
 import type { PickOption } from '@/lib/services/catalog-search';
+import { UNITS } from '@/lib/units';
 import type { EditLine } from './LineRow';
 
 interface BrowseState {
   q: string;
   res: { all: PickOption[]; total: number } | null;
 }
-
-const UNITS = ['Gram', 'Ml', 'Each', 'Slice'];
 
 /** Legacy browseAdd (3608): "Search raw materials" modal. Adding keeps the dialog open so several items can go in. */
 export function openBrowse(
@@ -131,7 +130,10 @@ function BrowseBody({
                         <button
                           className="btn sm"
                           onClick={() => {
-                            onAdd(o.code, (UNITS.includes(o.uom) ? o.uom : 'Gram') as EditLine['unit']);
+                            onAdd(
+                              o.code,
+                              ((UNITS as readonly string[]).includes(o.uom) ? o.uom : 'Gram') as EditLine['unit'],
+                            );
                             toast(`Added ${o.name}  ·  ${cur(o.price ?? 0, 6)} per ${o.uom}`);
                           }}
                         >

@@ -3,7 +3,7 @@ import { withAuth } from '@/lib/auth/with-auth';
 import { bustCatalog, inTx } from '@/lib/api';
 import { parseJson } from '@/lib/http';
 import { removeConversion, setConversion } from '@/lib/services/ingredients';
-import { UNITS } from '@/lib/validation/common';
+import { UNITS } from '@/lib/units';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

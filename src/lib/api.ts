@@ -19,8 +19,6 @@ export function bustCatalog(): void {
   revalidateTag(CATALOG_TAG);
 }
 
-export const noStore = { 'cache-control': 'private, no-store' } as const;
-
 /** Like inTx but on the direct connection (long / large operations). */
 export function inDirectTx<T>(user: SessionUser, fn: (tx: Queryable, scope: BrandScope) => Promise<T>): Promise<T> {
   return withDirectTransaction(async (tx) => fn(tx, await visibleBrandIds(user, tx)));

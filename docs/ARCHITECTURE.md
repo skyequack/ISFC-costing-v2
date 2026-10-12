@@ -1,7 +1,7 @@
 # ARCHITECTURE — target system design (authoritative; derived from DECISIONS.md)
 
 ## 1. Stack & layout
-Next.js (App Router) + TypeScript strict · PostgreSQL on Neon via node-postgres (`pg`) with hand-written SQL (no ORM, D-50) · Clerk · Vercel · Zod · Vitest (+fast-check) · Playwright + pixelmatch. No Python, no Tailwind/UI kit, no Clerk Organizations, no global client store, no localStorage persistence.
+Next.js (App Router) + TypeScript strict · PostgreSQL on Neon via node-postgres (`pg`) with hand-written SQL (no ORM, D-50) · Clerk · Vercel · Zod · Vitest (+fast-check, jsdom + Testing Library). No Python, no Tailwind/UI kit, no Clerk Organizations, no global client store, no localStorage persistence.
 ```
 src/
   app/                 routes (Server Components fetch; Client Components for interaction); app/api/** route handlers

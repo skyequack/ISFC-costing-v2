@@ -9,8 +9,8 @@ import { Perm } from '@/components/shared/Perm';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
+import { UNITS } from '@/lib/units';
 
-const CONV_UNITS = ['Gram', 'Ml', 'Each', 'Slice'];
 const fine = (u: string) => u === 'Gram' || u === 'Ml';
 
 export interface ConvItem {
@@ -368,7 +368,7 @@ function ConvBody({ st, items, locked }: { st: Store<ConvForm>; items: ConvItem[
       <div className="field">
         <label className="fl">Recipe cards for this item will be written in</label>
         <select value={f.unit} onChange={(e) => st.set({ unit: e.target.value })}>
-          {CONV_UNITS.map((u) => (
+          {UNITS.map((u) => (
             <option key={u}>{u}</option>
           ))}
         </select>

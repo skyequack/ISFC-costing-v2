@@ -1,9 +1,6 @@
 import { z } from 'zod';
 import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
-
-export const UNITS = ['Gram', 'Ml', 'Each', 'Slice'] as const;
-export const BATCH_UNITS = ['Gram', 'Ml', 'Each'] as const;
-export type Unit = (typeof UNITS)[number];
+import { BATCH_UNITS, UNITS } from '@/lib/units';
 
 const trimmed = (max: number) => z.string().trim().max(max);
 

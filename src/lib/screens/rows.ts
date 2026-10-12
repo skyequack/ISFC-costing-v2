@@ -65,9 +65,3 @@ export function recipeRows(catalog: Catalog, scope: BrandScope): RecipeRow[] {
   }
   return out;
 }
-
-export interface SettingsFacts {
-  currency: string;
-  target: number;
-  priceDate: string;
-}

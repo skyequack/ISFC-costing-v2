@@ -1,5 +1,5 @@
 # TESTING — strategy, required cases, baselines
-Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one schema per worker, TRUNCATE between tests; mock `@clerk/nextjs/server` `auth()`/`clerkClient` in one `vi.mock`; call handlers with `new Request()`), fast-check (property), Playwright + pixelmatch (visual, pinned Chromium/OS). CI: typecheck, lint, test, build; DB tests apply `db/migrations` to a short-lived Neon branch via `npm run db:migrate`.
+Tools: Vitest (unit/integration; real Postgres via Docker or a Neon branch, one schema per worker, TRUNCATE between tests; mock `@clerk/nextjs/server` `auth()`/`clerkClient` in one `vi.mock`; call handlers with `new Request()`), fast-check (property), jsdom + Testing Library (UI). CI: typecheck, lint, test, build; DB tests apply `db/migrations` to a short-lived Neon branch via `npm run db:migrate`.
 
 ## 1. Costing oracle (Phase 2 gate)
 - **Golden diff:** all 321 cards: every field of `cost()` vs `golden/costs.json` — exact (`toBe`) on doubles; rows keyed `code|id`.
@@ -38,7 +38,8 @@ Counts (1046/321/7321/34/14/8/148/1001, 135 null prices, 161 flags), code sets e
 ## 4. Finance reconciliation (before go-live)
 Dashboard totals per brand vs `golden/costs.json`; a hand-checked priced sample (GRM-MN-0001: sp 108, food 29.63, fc 27.4%, net 24.37, suggest 98.76); settings change audit shows cards affected; locked card shows cost-at-lock vs cost-now; price history entries on every price change/import/menu-plan price; requisition reconciliation report reviewed; counts of flagged data-quality items surfaced on Health (135 PRICE MISSING, 4 PRICE CHECK, 8 UNIT CHECK, 7 "second sheet price", 3 SMC copy, others).
 
-## 5. Visual baselines (Phase 5; procedure)
+## 5. Visual baselines (Phase 5; procedure — not built)
+Not built (see §8). Playwright and pixelmatch were removed from `package.json` on 2026-10-12 because nothing used them; reinstall them (they are new dependencies again, so they need a DECISIONS.md row) when this procedure is carried out.
 Baselines must include: recipe editor with and without photo, Add-brand row with the logo box, Edit brand modal with and without logo.
 1. Serve `legacy/app.html` over a static server (not `file://`) with Playwright using one pinned Chromium on one OS/Docker image for both baselines; viewport 1440×900 (768×1024 informational only — legacy has no breakpoints, so no mobile parity); `deviceScaleFactor 1`, `reducedMotion`, CSS to disable transitions/animations/caret.
 2. `addInitScript` sets localStorage `isfc_costing_v1` = `golden/state.json` and signs in a GM (or drive the PIN login once and save `storageState`). Freeze the clock (`page.clock`/overridden `Date`) because `priceDate`, "Printed", `when()` and `uid()` use `Date.now`; mask `#savedot`/`#verline` volatility.

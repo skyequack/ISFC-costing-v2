@@ -14,6 +14,7 @@ import { s } from '@/components/ui';
 import { brandVarsMap, brandPalette } from '@/lib/brand/palette';
 import { cur, fcClass, pct } from '@/lib/format';
 import type { RecipeDetail } from '@/lib/services/recipe-detail';
+import { BATCH_UNITS } from '@/lib/units';
 import { CostBreakdownButton, openBreakdown } from './CostBreakdown';
 import { LineRow, type EditLine } from './LineRow';
 import { openBrowse } from './Browse';
@@ -488,7 +489,7 @@ export function EditScreen(props: EditProps) {
                         value={c.bUom}
                         onChange={(e) => setBatchUom(e.target.value as 'Gram' | 'Ml' | 'Each')}
                       >
-                        {['Gram', 'Ml', 'Each'].map((u) => (
+                        {BATCH_UNITS.map((u) => (
                           <option key={u}>{u}</option>
                         ))}
                       </select>

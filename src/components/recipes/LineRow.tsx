@@ -8,6 +8,7 @@ import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
 import type { LineView } from '@/lib/services/card-view';
 import type { PickOption } from '@/lib/services/catalog-search';
+import { UNITS } from '@/lib/units';
 import { CommitInput } from '@/components/shared/inputs';
 import { usePerm } from '@/components/shared/session-context';
 import { stagedYield } from '@/domain/recipes/yield-stages';
@@ -24,8 +25,6 @@ export interface EditLine {
   yCut: number | null;
   yCook: number | null;
 }
-
-const UNITS = ['Gram', 'Ml', 'Each', 'Slice'] as const;
 
 /** Legacy lineRow (3237) with the ingredient autocomplete (sugSearch / pick / commitCode). */
 export function LineRow(props: {

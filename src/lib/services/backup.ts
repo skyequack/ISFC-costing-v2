@@ -10,7 +10,7 @@ import { can } from '../permissions';
 import { pgImageStore, validateImage } from '../images';
 import { IMAGE_CHUNK_BYTES } from '../io-limits';
 import { MAX_STOCK_QTY } from '../stock-limits';
-import { UNITS } from '../validation/common';
+import { UNITS } from '../units';
 import { CODE_LOCK } from './ingredients';
 
 /**

@@ -5,6 +5,7 @@
  */
 import { rnorm } from './items';
 import type { Sheet } from '../xlsx/read';
+import type { Unit } from '../units';
 
 /** D-17: `Waste %` (yp) and `Card Buffer` are new trailing columns; files without them leave those values untouched. */
 export const RTPL_HEAD = [
@@ -78,7 +79,6 @@ export const RCOLS: Record<string, string[]> = {
   ycook: ['cookpct', 'cook', 'cooking', 'cookingpct', 'cookyield'],
 };
 
-export type Unit = 'Gram' | 'Ml' | 'Each' | 'Slice';
 export const RUOM: Record<string, Unit> = {
   gram: 'Gram',
   grams: 'Gram',

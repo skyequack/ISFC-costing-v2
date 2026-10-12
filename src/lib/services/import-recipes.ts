@@ -11,7 +11,7 @@ import { appendAudit } from '../db/repo/audit';
 import { canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
-import { BATCH_UNITS, UNITS } from '../validation/common';
+import { BATCH_UNITS, UNITS } from '../units';
 import { CODE_LOCK } from './ingredients';
 import { nextCode } from './recipes';
 

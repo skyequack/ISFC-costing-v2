@@ -37,16 +37,6 @@ export function auditInsertSql(actor: Actor, entries: AuditEntry[], first: numbe
 }
 
 /**
- * Several audit rows in ONE statement instead of a SELECT + INSERT per row.
- * Same rules as appendAudit: same transaction handle, actor from the session, rows in the order given.
- */
-export async function appendAuditMany(tx: Queryable, actor: Actor, entries: AuditEntry[]): Promise<void> {
-  if (!entries.length) return;
-  const q = auditInsertSql(actor, entries, 1);
-  await tx.query(q.sql, q.params);
-}
-
-/**
  * Append one audit row. Always called with the SAME transaction handle as the change it records
  * (docs/ARCHITECTURE.md §2 step 9) so a rollback leaves no audit row. The actor comes from the session,
  * never from a request body. The table is append-only (DB triggers), so there is no update/delete here.

@@ -35,6 +35,3 @@ export function parseQuery<T extends z.ZodType>(req: Request, schema: T): z.outp
   new URL(req.url).searchParams.forEach((v, k) => (o[k] = v));
   return parseValue(o, schema);
 }
-
-/** A finite number (rejects NaN/Infinity — D-36). */
-export const fin = () => z.number().finite();
