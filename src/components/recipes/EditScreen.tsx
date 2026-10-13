@@ -19,6 +19,7 @@ import { CostBreakdownButton, openBreakdown } from './CostBreakdown';
 import { LineRow, type EditLine } from './LineRow';
 import { openBrowse } from './Browse';
 import { LockedCard } from './LockedCard';
+import { RevisionsCard } from './Revisions';
 import { useRecipeActions, type CardFacts } from './actions';
 import { cardHtml, usePrintMenu, type PrintBrand } from './print';
 import { printStore } from '@/components/shell/print-store';
@@ -685,6 +686,24 @@ export function EditScreen(props: EditProps) {
               </Perm>
             </div>
           </div>
+
+          <RevisionsCard
+            id={r.id}
+            revision={r.revision}
+            effectiveFrom={r.effectiveFrom}
+            editable
+            getVersion={async () => {
+              await queue.current; // let the pending autosaves land first, so the version is the card's latest
+              return verRef.current;
+            }}
+            onStarted={(o) => {
+              verRef.current = o.version;
+              setD((p) => ({
+                ...p,
+                recipe: { ...p.recipe, version: o.version, revision: o.revision, effectiveFrom: o.effectiveFrom },
+              }));
+            }}
+          />
         </div>
 
         <div style={s('position:sticky;top:88px')}>

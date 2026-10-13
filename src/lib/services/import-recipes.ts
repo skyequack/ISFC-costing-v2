@@ -14,6 +14,7 @@ import { can } from '../permissions';
 import { BATCH_UNITS, UNITS } from '../units';
 import { CODE_LOCK } from './ingredients';
 import { nextCode } from './recipes';
+import { archiveRevision } from './revisions';
 
 /** One stage of the three-stage yield (D-70): a fraction in (0,10], null = blank. */
 const stageZ = z.number().finite().gt(0).max(10).nullable();
@@ -57,6 +58,12 @@ export const importCardIn = z.object({
     .max(500),
   method: z.array(z.string().max(2000)).max(200).default([]),
   rows: z.array(z.number().int()).max(1000).default([]),
+  /**
+   * D-101: the user's choice for a card whose code already exists. 'update' = use this code and update that card (a new revision
+   * starts when it started before today); 'new' = ignore the file's code and give the card a new one. Unset = the global
+   * `allowUpdate` rule (bulk uploads). Part of the hash, and re-checked against the stored card on commit.
+   */
+  mode: z.enum(['update', 'new']).optional(),
 });
 export type ImportCardIn = z.output<typeof importCardIn>;
 
@@ -187,7 +194,7 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
 
   for (let i = 0; i < input.cards.length; i++) {
     const c = input.cards[i]!;
-    const code = c.code.toUpperCase();
+    const code = c.mode === 'new' ? '' : c.code.toUpperCase();
     let badBrand: string | undefined;
     let bid = brandIdFor(c.brand, brands);
     if (c.brand && !bid) badBrand = c.brand;
@@ -230,7 +237,7 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
     if (code) {
       const ex = recipeUpper.get(code);
       if (ex) target = { ...catalog.cards[ex]!, code: ex };
-    } else if (rnorm(c.name)) {
+    } else if (rnorm(c.name) && c.mode !== 'new') {
       for (const [k, meta] of Object.entries(catalog.cards)) {
         const rec = ctx.recipes.get(k);
         if (rec && meta.brandId === bid && rnorm(rec.name) === rnorm(c.name)) {
@@ -344,7 +351,8 @@ async function build(tx: Queryable, user: SessionUser, scope: BrandScope, input:
     if (plan.action !== 'blocked') {
       if (!c.lines.length) plan.action = 'nolines';
       else if (target && target.status === 'LOCKED') plan.action = 'locked';
-      else if (target && !input.allowUpdate) plan.action = 'exists';
+      else if (target && !input.allowUpdate && c.mode !== 'update') plan.action = 'exists';
+      else if (target && !can(user.role, 'recipe.edit')) block('your role can add cards but not change existing ones');
       else plan.action = target ? 'update' : 'add';
     }
     counts[plan.action === 'blocked' ? 'blocked' : plan.action]++;
@@ -407,7 +415,7 @@ export async function commitRecipeImport(
   user: SessionUser,
   scope: BrandScope,
   input: RecipeImportIn,
-): Promise<{ added: number; updated: number; granted: number; brands: string[] }> {
+): Promise<{ added: number; updated: number; revisions: number; granted: number; brands: string[] }> {
   await tx.query('SELECT pg_advisory_xact_lock($1)', [CODE_LOCK]);
   const p = await build(tx, user, scope, input);
   if (!input.hash || input.hash !== p.hash)
@@ -436,6 +444,7 @@ export async function commitRecipeImport(
 
   let added = 0;
   let updated = 0;
+  let revisions = 0;
   const brandsHit = new Set<string>();
   for (const { card, plan } of p.inputs) {
     if (plan.action !== 'add' && plan.action !== 'update') continue;
@@ -450,6 +459,8 @@ export async function commitRecipeImport(
       id = plan.targetId!;
       const cur = (await tx.query('SELECT status FROM recipe WHERE id = $1 FOR UPDATE', [id])).rows[0];
       if (!cur || cur.status === 'LOCKED') continue; // locked since the check: skipped, never overwritten
+      // D-100: an update of a card whose revision started before today first archives it as it was and starts a new one today
+      if (await archiveRevision(tx, user, id, 'UPLOAD')) revisions++;
       await tx.query(
         `UPDATE recipe SET name = coalesce(nullif($2,''), name), category = coalesce(nullif($3,''), category), type = $4::recipe_type, brand_id = $5,
                 output = $6,
@@ -515,7 +526,7 @@ export async function commitRecipeImport(
     tx,
     user,
     'Uploaded recipe cards',
-    `${added} added, ${updated} updated across ${brandsHit.size} brand(${bl}) · prices ${input.takePrice ? 'incl. sales price from file' : 'kept from the system'}${granted ? ` · ${granted} ingredient access grants` : ''} · source ${input.file}`,
+    `${added} added, ${updated} updated${revisions ? ` (${revisions} new revision${revisions === 1 ? '' : 's'})` : ''} across ${brandsHit.size} brand(${bl}) · prices ${input.takePrice ? 'incl. sales price from file' : 'kept from the system'}${granted ? ` · ${granted} ingredient access grants` : ''} · source ${input.file}`,
   );
-  return { added, updated, granted, brands: [...brandsHit] };
+  return { added, updated, revisions, granted, brands: [...brandsHit] };
 }

@@ -7,6 +7,7 @@ import { printStore } from '@/components/shell/print-store';
 import { s } from '@/components/ui';
 import type { RecipeDetail } from '@/lib/services/recipe-detail';
 import type { useRecipeActions } from './actions';
+import { RevisionsCard } from './Revisions';
 import { cardHtml, type PrintBrand } from './print';
 
 /** Legacy vLocked (3666): the approved card, read-only, with its approval history. */
@@ -84,6 +85,14 @@ export function LockedCard({
           <div style={s('padding:18px;background:#fff')} dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       </div>
+      <RevisionsCard
+        id={r.id}
+        revision={r.revision}
+        effectiveFrom={r.effectiveFrom}
+        editable={false}
+        getVersion={async () => r.version}
+        onStarted={() => undefined}
+      />
       {r.history.length > 0 && (
         <div className="card" style={s('margin-top:18px')}>
           <h3>Approval History</h3>

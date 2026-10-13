@@ -327,6 +327,147 @@ const row = (i: number, over: Partial<RecipeRow> = {}): RecipeRow => ({
   ...over,
 });
 
+describe('Revisions (D-100)', () => {
+  const list = (cur: number) => ({
+    revisions: [
+      {
+        revision: cur,
+        effectiveFrom: '2026-01-01',
+        effectiveTo: null,
+        status: 'DRAFT',
+        name: 'Beef Steak',
+        lockedBy: null,
+        createdBy: null,
+        origin: null,
+        nLines: 1,
+      },
+      {
+        revision: cur - 1,
+        effectiveFrom: '2025-12-01',
+        effectiveTo: '2026-01-01',
+        status: 'LOCKED',
+        name: 'Beef Steak',
+        lockedBy: 'Chef',
+        createdBy: 'T gm',
+        origin: 'BUTTON',
+        nLines: 2,
+      },
+    ],
+  });
+
+  it('lists the revisions, shows an earlier one read-only, and Start new revision asks first, then POSTs the card version', async () => {
+    const user = userEvent.setup();
+    onFetch((c) => {
+      if (c.url === '/api/recipes/r1/revisions' && c.method === 'GET') return { json: list(2) };
+      if (c.url === '/api/recipes/r1/revisions/1')
+        return {
+          json: {
+            ...list(2).revisions[1],
+            lines: [{ sortOrder: 0, code: 'ING-OLD', qty: 12, unit: 'Gram', y: 1, yp: null }],
+            method: ['Old step'],
+          },
+        };
+      if (c.url === '/api/recipes/r1/revisions' && c.method === 'POST')
+        return { json: { revision: 3, effectiveFrom: '2026-10-13', version: 1 } };
+      return undefined;
+    });
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    expect(await screen.findByText(/In force since 2026-01-01/)).toBeTruthy();
+    expect(await screen.findByText('Locked')).toBeTruthy(); // the earlier revision's status
+    await user.click(screen.getByRole('button', { name: 'View' }));
+    expect(await screen.findByText('ING-OLD')).toBeTruthy();
+    expect(screen.getByText('Old step')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    // nothing is sent until the confirmation
+    await user.click(screen.getAllByRole('button', { name: 'Start new revision' })[0]!);
+    expect(screen.getByText(/Freezes this card as revision 1 and starts revision 2 today/)).toBeTruthy();
+    expect(calls.filter((c) => c.method === 'POST')).toHaveLength(0);
+    const dialog = screen.getAllByRole('button', { name: 'Start new revision' });
+    await user.click(dialog[dialog.length - 1]!);
+    await vi.waitFor(() =>
+      expect(calls.some((c) => c.method === 'POST' && c.url === '/api/recipes/r1/revisions')).toBe(true),
+    );
+    expect(calls.find((c) => c.method === 'POST')!.body).toEqual({ version: 0 });
+    expect(await screen.findByText('Revision 3 started')).toBeTruthy();
+  });
+
+  it('a revision that started today cannot be started again: the button is replaced by the explanation', async () => {
+    onFetch((c) => (c.url === '/api/recipes/r1/revisions' ? { json: list(1) } : undefined));
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
+    renderInShell(<EditScreen detail={detailFixture({ effectiveFrom: today })} brand={brand} brands={brandList} />);
+    expect(await screen.findByText(/A revision already started today. Keep editing it./)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Start new revision' })).toBeNull();
+  });
+});
+
+describe('Upload: a card whose code exists asks what to do (D-101)', () => {
+  const planFor = (cards: { code: string; name: string; mode?: string }[]) => ({
+    cards: cards.map((c, i) => ({
+      index: i,
+      code: c.code || 'GRM-MN-0001',
+      name: c.name,
+      type: 'MENU',
+      brandId: 'b1',
+      brandName: 'Gourmet',
+      brandCode: 'GRM',
+      action: c.mode === 'update' ? 'update' : c.mode === 'new' ? 'add' : 'exists',
+      targetId: c.mode === 'new' ? undefined : 'r1',
+      lines: [],
+      unknown: [],
+      conv: [],
+      noPrice: 0,
+      noPriceCodes: [],
+      pkgLines: 0,
+      libCost: 0,
+      out: 1,
+    })),
+    counts: { add: 0, update: 0, locked: 0, exists: cards.length, nolines: 0, blocked: 0, lines: 0 },
+    perBrand: {},
+    needGrant: 0,
+    hash: 'h' + cards.map((c) => c.mode ?? '-').join(''),
+  });
+
+  it('shows the choice per card, re-checks with it, and sends it with the hash of that check on load', async () => {
+    const user = userEvent.setup();
+    const csv = ['Recipe Code,Recipe Name,Item Code,Qty', 'GRM-MN-0001,Beef Steak,ING-1,100'].join(
+      String.fromCharCode(10),
+    );
+    const file = new File([csv], 'cards.csv', { type: 'text/csv' });
+    if (!file.arrayBuffer)
+      (file as unknown as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer = async () =>
+        new TextEncoder().encode(csv).buffer as ArrayBuffer;
+    onFetch((c) => {
+      if (c.url === '/api/recipes/import?mode=dry-run') {
+        const b = c.body as { cards: { code: string; name: string; mode?: string }[] };
+        const p = planFor(b.cards.slice(0, 1));
+        if (b.cards[0]!.mode === 'update') p.counts = { ...p.counts, exists: 0, update: 1 };
+        if (b.cards[0]!.mode === 'new') p.counts = { ...p.counts, exists: 0, add: 1 };
+        return { json: p };
+      }
+      if (c.url === '/api/recipes/import?mode=commit')
+        return { json: { added: 0, updated: 1, revisions: 1, granted: 0, brands: ['GRM'] } };
+      return undefined;
+    });
+    renderInShell(<RecipesScreen rows={[row(1)]} brands={brandList} workspaceId="b1" target={0.3} />);
+    await user.click(screen.getByRole('button', { name: /Upload recipes/ }));
+    const input = document.querySelector('input[type=file]') as HTMLInputElement;
+    await user.upload(input, file);
+    const pick = (await screen.findByLabelText(/What to do with/)) as HTMLSelectElement;
+    expect(pick.value).toBe(''); // no choice yet: the card is skipped
+    expect(screen.getByRole('button', { name: /Load 0 cards/ }).hasAttribute('disabled')).toBe(true);
+    await user.selectOptions(pick, 'update');
+    const again = calls.filter((c) => c.url.endsWith('mode=dry-run'));
+    expect((again[again.length - 1]!.body as { cards: { mode?: string }[] }).cards[0]!.mode).toBe('update');
+    const load = await screen.findByRole('button', { name: /Load 1 card/ });
+    await user.click(load);
+    await vi.waitFor(() => expect(calls.some((c) => c.url.endsWith('mode=commit'))).toBe(true));
+    const sent = calls.find((c) => c.url.endsWith('mode=commit'))!.body as { cards: { mode?: string }[]; hash: string };
+    expect(sent.cards[0]!.mode).toBe('update');
+    expect(sent.hash).toBe('hupdate');
+    expect(await screen.findByText(/started a new revision today/)).toBeTruthy();
+  });
+});
+
 describe('Export card (D-98)', () => {
   it('downloads ONE card through the export endpoint, as the server names it; a refusal is shown, nothing is saved', async () => {
     const user = userEvent.setup();

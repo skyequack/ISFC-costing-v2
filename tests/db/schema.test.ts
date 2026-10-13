@@ -25,6 +25,8 @@ const EXPECTED_TABLES = [
   'recipe_line',
   'recipe_method_step',
   'recipe_photo',
+  'recipe_version',
+  'recipe_version_line',
   'restore_chunk',
   'seed_run',
   'stock_count',

@@ -244,6 +244,17 @@ export async function deleteIngredient(tx: Queryable, user: SessionUser, scope: 
   const cells = (
     await tx.query(`SELECT count(*)::int AS n FROM menu_cell WHERE kind = 'ITEM' AND code = $1`, [cur.code])
   ).rows[0]!.n as number;
+  // D-100: an archived revision still costs with this item, so it cannot vanish while one uses it
+  const old = (
+    await tx.query(
+      `SELECT count(DISTINCT v.recipe_id)::int AS n FROM recipe_version_line l JOIN recipe_version v ON v.id = l.version_id JOIN recipe r ON r.id = v.recipe_id AND r.deleted_at IS NULL WHERE l.code = $1`,
+      [cur.code],
+    )
+  ).rows[0]!.n as number;
+  if (old)
+    throw new ApiError('conflict', `Used by earlier revisions of ${old} card(s) – it cannot be deleted`, {
+      cards: old,
+    });
   if (cards) throw new ApiError('conflict', `Used by ${cards} card(s) – remove those lines first`, { cards });
   if (cells) throw new ApiError('conflict', `Used by ${cells} menu plan cell(s) – change those first`, { cells });
   await tx.query('DELETE FROM ingredient WHERE id = $1', [id]); // conversion + scope rows cascade

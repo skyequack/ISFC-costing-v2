@@ -125,6 +125,8 @@ export function detailFixture(over: Partial<RecipeDetail['recipe']> = {}): Recip
       status: 'DRAFT',
       lockedBy: null,
       version: 0,
+      revision: 1,
+      effectiveFrom: '2026-01-01',
       photoSha: null,
       photoSize: null,
       updatedAt: new Date(),

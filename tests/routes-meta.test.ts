@@ -46,6 +46,7 @@ describe('rate limits are declared on exactly the intended handlers (D-87, D-88)
     'POST stock/import': 'import',
     'POST ingredients/import': 'import',
     'POST recipes/import': 'import',
+    'POST recipes/[id]/revisions': 'revision',
     'PUT recipes/[id]/photo': 'upload',
     'DELETE recipes/[id]/photo': 'upload',
     'PUT brands/[id]/logo': 'upload',

@@ -443,6 +443,8 @@ export interface ImportCard {
   method: string[];
   /** 1-based sheet rows this card came from */
   rows: number[];
+  /** D-101: the user's choice when the code already exists ('update' it or give the card a 'new' code); set in the review */
+  mode?: 'update' | 'new';
 }
 
 export interface ParsedRecipes {

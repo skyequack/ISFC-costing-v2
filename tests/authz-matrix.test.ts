@@ -120,6 +120,8 @@ describe('every non-gated handler is still wrapped (deny by default)', () => {
       'PATCH recipes/[id]',
       'DELETE recipes/[id]',
       'GET recipes/[id]/photo',
+      'GET recipes/[id]/revisions',
+      'GET recipes/[id]/revisions/[n]',
       'POST recipes/bulk',
       'GET ingredients',
       'GET brands',

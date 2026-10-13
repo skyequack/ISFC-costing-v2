@@ -25,6 +25,8 @@ export const RATE_RULES = {
   import: { windowSec: 600, budget: 240, failClosed: false },
   /** recipe photo and brand logo PUT / DELETE */
   upload: { windowSec: 60, budget: 60, failClosed: false },
+  /** POST /api/recipes/[id]/revisions: Start new revision (each one copies the whole card) */
+  revision: { windowSec: 600, budget: 60, failClosed: false },
   /** invite, edit/revoke invite, role change, delete, ban, unban (Clerk API + email) */
   user_admin: { windowSec: 3600, budget: 40, failClosed: true },
   /** add / edit / delete brand, archive the activity log */

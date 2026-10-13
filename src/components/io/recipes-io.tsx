@@ -110,7 +110,7 @@ export function useRecipeIO() {
     const st = createStore({
       brandId: workspace?.id ?? brands[0]?.id ?? '',
       takePrice: false,
-      allowUpdate: true,
+      allowUpdate: false,
       grant: true,
     });
 
@@ -189,6 +189,27 @@ export function useRecipeIO() {
       base: Omit<RecipeImportIn, 'cards' | 'hash'>,
     ) {
       const cards = plans.flatMap((p) => p.cards);
+      const refs = plans.flatMap((p, pi) => p.cards.map((c) => ({ c, pi })));
+      /** D-101: change the choice for one card whose code exists, then check that part of the file again */
+      async function choose(pi: number, idx: number, mode: string) {
+        const m: 'update' | 'new' | undefined = mode === 'update' || mode === 'new' ? mode : undefined;
+        const nextParts = parts.map((p, i) => (i === pi ? p.map((c, j) => (j === idx ? { ...c, mode: m } : c)) : p));
+        try {
+          const plan = await api<RecipeImportPlan>('POST', '/api/recipes/import?mode=dry-run', {
+            ...base,
+            cards: nextParts[pi],
+          });
+          review(
+            file,
+            parsed,
+            nextParts,
+            plans.map((p, i) => (i === pi ? plan : p)),
+            base,
+          );
+        } catch (e) {
+          toast(errText(e));
+        }
+      }
       const sum = (k: keyof RecipeImportPlan['counts']) => plans.reduce((a, p) => a + p.counts[k], 0);
       const nAdd = sum('add');
       const nUpd = sum('update');
@@ -221,29 +242,33 @@ export function useRecipeIO() {
           let added = 0;
           let updated = 0;
           let granted = 0;
+          let revisions = 0;
           const hit = new Set<string>();
           for (let i = 0; i < parts.length; i++) {
-            const r = await api<{ added: number; updated: number; granted: number; brands: string[] }>(
-              'POST',
-              '/api/recipes/import?mode=commit',
-              {
-                ...base,
-                cards: parts[i],
-                file: file + (parts.length > 1 ? ` (part ${i + 1}/${parts.length})` : ''),
-                hash: plans[i]!.hash,
-              },
-            );
+            const r = await api<{
+              added: number;
+              updated: number;
+              revisions: number;
+              granted: number;
+              brands: string[];
+            }>('POST', '/api/recipes/import?mode=commit', {
+              ...base,
+              cards: parts[i],
+              file: file + (parts.length > 1 ? ` (part ${i + 1}/${parts.length})` : ''),
+              hash: plans[i]!.hash,
+            });
             added += r.added;
             updated += r.updated;
             granted += r.granted;
+            revisions += r.revisions;
             r.brands.forEach((b) => hit.add(b));
           }
-          finished(added, updated, granted, [...hit]);
+          finished(added, updated, granted, [...hit], revisions);
         } catch (e) {
           toast(errText(e));
         }
       }
-      function finished(added: number, updated: number, granted: number, hit: string[]) {
+      function finished(added: number, updated: number, granted: number, hit: string[], revisions: number) {
         router.refresh();
         modal.open({
           title: 'Upload finished',
@@ -266,6 +291,12 @@ export function useRecipeIO() {
                   ? ` ${granted} ingredient${granted === 1 ? ' was' : 's were'} also made visible to the brands that use them.`
                   : ''}
               </p>
+              {revisions > 0 && (
+                <div className="note" style={s('margin-top:12px')}>
+                  {revisions} card{revisions === 1 ? '' : 's'} started a new revision today {'–'} the earlier state is
+                  kept under Revisions on the card.
+                </div>
+              )}
               <div className="note" style={s('margin-top:12px')}>
                 Run <b>Data Health</b> next {'–'} it lists any card whose cost is incomplete because of an unknown code
                 or a missing unit conversion.
@@ -395,7 +426,8 @@ export function useRecipeIO() {
             )}
             {sum('exists') > 0 && (
               <div className="note" style={s('margin:0 0 10px')}>
-                {sum('exists')} card{sum('exists') === 1 ? '' : 's'} already exist and overwriting is switched off.
+                {sum('exists')} card{sum('exists') === 1 ? '' : 's'} already exist (same code). Choose what to do in the
+                Action column {'–'} until then {sum('exists') === 1 ? 'it is' : 'they are'} skipped.
               </div>
             )}
             {sum('nolines') > 0 && (
@@ -521,7 +553,7 @@ export function useRecipeIO() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cards.slice(0, 120).map((g, i) => (
+                  {refs.slice(0, 120).map(({ c: g, pi }, i) => (
                     <tr key={i}>
                       <td className="mono" style={s('font-weight:700;color:var(--org-dk)')}>
                         {g.code || 'auto'}
@@ -555,6 +587,18 @@ export function useRecipeIO() {
                           <span className="pill p-bad">Blocked</span>
                         ) : (
                           <span className="pill p-gr">Skip</span>
+                        )}
+                        {(g.action === 'exists' || parts[pi]![g.index]!.mode) && (
+                          <select
+                            aria-label={`What to do with ${g.code || g.name}`}
+                            style={s('margin-top:4px;font-size:11.5px')}
+                            value={parts[pi]![g.index]!.mode ?? ''}
+                            onChange={(e) => choose(pi, g.index, e.target.value)}
+                          >
+                            <option value="">Skip</option>
+                            <option value="update">Use this code to update</option>
+                            <option value="new">Generate new code</option>
+                          </select>
                         )}
                       </td>
                     </tr>
@@ -665,7 +709,7 @@ function RecipeUploadBody({
           />
           <span>
             Overwrite cards whose code already exists{' '}
-            <span style={s('color:var(--mute)')}>(off = those rows are skipped)</span>
+            <span style={s('color:var(--mute)')}>(off = you choose for each such card in the next step)</span>
           </span>
         </label>
         <label style={s('display:flex;gap:8px;align-items:flex-start;font-size:12.5px;cursor:pointer')}>

@@ -15,6 +15,7 @@ import { normY, type LineIn, type RecipeSaveIn } from '../validation/common';
 import { toCostRecipe } from './card-view';
 import { detailFrom, recipeDetail, type RecipeDetail } from './recipe-detail';
 import { CODE_LOCK } from './ingredients';
+import { archiveRevision } from './revisions';
 
 /** Fixed lock key so recipe saves serialise their graph check (D-34). */
 const GRAPH_LOCK = CODE_LOCK;
@@ -401,6 +402,8 @@ async function saveCore(
       newCode,
       id,
     ]);
+    // D-100: archived revisions keep pointing at the renamed card (their lines are never read as "references" in the count)
+    await tx.query('UPDATE recipe_version_line SET code = $2 WHERE code = $1', [head.code, newCode]);
     const b = await tx.query(`UPDATE menu_cell SET code = $2 WHERE kind = 'RECIPE' AND code = $1`, [
       head.code,
       newCode,
@@ -719,6 +722,21 @@ export async function unlockRecipes(tx: Queryable, user: SessionUser, scope: Bra
   const heads = await loadHeadsByIds(tx, scope, ids);
   const todo = heads.filter((h) => h.status === 'LOCKED');
   if (!todo.length) throw new ApiError('unprocessable', 'Nothing selected is locked');
+  // D-100: reopening an approved card starts a new revision today; the approved one is archived as it is (lock, cost_at_lock).
+  // A card approved on the day its revision started has nothing to archive: it is reopened in place.
+  for (const h of todo) {
+    const archived = await archiveRevision(tx, user, h.id, 'UNLOCK');
+    if (archived) {
+      const r = (await tx.query('SELECT revision, effective_from::text AS from_day FROM recipe WHERE id = $1', [h.id]))
+        .rows[0]!;
+      await appendAudit(
+        tx,
+        user,
+        'Started card revision',
+        `${h.code}: revision ${r.revision - 1} → ${r.revision} from ${r.from_day} (unlock)`,
+      );
+    }
+  }
   await tx.query(
     `UPDATE recipe SET status = 'DRAFT', locked_by = NULL, locked_at = NULL, locked_by_user_id = NULL, version = version + 1 WHERE id = ANY($1::text[])`,
     [todo.map((h) => h.id)],
