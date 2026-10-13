@@ -160,6 +160,66 @@ describe.skipIf(!hasTestDb)('exports (D-36, D-44) and the export -> upload round
     expect(total.split(',')[7]).toBe(String(10 + 11 + 3 + 3));
   });
 
+  it('single-card export (D-98): one card in the upload layout, equal to its rows in the full export, scoped, audited once, uploads back as an update', async () => {
+    const gm = await mkUser('gm', []);
+    as(gm);
+    const pick = (
+      await c.query(
+        `SELECT r.id, r.code FROM recipe r JOIN recipe_line l ON l.recipe_id = r.id AND l.code <> ''
+          WHERE r.deleted_at IS NULL GROUP BY r.id, r.code HAVING count(*) >= 3 ORDER BY r.code LIMIT 1`,
+      )
+    ).rows[0]!;
+    await c.query(
+      `UPDATE recipe_line SET y_thaw = 0.9, y_cook = 0.8, y = 0.72 WHERE id = (SELECT id FROM recipe_line WHERE recipe_id = $1 AND code <> '' ORDER BY sort_order LIMIT 1)`,
+      [pick.id],
+    );
+    const all = (await (await get('recipes-data', '?brand=*')).json()) as { rows: unknown[][] };
+    const before = await exportedRows(gm);
+    const res = await get('recipes-data', `?card=${pick.id}`);
+    expect(res.status).toBe(200);
+    const one = (await res.json()) as { filename: string; rows: unknown[][] };
+    expect(one.filename).toBe(`ISFC-${pick.code}-recipe.xlsx`);
+    expect(await exportedRows(gm)).toBe(before + 1);
+    // the same rows the full export has for this card (the card's block starts at its code row)
+    const codeCol = (all.rows[0] as string[]).indexOf('Recipe Code');
+    const start = all.rows.findIndex((r) => (r as string[])[codeCol] === pick.code);
+    expect(start).toBeGreaterThan(0);
+    expect(one.rows[0]).toEqual(all.rows[0]);
+    expect(one.rows.slice(1)).toEqual(all.rows.slice(start, start + one.rows.length - 1));
+    expect(one.rows.slice(1).filter((r) => (r as string[])[codeCol]).length).toBe(1);
+    // upload it back: one card, planned as an update, and a chosen stage survives
+    const parsed = parseRecipeSheets(await readSheets({ name: 'one.xlsx', bytes: xlsxBytes(one.rows) }));
+    expect(parsed.cards).toHaveLength(1);
+    expect(parsed.warn).toEqual([]);
+    expect(parsed.cards[0]!.code).toBe(pick.code);
+    expect(parsed.cards[0]!.lines[0]!.stages?.yThaw).toBe(0.9);
+    const brand = (await c.query('SELECT id FROM brand ORDER BY legacy_id LIMIT 1')).rows[0]!.id as string;
+    const plan = await previewRecipeImport(
+      c,
+      gm,
+      await visibleBrandIds(gm, c),
+      recipeImportIn.parse({
+        cards: parsed.cards,
+        defaultBrandId: brand,
+        takePrice: false,
+        allowUpdate: true,
+        grant: false,
+      }),
+    );
+    expect(plan.cards.map((x) => x.action)).toEqual(['update']);
+  });
+
+  it('single-card export: an unknown id and a card of a brand the user cannot see are both 404, and nothing is audited', async () => {
+    const brand = await insertBrand(c, 'XD');
+    const narrow = await mkUser('cc', [brand]);
+    const someCard = (await c.query('SELECT id FROM recipe WHERE deleted_at IS NULL LIMIT 1')).rows[0]!.id as string;
+    as(narrow);
+    const before = await exportedRows(narrow);
+    expect((await get('recipes-data', `?card=${someCard}`)).status).toBe(404);
+    expect((await get('recipes-data', '?card=nope')).status).toBe(404);
+    expect(await exportedRows(narrow)).toBe(before);
+  });
+
   it('recipes-data -> xlsx -> parse -> dry-run: exporting every card and uploading it back changes nothing', async () => {
     const gm = await mkUser('gm', []);
     as(gm);

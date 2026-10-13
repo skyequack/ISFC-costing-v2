@@ -8,6 +8,7 @@ import { useModal } from '@/components/shared/Modal';
 import { usePerm, useSession } from '@/components/shared/session-context';
 import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
+import { saveXlsx } from '@/components/io/download';
 import { cur, pct } from '@/lib/format';
 
 /** Cards deleted most recently (legacy `trash`): one batch the user can undo straight afterwards. Session memory only. */
@@ -222,7 +223,24 @@ export function useRecipeActions(target: number) {
     [can, refresh, toast],
   );
 
-  return { duplicate, confirmDelete, undoDelete, lock, unlock };
+  /** D-98: download ONE card as an Excel file in the same layout the recipe upload reads. The server checks scope and audits it. */
+  const exportCard = useCallback(
+    async (id: string) => {
+      try {
+        const f = await api<{ filename: string; rows: unknown[][] }>(
+          'GET',
+          `/api/export/recipes-data?card=${encodeURIComponent(id)}`,
+        );
+        saveXlsx(f.filename, f.rows);
+        toast(`Downloaded ${f.filename}`);
+      } catch (e) {
+        toast(errText(e));
+      }
+    },
+    [toast],
+  );
+
+  return { duplicate, confirmDelete, undoDelete, lock, unlock, exportCard };
 }
 
 function LockFoot({ st, run, label }: { st: Store<{ busy: boolean }>; run: () => void; label: string }) {

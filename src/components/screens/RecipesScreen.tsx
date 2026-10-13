@@ -47,6 +47,9 @@ const facts = (r: RecipeRow): CardFacts => ({
   err: r.c.err,
 });
 
+/** D-97: the Stock class filter value of a card. "Subrecipe" is derived from the type, Dry/Raw are stored on Menu cards. */
+const stockClassKey = (r: RecipeRow) => (r.type === 'sub' ? 'sub' : r.stockClass ? r.stockClass.toLowerCase() : 'none');
+
 /** Legacy vRecipes (2752). The page loads the lightweight list once; filtering and paging happen here so typing never remounts. */
 export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProps) {
   const toast = useToast();
@@ -57,6 +60,7 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
   const [rbrand, setRbrand] = useState('');
   const [rstatus, setRstatus] = useState('');
   const [rcat, setRcat] = useState('');
+  const [rclass, setRclass] = useState('');
   const [rpage, setRpage] = useState(0);
   const [sel, setSel] = useState<Set<string>>(new Set());
 
@@ -75,10 +79,11 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
     const q = rq.trim().toLowerCase();
     return base.filter((r) => {
       if (rcat && (r.cat || '').trim() !== rcat) return false;
+      if (rclass && stockClassKey(r) !== rclass) return false;
       if (!q) return true;
       return `${r.name} ${r.code} ${r.cat || ''} ${brandName.get(r.brandId) ?? ''}`.toLowerCase().includes(q);
     });
-  }, [base, rq, rcat, brandName]);
+  }, [base, rq, rcat, rclass, brandName]);
 
   const pages = Math.max(1, Math.ceil(list.length / RPAGE));
   const page = list.slice(rpage * RPAGE, (rpage + 1) * RPAGE);
@@ -169,7 +174,7 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
           </button>
         </div>
       )}
-      <div className="row" style={s('grid-template-columns:1fr 190px 170px;max-width:840px;margin-bottom:14px')}>
+      <div className="row" style={s('grid-template-columns:1fr 190px 170px 170px;max-width:1010px;margin-bottom:14px')}>
         <input
           id="q_rec"
           type="text"
@@ -204,6 +209,20 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
           <option value="">Any status</option>
           <option value="draft">Draft only</option>
           <option value="locked">Locked only</option>
+        </select>
+        <select
+          aria-label="Stock class"
+          value={rclass}
+          onChange={(e) => {
+            setRclass(e.target.value);
+            reset();
+          }}
+        >
+          <option value="">All stock classes</option>
+          <option value="dry">Dry</option>
+          <option value="raw">Raw</option>
+          <option value="sub">Subrecipe</option>
+          <option value="none">Not set</option>
         </select>
       </div>
       {cats.length >= 2 && (
@@ -241,7 +260,7 @@ export function RecipesScreen({ rows, brands, workspaceId, target }: RecipesProp
           <div className="empty">
             <div className="big">{'▤'}</div>
             <p>
-              {rq || rbrand || rstatus
+              {rq || rbrand || rstatus || rclass
                 ? 'Nothing matches that filter.'
                 : ws
                   ? `No cards in ${ws.name} yet.`

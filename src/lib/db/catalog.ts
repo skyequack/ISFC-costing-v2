@@ -7,6 +7,7 @@ import {
   type CostSettings,
 } from '@/domain/costing';
 import type { Queryable } from './client';
+import type { StockClass } from '../units';
 
 /** Plain, JSON-serialisable catalog rows (what the cache stores; no Maps, no Dates). */
 export interface CatalogData {
@@ -14,7 +15,10 @@ export interface CatalogData {
   conv: [string, ConvEntry][];
   recipes: CostRecipe[];
   /** card code -> facts the engine does not need but callers filter on. */
-  cards: Record<string, { id: string; brandId: string; status: 'DRAFT' | 'LOCKED'; category: string }>;
+  cards: Record<
+    string,
+    { id: string; brandId: string; status: 'DRAFT' | 'LOCKED'; category: string; stockClass: StockClass | null }
+  >;
   settings: CostSettings & { currency: string; priceDate: string; version: number };
 }
 
@@ -36,7 +40,7 @@ export async function loadCatalogData(db: Queryable): Promise<CatalogData> {
        FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id ORDER BY i.code`,
   );
   const rec = await db.query(
-    `SELECT r.id AS rid, r.code, r.name, r.type, r.brand_id, r.status, r.category, r.output, r.sub_qty, r.sub_uom,
+    `SELECT r.id AS rid, r.code, r.name, r.type, r.brand_id, r.status, r.category, r.stock_class, r.output, r.sub_qty, r.sub_uom,
               r.batch_out, r.batch_uom, r.selling_price, r.buffer,
               l.code AS lcode, l.qty, l.unit, l.y, l.yp
        FROM recipe r LEFT JOIN recipe_line l ON l.recipe_id = r.id
@@ -79,7 +83,13 @@ export async function loadCatalogData(db: Queryable): Promise<CatalogData> {
       };
       byId.set(r.rid, card);
       recipes.push(card);
-      cards[r.code] = { id: r.rid, brandId: r.brand_id, status: r.status, category: r.category };
+      cards[r.code] = {
+        id: r.rid,
+        brandId: r.brand_id,
+        status: r.status,
+        category: r.category,
+        stockClass: r.stock_class,
+      };
     }
     if (r.lcode !== null) card.lines.push({ code: r.lcode, qty: r.qty, unit: r.unit, y: r.y, yp: r.yp });
   }

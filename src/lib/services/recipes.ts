@@ -9,6 +9,7 @@ import { assertBrandVisible, canSeeBrand, type BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can, type Permission } from '../permissions';
 import { money } from '../format';
+import type { StockClass } from '../units';
 import { stagedYield } from '@/domain/recipes/yield-stages';
 import { normY, type LineIn, type RecipeSaveIn } from '../validation/common';
 import { toCostRecipe } from './card-view';
@@ -27,6 +28,7 @@ interface Head {
   code: string;
   name: string;
   category: string;
+  stockClass: StockClass | null;
   type: 'MENU' | 'SUB';
   brandId: string;
   output: number;
@@ -42,7 +44,7 @@ interface Head {
 
 async function lockHead(tx: Queryable, scope: BrandScope, id: string): Promise<Head> {
   const { rows } = await tx.query(
-    `SELECT id, code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom,
+    `SELECT id, code, name, category, stock_class, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom,
             selling_price, buffer, status, version
        FROM recipe WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`,
     [id],
@@ -54,6 +56,7 @@ async function lockHead(tx: Queryable, scope: BrandScope, id: string): Promise<H
     code: r.code,
     name: r.name,
     category: r.category,
+    stockClass: r.stock_class,
     type: r.type,
     brandId: r.brand_id,
     output: r.output,
@@ -99,6 +102,7 @@ async function loadForSave(
     code: recipe.code,
     name: recipe.name,
     category: recipe.category,
+    stockClass: recipe.stockClass,
     type: recipe.type,
     brandId: recipe.brandId,
     output: recipe.output,
@@ -139,6 +143,9 @@ async function assertCodeFree(tx: Queryable, code: string, exceptId?: string): P
   if (i.rows[0]) throw new ApiError('conflict', `The code ${i.rows[0].code} is already used by an ingredient`);
 }
 
+/** D-97: blank ingredient rows on a new card. */
+const NEW_CARD_ROWS = 6;
+
 export async function createRecipe(
   tx: Queryable,
   user: SessionUser,
@@ -155,9 +162,11 @@ export async function createRecipe(
     [code, input.name || 'New Recipe', input.category ?? '', input.type, input.brandId],
   );
   const id = rows[0]!.id as string;
+  // D-97: a new card starts with 6 blank rows (they are already how an empty card is stored; costing, print and export skip them)
   await tx.query(
-    `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp) VALUES ($1,0,'',0,'Gram',1,NULL)`,
-    [id],
+    `INSERT INTO recipe_line (recipe_id, sort_order, code, qty, unit, y, yp)
+     SELECT $1, o, '', 0, 'Gram', 1, NULL FROM generate_series(0, $2::int - 1) AS o`,
+    [id, NEW_CARD_ROWS],
   );
   await tx.query(`INSERT INTO recipe_method_step (recipe_id, step_number, text) VALUES ($1,1,'')`, [id]);
   await appendAudit(tx, user, 'Created card', `${code} – ${input.name || 'New Recipe'}`);
@@ -298,6 +307,8 @@ async function saveCore(
   };
   change('name', 'name', input.name);
   change('category', 'category', input.category);
+  // D-97: a Sub-Recipe shows "Subrecipe" (derived from the type), so it never keeps a Dry/Raw class
+  change('stockClass', 'stock_class', (input.type ?? head.type) === 'SUB' ? null : input.stockClass);
   change('type', 'type', input.type);
   change('brandId', 'brand_id', input.brandId);
   change('output', 'output', input.output);
@@ -578,8 +589,8 @@ export async function duplicateRecipe(
   const code = await nextCode(tx, src.brandId, src.type);
   await assertCodeFree(tx, code);
   const { rows } = await tx.query(
-    `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
+    `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer, stock_class)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
     [
       code,
       `${src.name} (copy)`,
@@ -593,6 +604,7 @@ export async function duplicateRecipe(
       src.batchUom,
       src.sellingPrice,
       src.buffer,
+      src.type === 'SUB' ? null : src.stockClass,
     ],
   );
   const nid = rows[0]!.id as string;

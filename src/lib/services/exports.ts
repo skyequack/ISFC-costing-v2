@@ -59,6 +59,8 @@ export const exportQuery = z.object({
   /** dashboard range, day-level inclusive (D-65) */
   from: z.string().max(10).optional(),
   to: z.string().max(10).optional(),
+  /** recipes-data only (D-98): export ONE card, by its id, in the same re-uploadable layout */
+  card: z.string().max(64).optional(),
   /** day of a stock template, YYYY-MM-DD (D-86) */
   date: z.string().max(10).optional(),
 });
@@ -287,19 +289,34 @@ export async function buildExport(
     }
     case 'recipes-data': {
       // re-uploadable layout (D-17: + Waste % and Card Buffer). `brand` = '*' for every card the caller may see.
-      const list = q.brand === '*' ? live : live.filter((r) => catalog.cards[r.code]!.brandId === q.brand);
-      if (q.brand !== '*' && !ctx.brands.some((b) => b.id === q.brand)) throw new ApiError('not_found', 'Not found');
-      const bufRows = await db.query('SELECT code, buffer FROM recipe WHERE deleted_at IS NULL AND buffer IS NOT NULL');
+      // D-98: `card` = one card by id (already limited to the caller's brands in `live`; unknown or out of scope = 404)
+      const one = q.card ? live.find((r) => r.id === q.card) : undefined;
+      if (q.card && !one) throw new ApiError('not_found', 'Not found');
+      const list = one
+        ? [one]
+        : q.brand === '*'
+          ? live
+          : live.filter((r) => catalog.cards[r.code]!.brandId === q.brand);
+      if (!one && q.brand !== '*' && !ctx.brands.some((b) => b.id === q.brand))
+        throw new ApiError('not_found', 'Not found');
+      const only = one ? [one.code] : null; // restricts the three lookups below to that card
+      const bufRows = await db.query(
+        'SELECT code, buffer FROM recipe WHERE deleted_at IS NULL AND buffer IS NOT NULL AND ($1::text[] IS NULL OR code = ANY($1::text[]))',
+        [only],
+      );
       const buffers = new Map(bufRows.rows.map((r) => [r.code as string, r.buffer as number]));
       const methods = await db.query(
-        `SELECT r.code, array_agg(s.text ORDER BY s.step_number) AS steps FROM recipe r JOIN recipe_method_step s ON s.recipe_id = r.id WHERE r.deleted_at IS NULL GROUP BY r.code`,
+        `SELECT r.code, array_agg(s.text ORDER BY s.step_number) AS steps FROM recipe r JOIN recipe_method_step s ON s.recipe_id = r.id WHERE r.deleted_at IS NULL AND ($1::text[] IS NULL OR r.code = ANY($1::text[])) GROUP BY r.code`,
+        [only],
       );
       const stepsOf = new Map(methods.rows.map((r) => [r.code as string, r.steps as string[]]));
       // three-stage yield (D-70, D-85): per card, one [thaw, cut, cook] triple per stored line, in line order
       const stageRows = await db.query(
         `SELECT r.code, json_agg(json_build_array(l.y_thaw, l.y_cut, l.y_cook) ORDER BY l.sort_order) AS st
-           FROM recipe r JOIN recipe_line l ON l.recipe_id = r.id WHERE r.deleted_at IS NULL GROUP BY r.code
+           FROM recipe r JOIN recipe_line l ON l.recipe_id = r.id
+          WHERE r.deleted_at IS NULL AND ($1::text[] IS NULL OR r.code = ANY($1::text[])) GROUP BY r.code
          HAVING bool_or(l.y_thaw IS NOT NULL OR l.y_cut IS NOT NULL OR l.y_cook IS NOT NULL)`,
+        [only],
       );
       const stagesOf = new Map(stageRows.rows.map((r) => [r.code as string, r.st as (number | null)[][]]));
       const rows: unknown[][] = [];
@@ -338,7 +355,11 @@ export async function buildExport(
           ]);
         }
       }
-      const base = q.brand === '*' ? 'ISFC-all-recipes' : `ISFC-${brandCode.get(q.brand) ?? 'brand'}-recipes`;
+      const base = one
+        ? `ISFC-${one.code.replace(/[^\w.-]+/g, '-')}-recipe`
+        : q.brand === '*'
+          ? 'ISFC-all-recipes'
+          : `ISFC-${brandCode.get(q.brand) ?? 'brand'}-recipes`;
       return { filename: `${base}.xlsx`, rows: [RTPL_HEAD, ...rows] };
     }
     case 'requisition': {

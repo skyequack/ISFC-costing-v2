@@ -1,6 +1,7 @@
 import { cost, type CostResult } from '@/domain/costing';
 import type { Catalog } from '../db/catalog';
 import { canSeeBrand, type BrandScope } from '../db/scope';
+import type { StockClass } from '../units';
 
 /** Slim cost facts the list screens need (serialisable; everything else is recomputed on the card). */
 export interface CostFacts {
@@ -23,6 +24,7 @@ export interface RecipeRow {
   code: string;
   name: string;
   cat: string;
+  stockClass: StockClass | null;
   type: 'menu' | 'sub';
   brandId: string;
   status: 'DRAFT' | 'LOCKED';
@@ -56,10 +58,11 @@ export function recipeRows(catalog: Catalog, scope: BrandScope): RecipeRow[] {
       code: r.code,
       name: r.name,
       cat: meta.category,
+      stockClass: meta.stockClass,
       type: r.type,
       brandId: meta.brandId,
       status: meta.status,
-      nLines: r.lines.length,
+      nLines: r.lines.filter((l) => l.code).length,
       c: facts(cost(r, catalog.context)),
     });
   }

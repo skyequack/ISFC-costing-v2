@@ -116,6 +116,7 @@ export function detailFixture(over: Partial<RecipeDetail['recipe']> = {}): Recip
       code: 'GRM-MN-0001',
       name: 'Beef Steak',
       category: 'Main Course',
+      stockClass: null,
       type: 'MENU',
       brandId: 'b1',
       output: 1,

@@ -147,6 +147,34 @@ describe.skipIf(!hasTestDb)('backup and restore (D-37) against the seeded dev da
       expect(Number((await c.query('SELECT count(*) AS n FROM audit_log')).rows[0]!.n)).toBe(auditBefore + 1); // only the restore entry
     }));
 
+  it('stock class (D-97) travels in the backup; an older backup without it restores as not set', () =>
+    inRollback(c, async () => {
+      const core = await small();
+      const code = core.recipes[0].code;
+      await c.query(`UPDATE recipe SET stock_class = 'Raw' WHERE code = $1 AND type = 'MENU'`, [code]);
+      const withClass = core.recipes[0].type === 'MENU';
+      const first = await applyRestore(
+        c,
+        gm,
+        backupSchema.parse({
+          ...core,
+          recipes: core.recipes.map((r: Record<string, unknown>) => ({ ...r, stockClass: withClass ? 'Dry' : null })),
+        }),
+        'a.json',
+      );
+      expect(first.recipes.updated).toBe(1);
+      const got = (await c.query('SELECT stock_class FROM recipe WHERE code = $1', [code])).rows[0]!.stock_class;
+      expect(got).toBe(withClass ? 'Dry' : null);
+      // an older file has no stockClass key at all
+      const old = core.recipes.map((r: Record<string, unknown>) => {
+        const { stockClass: _omit, ...rest } = r;
+        void _omit;
+        return rest;
+      });
+      await applyRestore(c, gm, backupSchema.parse({ ...core, recipes: old }), 'old.json');
+      expect((await c.query('SELECT stock_class FROM recipe WHERE code = $1', [code])).rows[0]!.stock_class).toBeNull();
+    }));
+
   it('refuses inconsistent backups: duplicate codes, ingredient/card clash, unknown brand, circular recipes', () =>
     inRollback(c, async () => {
       const base = JSON.parse(JSON.stringify(await buildBackupCore(c, gm)));

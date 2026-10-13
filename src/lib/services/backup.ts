@@ -10,7 +10,7 @@ import { can } from '../permissions';
 import { pgImageStore, validateImage } from '../images';
 import { IMAGE_CHUNK_BYTES } from '../io-limits';
 import { MAX_STOCK_QTY } from '../stock-limits';
-import { UNITS } from '../units';
+import { STOCK_CLASSES, UNITS } from '../units';
 import { CODE_LOCK } from './ingredients';
 
 /**
@@ -75,6 +75,8 @@ const recB = z.object({
   code: z.string().min(1).max(60),
   name: z.string().max(200),
   category: z.string().max(100),
+  /** D-97, optional so older backups still restore (absent = not set). */
+  stockClass: z.enum(STOCK_CLASSES).nullable().optional(),
   type: z.enum(['MENU', 'SUB']),
   brandCode: z.string().max(8),
   output: z.number().finite().gt(0),
@@ -216,7 +218,7 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
   ).rows;
   const recs = (
     await db.query(
-      `SELECT id, code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer, status, locked_by, locked_at, cost_at_lock
+      `SELECT id, code, name, category, stock_class, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer, status, locked_by, locked_at, cost_at_lock
        FROM recipe WHERE deleted_at IS NULL ORDER BY code`,
     )
   ).rows;
@@ -316,6 +318,7 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       code: r.code,
       name: r.name,
       category: r.category,
+      stockClass: r.stock_class ?? null,
       type: r.type,
       brandCode: codeOf.get(r.brand_id) ?? '',
       output: r.output,
@@ -643,19 +646,20 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
       r.lockedBy,
       r.lockedAt,
       r.costAtLock == null ? null : JSON.stringify(r.costAtLock),
+      r.type === 'SUB' ? null : (r.stockClass ?? null),
     ];
     if (ex) {
       await tx.query(
         `UPDATE recipe SET code=$1, name=$2, category=$3, type=$4::recipe_type, brand_id=$5, output=$6, sub_qty=$7, sub_uom=$8, batch_out=$9, batch_uom=$10, selling_price=$11, buffer=$12,
-                status=$13::recipe_status, locked_by=$14, locked_at=$15, cost_at_lock=$16::jsonb, version = version + 1 WHERE id = $17`,
+                status=$13::recipe_status, locked_by=$14, locked_at=$15, cost_at_lock=$16::jsonb, stock_class=$17, version = version + 1 WHERE id = $18`,
         [...args, ex],
       );
       idByCode.set(r.code, ex);
       stats.recipes.updated++;
     } else {
       const ins = await tx.query(
-        `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer, status, locked_by, locked_at, cost_at_lock)
-         VALUES ($1,$2,$3,$4::recipe_type,$5,$6,$7,$8,$9,$10,$11,$12,$13::recipe_status,$14,$15,$16::jsonb) RETURNING id`,
+        `INSERT INTO recipe (code, name, category, type, brand_id, output, sub_qty, sub_uom, batch_out, batch_uom, selling_price, buffer, status, locked_by, locked_at, cost_at_lock, stock_class)
+         VALUES ($1,$2,$3,$4::recipe_type,$5,$6,$7,$8,$9,$10,$11,$12,$13::recipe_status,$14,$15,$16::jsonb,$17) RETURNING id`,
         args,
       );
       idByCode.set(r.code, ins.rows[0]!.id as string);

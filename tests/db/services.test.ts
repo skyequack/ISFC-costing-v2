@@ -92,13 +92,16 @@ describe.skipIf(!hasTestDb)('services against Neon (all rolled back)', { timeout
     return { brand, other, scope, item };
   }
 
-  it('createRecipe allocates the next free brand code, blank line + step, audit', () =>
+  it('createRecipe allocates the next free brand code, 6 blank lines + step, audit (D-97)', () =>
     inRollback(c, async () => {
       const { brand, scope } = await world();
       const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
       const r = await getRecipe(c, scope, id);
       expect(r.code).toBe('ZZ-MN-0001');
-      expect(r.lines).toHaveLength(1);
+      expect(r.lines).toHaveLength(6);
+      expect(r.lines.every((l) => l.code === '' && l.qty === 0)).toBe(true);
+      expect(r.lines.map((l) => l.sortOrder)).toEqual([0, 1, 2, 3, 4, 5]);
+      expect(r.stockClass).toBeNull();
       expect(r.method).toEqual(['']);
       const id2 = await createRecipe(c, gm, scope, { brandId: brand, type: 'SUB' });
       expect((await getRecipe(c, scope, id2)).code).toBe('ZZ-SR-0001');
@@ -106,6 +109,34 @@ describe.skipIf(!hasTestDb)('services against Neon (all rolled back)', { timeout
         `SELECT action FROM audit_log WHERE action = 'Created card' AND user_id = 'u-gm' ORDER BY created_at DESC LIMIT 1`,
       );
       expect(a.rows).toHaveLength(1);
+    }));
+
+  it('stock class (D-97): Dry/Raw on a Menu card, cleared by Sub-Recipe, copied, never touches the category', () =>
+    inRollback(c, async () => {
+      const { brand, scope } = await world();
+      const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU', category: 'Mezze' });
+      await saveRecipe(c, gm, scope, id, { version: 0, stockClass: 'Dry' });
+      const r = await getRecipe(c, scope, id);
+      expect([r.stockClass, r.category, r.version]).toEqual(['Dry', 'Mezze', 1]);
+      // same value again is a no-op (no version bump)
+      expect((await saveRecipe(c, gm, scope, id, { version: 1, stockClass: 'Dry' })).changed).toBe(false);
+      // a bad value is refused by the check constraint behind the validator
+      await expect(c.query(`UPDATE recipe SET stock_class = 'Wet' WHERE id = $1`, [id])).rejects.toThrow();
+    }));
+
+  it('stock class: switching to Sub-Recipe clears it, and a Sub-Recipe cannot be given one', () =>
+    inRollback(c, async () => {
+      const { brand, scope } = await world();
+      const id = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
+      await saveRecipe(c, gm, scope, id, { version: 0, stockClass: 'Raw' });
+      await saveRecipe(c, gm, scope, id, { version: 1, type: 'SUB' });
+      expect((await getRecipe(c, scope, id)).stockClass).toBeNull();
+      await saveRecipe(c, gm, scope, id, { version: 2, stockClass: 'Dry' });
+      const r = await getRecipe(c, scope, id);
+      expect([r.stockClass, r.version]).toEqual([null, 2]);
+      // permission: a viewer cannot set it
+      const menu = await createRecipe(c, gm, scope, { brandId: brand, type: 'MENU' });
+      expect((await fail(saveRecipe(c, U('viewer'), scope, menu, { version: 0, stockClass: 'Dry' }))).status).toBe(403);
     }));
 
   it('cannot create in a brand outside the scope (404) or without recipe.create', () =>

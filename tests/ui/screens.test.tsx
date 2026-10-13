@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { calls, cost, detailFixture, installFetch, nav, onFetch, renderInShell, resetFetch } from './harness';
 
+const saved = vi.hoisted(() => ({ xlsx: [] as string[] }));
+vi.mock('@/components/io/download', async (orig) => {
+  const actual = await orig<typeof import('@/components/io/download')>();
+  return { ...actual, saveXlsx: (name: string) => void saved.xlsx.push(name) };
+});
 vi.mock('next/navigation', () => ({
   usePathname: () => nav.path,
   useRouter: () => ({ push: nav.push, replace: nav.replace, refresh: nav.refresh }),
@@ -300,6 +305,7 @@ const row = (i: number, over: Partial<RecipeRow> = {}): RecipeRow => ({
   code: `GRM-MN-${String(i).padStart(4, '0')}`,
   name: `Dish ${i}`,
   cat: i % 2 ? 'Main Course' : 'Soup',
+  stockClass: null,
   type: 'menu',
   brandId: 'b1',
   status: 'DRAFT',
@@ -319,6 +325,72 @@ const row = (i: number, over: Partial<RecipeRow> = {}): RecipeRow => ({
     unitCost: null,
   },
   ...over,
+});
+
+describe('Export card (D-98)', () => {
+  it('downloads ONE card through the export endpoint, as the server names it; a refusal is shown, nothing is saved', async () => {
+    const user = userEvent.setup();
+    saved.xlsx.length = 0;
+    onFetch((c) =>
+      c.url === '/api/export/recipes-data?card=r1'
+        ? { json: { filename: 'ISFC-GRM-MN-0001-recipe.xlsx', rows: [['Brand'], ['GRM']] } }
+        : undefined,
+    );
+    renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    await user.click(screen.getByRole('button', { name: 'Export card' }));
+    await vi.waitFor(() => expect(saved.xlsx).toEqual(['ISFC-GRM-MN-0001-recipe.xlsx']));
+    expect(calls.filter((c) => c.method === 'GET' && c.url.startsWith('/api/export/'))).toHaveLength(1);
+    expect(await screen.findByText(/Downloaded ISFC-GRM-MN-0001-recipe.xlsx/)).toBeTruthy();
+    saved.xlsx.length = 0;
+    onFetch((c) =>
+      c.url.startsWith('/api/export/') ? { status: 404, json: { error: { message: 'Not found' } } } : undefined,
+    );
+    await user.click(screen.getByRole('button', { name: 'Export card' }));
+    expect(await screen.findByText(/Not found/)).toBeTruthy();
+    expect(saved.xlsx).toEqual([]);
+  });
+});
+
+describe('stock class (D-97)', () => {
+  it('Browse filters by Dry, Raw, Subrecipe (derived from the type) and Not set, in memory', async () => {
+    const user = userEvent.setup();
+    const rows = [
+      row(1, { stockClass: 'Dry' }),
+      row(2, { stockClass: 'Raw' }),
+      row(3, { type: 'sub' }),
+      row(4),
+      row(5, { stockClass: 'Dry' }),
+    ];
+    renderInShell(<RecipesScreen rows={rows} brands={brandList} workspaceId="b1" target={0.3} />);
+    const pick = screen.getByLabelText('Stock class');
+    await user.selectOptions(pick, 'dry');
+    expect(screen.getByText(/2 cards/)).toBeTruthy();
+    await user.selectOptions(pick, 'raw');
+    expect(screen.getByText(/1 card /)).toBeTruthy();
+    await user.selectOptions(pick, 'sub');
+    expect(screen.getByText(/1 card /)).toBeTruthy();
+    await user.selectOptions(pick, 'none');
+    expect(screen.getByText(/1 card /)).toBeTruthy(); // the Menu card with no class (the sub card is not "not set")
+    expect(calls).toHaveLength(0);
+  });
+
+  it('the editor sets Dry/Raw on a Menu card and shows a fixed "Subrecipe" on a Sub-Recipe', async () => {
+    const user = userEvent.setup();
+    onFetch((c) => (c.method === 'PATCH' ? { json: detailFixture({ version: 1 }) } : undefined));
+    const { unmount } = renderInShell(<EditScreen detail={detailFixture()} brand={brand} brands={brandList} />);
+    await user.selectOptions(screen.getByLabelText('Stock class'), 'Raw');
+    await vi.waitFor(() => expect(calls.some((c) => c.method === 'PATCH')).toBe(true));
+    const p = calls.find((c) => c.method === 'PATCH');
+    expect(p!.body).toEqual({ version: 0, stockClass: 'Raw' });
+    unmount();
+    cleanup();
+    const sub = detailFixture();
+    sub.recipe.type = 'SUB';
+    renderInShell(<EditScreen detail={sub} brand={brand} brands={brandList} />);
+    const fixed = screen.getByLabelText('Stock class') as HTMLSelectElement;
+    expect(fixed.disabled).toBe(true);
+    expect(fixed.value).toBe('Subrecipe');
+  });
 });
 
 describe('recipe list (legacy vRecipes)', () => {

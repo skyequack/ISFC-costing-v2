@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { Acts } from '@/components/shell/Shell';
+import { Perm } from '@/components/shared/Perm';
 import { printStore } from '@/components/shell/print-store';
 import { s } from '@/components/ui';
 import type { RecipeDetail } from '@/lib/services/recipe-detail';
@@ -43,6 +44,11 @@ export function LockedCard({
         <button className="btn o" onClick={onPrint}>
           Print
         </button>
+        <Perm perm="export">
+          <button className="btn o" onClick={() => act.exportCard(r.id)}>
+            Export card
+          </button>
+        </Perm>
         <button className="btn" onClick={() => act.unlock([r.id], r.code)}>
           {'🔓'} Unlock to edit
         </button>

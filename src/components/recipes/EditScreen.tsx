@@ -126,7 +126,11 @@ export function EditScreen(props: EditProps) {
 
   // ------------------------------------------------------------------ fields
   const setF = (k: 'name' | 'category', v: string) => save({ [k]: v }, { [k]: v } as never);
-  const setType = (t: 'MENU' | 'SUB') => save({ type: t }, { type: t });
+  const setType = (t: 'MENU' | 'SUB') => save({ type: t }, t === 'SUB' ? { type: t, stockClass: null } : { type: t });
+  const setStockClass = (v: string) => {
+    const stockClass = v === 'Dry' || v === 'Raw' ? v : null;
+    save({ stockClass }, { stockClass });
+  };
   const setBrandId = (id: string) => save({ brandId: id }, { brandId: id });
   const setOutput = (v: string) => {
     const n = Math.max(0, parseFloat(v) || 0);
@@ -278,6 +282,11 @@ export function EditScreen(props: EditProps) {
         <button className="btn o" onClick={() => printMenu(d, brand)}>
           Print
         </button>
+        <Perm perm="export">
+          <button className="btn o" onClick={() => act.exportCard(r.id)}>
+            Export card
+          </button>
+        </Perm>
         <button className="btn g" onClick={() => act.lock([facts])}>
           {'🔒'} Lock &amp; approve
         </button>
@@ -386,6 +395,28 @@ export function EditScreen(props: EditProps) {
                       <option value="MENU">Menu Item</option>
                       <option value="SUB">Sub-Recipe</option>
                     </select>
+                  </Perm>
+                </div>
+              </div>
+              <div className="row r3">
+                <div className="field">
+                  <label className="fl">Stock class</label>
+                  <Perm perm="recipe.edit">
+                    {r.type === 'SUB' ? (
+                      <select aria-label="Stock class" value="Subrecipe" disabled>
+                        <option value="Subrecipe">Subrecipe</option>
+                      </select>
+                    ) : (
+                      <select
+                        aria-label="Stock class"
+                        value={r.stockClass ?? ''}
+                        onChange={(e) => setStockClass(e.target.value)}
+                      >
+                        <option value="">Not set</option>
+                        <option value="Dry">Dry</option>
+                        <option value="Raw">Raw</option>
+                      </select>
+                    )}
                   </Perm>
                 </div>
               </div>

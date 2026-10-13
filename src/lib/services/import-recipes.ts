@@ -459,6 +459,7 @@ export async function commitRecipeImport(
                 sub_uom = CASE WHEN $4::recipe_type = 'SUB' AND $7::float8 > 0 THEN $8 ELSE sub_uom END,
                 selling_price = CASE WHEN $9 AND $10::float8 IS NOT NULL THEN $10 ELSE selling_price END,
                 buffer = CASE WHEN $11::float8 IS NOT NULL THEN $11 ELSE buffer END,
+                stock_class = CASE WHEN $4::recipe_type = 'SUB' THEN NULL ELSE stock_class END,
                 version = version + 1 WHERE id = $1`,
         [id, plan.name, card.cat, plan.type, plan.brandId, out, bout, buom, input.takePrice, sp, card.buffer],
       );

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
-import { BATCH_UNITS, UNITS } from '@/lib/units';
+import { BATCH_UNITS, STOCK_CLASSES, UNITS } from '@/lib/units';
 
 const trimmed = (max: number) => z.string().trim().max(max);
 
@@ -52,6 +52,8 @@ export const recipeSaveIn = z.object({
   regenCode: z.boolean().optional(),
   name: trimmed(200).optional(),
   category: trimmed(100).optional(),
+  /** D-97: Dry/Raw, or null to clear. Ignored (cleared) on a Sub-Recipe: 'Subrecipe' is derived from the type. */
+  stockClass: z.enum(STOCK_CLASSES).nullable().optional(),
   type: z.enum(['MENU', 'SUB']).optional(),
   brandId: idStr.optional(),
   output: z.number().finite().gt(0).max(1e6).optional(),

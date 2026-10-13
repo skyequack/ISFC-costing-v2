@@ -2,6 +2,7 @@ import { ApiError } from '../../errors';
 import type { Queryable } from '../client';
 import { camelRow, camelRows } from '../rows';
 import type { BrandScope } from '../scope';
+import type { StockClass } from '../../units';
 
 /** List DTO: lightweight, no lines, never any image bytes (only the photo's sha for the `?v=` url). */
 export interface RecipeListDto {
@@ -9,6 +10,8 @@ export interface RecipeListDto {
   code: string;
   name: string;
   category: string;
+  /** D-97: label/filter only; null = not set. 'Subrecipe' is derived from `type`, never stored. */
+  stockClass: StockClass | null;
   type: 'MENU' | 'SUB';
   brandId: string;
   output: number;
@@ -49,7 +52,7 @@ export interface RecipeDto extends RecipeListDto {
   history: { action: 'LOCK' | 'UNLOCK'; who: string; at: Date }[];
 }
 
-const COLS = `r.id, r.code, r.name, r.category, r.type, r.brand_id, r.output, r.selling_price, r.buffer, r.status,
+const COLS = `r.id, r.code, r.name, r.category, r.stock_class, r.type, r.brand_id, r.output, r.selling_price, r.buffer, r.status,
               r.locked_by, r.version, p.sha256 AS photo_sha, p.size AS photo_size, r.updated_at`;
 const FROM = 'FROM recipe r LEFT JOIN recipe_photo p ON p.recipe_id = r.id';
 
