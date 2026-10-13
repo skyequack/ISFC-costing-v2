@@ -64,6 +64,7 @@ Status and decision rows per feature are in the `docs/FEATURES.md` feature log; 
 - Factory-floor ergonomics (D-61, `2334bab`).
 - Default yield stages per raw material (D-93…D-96; 0009): `ingredient.y_thaw/y_cut/y_cook`, edited on Items (form + Yield column), prefilled into new recipe lines, "Save to raw material" in the line Stages dialog (`PUT /api/ingredients/yields`), carried by backup/restore, the price-list import and the exports. Blank or 0 = 100% = NULL. **0009 is on the local test DB and Neon `dev`; run `npm run db:migrate` on `production` before deploying.**
 - Add-recipe improvements, slice A1 (D-97, migration 0010): Stock class field and Browse filter, 6 blank rows on a new card. A2 (D-98): **Export card** button (editor and locked card) via `GET /api/export/recipes-data?card=<id>`. The revision/dated-price slices and the same-code dialog are next.
+- Live fix 2026-10-13 (D-99): the production catalog cache was stuck empty after the DB move; cache key bumped to v2 and a 6 h expiry added. Migrations 0009 and 0010 are on `production` (confirmed in the terminal 2026-10-13).
 - [ ] Slice 4 (optional): menu-mix shift, price-change impact, locked-card drift — not started.
 
 ## Debloat (2026-10-12)
