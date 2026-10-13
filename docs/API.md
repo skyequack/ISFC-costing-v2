@@ -32,8 +32,9 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 |---|---|---|
 | GET /api/ingredients | any (scope filter via ItemBrandScope; Shared visible to all) | – |
 | POST /api/ingredients | items.edit | Added ingredient |
-| PATCH /api/ingredients/:id | items.edit (price changes also write IngredientPriceHistory) | Changed purchase price / Edited ingredient |
+| PATCH /api/ingredients/:id | items.edit (price changes also write IngredientPriceHistory); `yThaw`/`yCut`/`yCook` are optional: absent = keep, null or 0 = clear, number in (0,10] = set (D-93) | Changed purchase price / Edited ingredient / Changed default yields |
 | DELETE /api/ingredients/:id | items.edit; blocked if referenced | Deleted ingredient |
+| PUT /api/ingredients/yields | items.edit; body `{code, yThaw, yCut, yCook, from?}` (fractions in (0,10] or null/0 = none); writes only the three default yields, brand-scoped (D-93, D-94) | Changed default yields |
 | POST /api/ingredients/import?mode=… | items.edit | Uploaded price list |
 | GET /api/conversions; PUT/DELETE /api/conversions/:ingredientId | conv.edit | Set/Removed unit conversion |
 | GET /api/ingredients/:id/price-history | items.edit or audit.view | – |

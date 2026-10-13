@@ -2,6 +2,10 @@
  * Raw-material price-list parsing — port of legacy ICOLS / IUOM / iCode / iJunk / iMapHeader / doImportItems' row loop
  * (4605-4730). Pure: rows in, normalised rows + findings out. The server re-validates everything (D-37).
  */
+import { parseStagePct } from '@/domain/recipes/yield-stages';
+
+export { parseStagePct };
+
 export const rnorm = (s: unknown): string =>
   String(s == null ? '' : s)
     .toLowerCase()
@@ -26,6 +30,10 @@ export const ICOLS: Record<string, string[]> = {
   price: ['priceperunit', 'price', 'purchaseprice', 'unitprice', 'costperunit', 'cost', 'rate', 'ppg', 'pricepergram'],
   cat: ['maincategory', 'category', 'group', 'cat', 'maingroup', 'store', 'maingroupname'],
   sub: ['subcategory', 'subgroup', 'sub', 'subcat', 'subgroupname', 'secondcategory'],
+  // default yield stages in percent (D-93): 'Thawing %', 'Cutting / trimming %', 'Cooking %'
+  thaw: ['thawing', 'thaw', 'thawingyield', 'thawyield'],
+  cut: ['cuttingtrimming', 'cutting', 'cut', 'trimming', 'cuttingyield', 'cutyield', 'trimmingyield'],
+  cook: ['cooking', 'cook', 'cookingyield', 'cookyield'],
 };
 
 /** Packaging is bought by the metre and the roll: a price per metre is the same arithmetic as Each (legacy IUOM). */
@@ -106,6 +114,10 @@ export interface ImportItem {
   cat: string;
   sub: string;
   line: number;
+  /** default yield stages as fractions (D-93): undefined = the cell was blank (leave as is), null = 0 (clear: 100%), else the fraction */
+  yThaw?: number | null;
+  yCut?: number | null;
+  yCook?: number | null;
 }
 
 export interface ParsedItems {
@@ -115,6 +127,8 @@ export interface ParsedItems {
   fileDupes: Record<string, number>;
   junk: string[];
 }
+
+const STAGE_LABEL = { thaw: 'thawing %', cut: 'cutting / trimming %', cook: 'cooking %' } as const;
 
 /** Legacy doImportItems row loop: header detection, unit/price validation, last row for a code wins. */
 export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItems {
@@ -160,6 +174,22 @@ export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItem
       }
       price = p;
     }
+    const st: Record<'thaw' | 'cut' | 'cook', number | null | undefined> = {
+      thaw: undefined,
+      cut: undefined,
+      cook: undefined,
+    };
+    let bad = false;
+    for (const k of ['thaw', 'cut', 'cook'] as const) {
+      const y = parseStagePct(G(r, k));
+      if (y === 'bad') {
+        rejected.push(
+          `Row ${ln} ${code}: ${STAGE_LABEL[k]} "${G(r, k)}" must be a percent above 0 and up to 1000 (0 or blank = 100%)`,
+        );
+        bad = true;
+      } else st[k] = y;
+    }
+    if (bad) continue;
     let cat = G(r, 'cat');
     let sub = G(r, 'sub');
     if (cat && iJunk(cat)) {
@@ -172,14 +202,21 @@ export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItem
     }
     if (plan.has(code)) fileDupes[code] = (fileDupes[code] || 1) + 1;
     else order.push(code);
-    plan.set(code, { code, name: G(r, 'name'), uom, price, cat, sub, line: ln }); // last row for a code wins
+    const row: ImportItem = { code, name: G(r, 'name'), uom, price, cat, sub, line: ln };
+    if (!bad) {
+      if (st.thaw !== undefined) row.yThaw = st.thaw;
+      if (st.cut !== undefined) row.yCut = st.cut;
+      if (st.cook !== undefined) row.yCook = st.cook;
+    }
+    plan.set(code, row); // last row for a code wins
   }
   return { items: order.map((c) => plan.get(c)!), rejected, fileDupes, junk };
 }
 
-export const TPL_HEAD = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category'];
+export const ITEM_YIELD_HEAD = ['Thawing %', 'Cutting / trimming %', 'Cooking %'];
+export const TPL_HEAD = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category', ...ITEM_YIELD_HEAD];
 export const tplRows = (): string[][] => [
-  ['EXAMPLE-001', 'Delete this row - Fresh Tomato', 'Gram', '0.004535', 'Fresh', 'Produce'],
-  ['EXAMPLE-002', 'Delete this row - Olive Oil', 'Ml', '0.012000', 'Dry', 'Oils'],
-  ['EXAMPLE-003', 'Delete this row - Burger Box', 'Each', '0.350000', 'Non Food', 'Packaging'],
+  ['EXAMPLE-001', 'Delete this row - Fresh Tomato', 'Gram', '0.004535', 'Fresh', 'Produce', '', '90', ''],
+  ['EXAMPLE-002', 'Delete this row - Olive Oil', 'Ml', '0.012000', 'Dry', 'Oils', '', '', ''],
+  ['EXAMPLE-003', 'Delete this row - Burger Box', 'Each', '0.350000', 'Non Food', 'Packaging', '', '', ''],
 ];

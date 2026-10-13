@@ -6,7 +6,7 @@ import { ItemsScreen } from '@/components/screens/ItemsScreen';
 export default async function Page() {
   const ctx = await pageCtx();
   const catalog = await pageCatalog();
-  const items = await listIngredients(db, ctx.scope);
+  const items = await listIngredients(db, ctx.scope, true);
   return (
     <ItemsScreen
       items={items}

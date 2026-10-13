@@ -11,6 +11,7 @@ Last updated: 2026-10-12. **Phases 0–6 are done. Phase 7 (deploy, D-62) is par
 ## Gate status
 - **2026-10-12, after the debloat (below):** typecheck ✅ · lint ✅ · prettier ✅ · `npm test` 717 passed / 155 skipped ✅ (same as after rate-limiting slice 3; the DB suites need `TEST_DATABASE_URL`) · not run: `next build`, coverage, the DB suite.
 - On Windows use `npx prettier --check --end-of-line auto .` (the working tree is CRLF and the repo stores LF through `core.autocrlf`, so a plain check flags every file).
+- **2026-10-13, after the raw-material yields (D-93…D-96):** typecheck ✅ · lint ✅ · prettier ✅ · `npm test` 904 passed (DB suite included, local Postgres 18, 0 skipped) ✅; golden unchanged. Checked in the browser as GM on `dev` (2026-10-13).
 - **Last full DB suite:** local Postgres 18 container (D-92), 2026-10-12, after `3c879f6`: 155 passed in 20 s, including `seed.test.ts` (fresh seed). Before that: Neon `dev`, 2026-10-12, after `48ca819`: 153 passed, 2 failed, both in `seed.test.ts`, which checks against pristine seed data (`dev` has been edited by hand: 129 unpriced ingredients against the seed's 135, MNU-0002 repriced). The same file passes in CI, which seeds a fresh branch. About 12 min, because every statement is a network round trip (command in `docs/TESTING.md`).
 
 ## Open items
@@ -61,6 +62,7 @@ Status and decision rows per feature are in the `docs/FEATURES.md` feature log; 
 - Import templates card on Backup & Export (D-86).
 - Rate limiting (D-87…D-90; 0008): per-user fixed-window counters in Neon on 22 heavy handlers in 8 classes (`src/lib/rate-limit/budgets.ts`), fail-closed for restore and user administration, browser handling of 429. Checked live on `dev` 2026-10-12 (the 41st invite in an hour got 429 with `Retry-After`).
 - Factory-floor ergonomics (D-61, `2334bab`).
+- Default yield stages per raw material (D-93…D-96; 0009): `ingredient.y_thaw/y_cut/y_cook`, edited on Items (form + Yield column), prefilled into new recipe lines, "Save to raw material" in the line Stages dialog (`PUT /api/ingredients/yields`), carried by backup/restore, the price-list import and the exports. Blank or 0 = 100% = NULL. **0009 is on the local test DB and Neon `dev`; run `npm run db:migrate` on `production` before deploying.**
 - [ ] Slice 4 (optional): menu-mix shift, price-change impact, locked-card drift — not started.
 
 ## Debloat (2026-10-12)

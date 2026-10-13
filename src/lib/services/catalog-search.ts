@@ -9,6 +9,10 @@ export interface PickOption {
   uom: string;
   price: number | null;
   sub: boolean;
+  /** the raw material's default yield stages (D-93, D-94): they prefill a new line; absent on sub-recipes */
+  yThaw?: number | null;
+  yCut?: number | null;
+  yCook?: number | null;
 }
 
 /**
@@ -45,7 +49,7 @@ export async function searchPicker(
   });
 
   const itemRows = await db.query(
-    `SELECT i.code, i.name, i.uom, i.price, count(*) OVER () AS total FROM ingredient i
+    `SELECT i.code, i.name, i.uom, i.price, i.y_thaw, i.y_cut, i.y_cook, count(*) OVER () AS total FROM ingredient i
       WHERE (NOT EXISTS (SELECT 1 FROM item_brand_scope s WHERE s.ingredient_id = i.id)
              OR EXISTS (SELECT 1 FROM item_brand_scope s WHERE s.ingredient_id = i.id AND s.brand_id = $1))
         AND ($2 = '' OR lower(i.code) LIKE $3 OR lower(i.name) LIKE $3)
@@ -59,6 +63,9 @@ export async function searchPicker(
     uom: r.uom,
     price: r.price,
     sub: false,
+    yThaw: r.y_thaw ?? null,
+    yCut: r.y_cut ?? null,
+    yCook: r.y_cook ?? null,
   }));
   const itemTotal = itemRows.rows[0] ? Number(itemRows.rows[0].total) : 0;
   const all = limit > 0 ? [...subs, ...items].slice(0, limit) : [...subs, ...items];

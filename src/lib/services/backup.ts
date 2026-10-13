@@ -38,6 +38,7 @@ const brandB = z.object({
   locations: z.array(z.string().max(60)).max(60),
   active: z.boolean(),
 });
+const stageB = z.number().finite().gt(0).max(10).nullable().optional();
 const ingB = z.object({
   code: z.string().min(1).max(60),
   name: z.string().max(300),
@@ -49,8 +50,11 @@ const ingB = z.object({
   flag: z.string().max(500),
   brandCodes: z.array(z.string().max(8)).max(60),
   conv: z.object({ recipeUnit: z.string().max(12), factor: z.number().finite().gt(0) }).nullable(),
+  /** default yield stages (D-93): optional, so files from before restore with none (the restore clears them) */
+  yThaw: stageB,
+  yCut: stageB,
+  yCook: stageB,
 });
-const stageB = z.number().finite().gt(0).max(10).nullable().optional();
 const lineB = z
   .object({
     code: z.string().max(60),
@@ -205,7 +209,7 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
   const codeOf = new Map(brands.map((b) => [b.id as string, b.code as string]));
   const ing = (
     await db.query(
-      `SELECT i.id, i.code, i.name, i.uom, i.price, i.price_updated_at, i.category, i.subcategory, i.flag, c.recipe_unit, c.factor,
+      `SELECT i.id, i.code, i.name, i.uom, i.price, i.price_updated_at, i.category, i.subcategory, i.flag, i.y_thaw, i.y_cut, i.y_cook, c.recipe_unit, c.factor,
             coalesce((SELECT array_agg(s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id ORDER BY i.code`,
     )
@@ -304,6 +308,9 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       flag: i.flag,
       brandCodes: (i.brand_ids as string[]).map((id) => codeOf.get(id) ?? '').filter(Boolean),
       conv: i.recipe_unit ? { recipeUnit: i.recipe_unit, factor: i.factor } : null,
+      yThaw: i.y_thaw ?? null,
+      yCut: i.y_cut ?? null,
+      yCook: i.y_cook ?? null,
     })),
     recipes: recs.map((r) => ({
       code: r.code,
@@ -544,10 +551,11 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
   // ingredients
   for (const part of chunks(bk.ingredients, B)) {
     const r = await tx.query(
-      `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::timestamptz[], $6::text[], $7::text[], $8::text[])
+      `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::timestamptz[], $6::text[], $7::text[], $8::text[], $9::float8[], $10::float8[], $11::float8[])
        ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, uom = EXCLUDED.uom, price = EXCLUDED.price, price_updated_at = EXCLUDED.price_updated_at,
-         category = EXCLUDED.category, subcategory = EXCLUDED.subcategory, flag = EXCLUDED.flag, version = ingredient.version + 1
+         category = EXCLUDED.category, subcategory = EXCLUDED.subcategory, flag = EXCLUDED.flag,
+         y_thaw = EXCLUDED.y_thaw, y_cut = EXCLUDED.y_cut, y_cook = EXCLUDED.y_cook, version = ingredient.version + 1
        RETURNING id, code, (xmax = 0) AS inserted`,
       [
         part.map((i) => i.code),
@@ -558,6 +566,9 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
         part.map((i) => i.category),
         part.map((i) => i.subcategory),
         part.map((i) => i.flag),
+        part.map((i) => i.yThaw ?? null),
+        part.map((i) => i.yCut ?? null),
+        part.map((i) => i.yCook ?? null),
       ],
     );
     const idOf = new Map(r.rows.map((x) => [x.code as string, x.id as string]));

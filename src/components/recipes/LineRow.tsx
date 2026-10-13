@@ -11,7 +11,7 @@ import type { PickOption } from '@/lib/services/catalog-search';
 import { UNITS } from '@/lib/units';
 import { CommitInput } from '@/components/shared/inputs';
 import { usePerm } from '@/components/shared/session-context';
-import { stagedYield } from '@/domain/recipes/yield-stages';
+import { prefillStages, stagedYield } from '@/domain/recipes/yield-stages';
 import { stagePct, useStagesDialog } from './StagesDialog';
 
 export interface EditLine {
@@ -24,6 +24,18 @@ export interface EditLine {
   yThaw: number | null;
   yCut: number | null;
   yCook: number | null;
+}
+
+/**
+ * The yield part of a line's patch when an ingredient is picked (D-94). Stages belong to the ingredient they came from, so a
+ * different ingredient starts from none (y back to 1) and takes the new one's defaults; a hand-set y is kept (no prefill).
+ */
+function pickYield(o: PickOption, l: EditLine): Partial<EditLine> {
+  const fresh = o.code !== l.code && stagedYield(l) !== null;
+  const base = fresh ? { yThaw: null, yCut: null, yCook: null, y: 1 } : l;
+  const pre = o.sub ? null : prefillStages(o, base);
+  if (pre) return pre;
+  return fresh ? base : { y: l.y > 0 ? l.y : 1 };
 }
 
 /** Legacy lineRow (3237) with the ingredient autocomplete (sugSearch / pick / commitCode). */
@@ -94,8 +106,11 @@ export function LineRow(props: {
     setOpts(null);
     const unit = (UNITS as readonly string[]).includes(o.uom) ? (o.uom as EditLine['unit']) : l.unit;
     setHint(o);
-    props.onChange({ code: o.code, unit, y: l.y > 0 ? l.y : 1 });
-    toast(`${o.name}  ·  ${cur(o.price ?? 0, 6)} per ${o.uom}`);
+    const pre = pickYield(o, l);
+    props.onChange({ code: o.code, unit, ...pre });
+    toast(
+      `${o.name}  ·  ${cur(o.price ?? 0, 6)} per ${o.uom}${pre.yThaw != null || pre.yCut != null || pre.yCook != null ? `  ·  yield ${stagePct(pre.y ?? 1)}%` : ''}`,
+    );
     setTimeout(() => (picking.current = false), 300);
   }
 
@@ -122,7 +137,7 @@ export function LineRow(props: {
         const unit = (UNITS as readonly string[]).includes(hit.uom) ? (hit.uom as EditLine['unit']) : l.unit;
         setText(hit.code);
         setHint(hit);
-        props.onChange({ code: hit.code, unit, y: l.y > 0 ? l.y : 1 });
+        props.onChange({ code: hit.code, unit, ...pickYield(hit, l) });
       } else {
         toast(all.length ? `Several items match “${v}” – pick one from the list` : `No ingredient matches “${v}”`);
         setText(l.code);
@@ -269,7 +284,9 @@ export function LineRow(props: {
                 <button
                   className="btn sm o"
                   title="Thawing, cutting / trimming and cooking yields, multiplied into the line yield"
-                  onClick={() => openStages(l, (patch) => props.onChange(patch))}
+                  onClick={() =>
+                    openStages(l, (patch) => props.onChange(patch), lv?.kind === 'item' ? { code: l.code } : undefined)
+                  }
                 >
                   {staged ? `yield ${stagePct(l.y)}%` : 'Stages'}
                 </button>

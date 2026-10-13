@@ -14,6 +14,8 @@ import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
 import type { IngredientDto } from '@/lib/db/repo/ingredients';
 import { UNITS } from '@/lib/units';
+import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
+import { BAD, parsePct, stagePct } from '@/components/recipes/StagesDialog';
 
 const PAGE = 60;
 
@@ -35,6 +37,10 @@ interface ItemForm {
   shared: boolean;
   brandIds: string[];
   flag: string;
+  /** default yield stages in percent (D-93): blank or 0 = 100% */
+  thaw: string;
+  cut: string;
+  cook: string;
   busy: boolean;
 }
 
@@ -81,6 +87,9 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
       shared: !it || !it.brandIds.length,
       brandIds: it?.brandIds ?? [],
       flag: it?.flag ?? '',
+      thaw: stagePct(it?.yThaw ?? null),
+      cut: stagePct(it?.yCut ?? null),
+      cook: stagePct(it?.yCook ?? null),
       busy: false,
     });
     const body = () => {
@@ -88,6 +97,14 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
       const p = f.price.trim();
       if (!f.code.trim()) return (toast('Code is required'), null);
       if (p !== '' && !isFinite(Number(p))) return (toast('Price must be a number'), null);
+      const yThaw = parsePct(f.thaw);
+      const yCut = parsePct(f.cut);
+      const yCook = parsePct(f.cook);
+      if (yThaw === BAD || yCut === BAD || yCook === BAD)
+        return (toast('Each stage must be above 0%, and the three together up to 1000%'), null);
+      const prod = stagedYield({ yThaw, yCut, yCook });
+      if (prod !== null && !validYield(prod))
+        return (toast('Each stage must be above 0%, and the three together up to 1000%'), null);
       return {
         code: f.code.trim(),
         name: f.name.trim(),
@@ -97,6 +114,9 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
         subcategory: f.subcategory.trim(),
         flag: f.flag.trim(),
         brandIds: f.shared ? [] : f.brandIds,
+        yThaw,
+        yCut,
+        yCook,
       };
     };
     async function save() {
@@ -227,6 +247,9 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
               <th className="n" style={s('width:110px')}>
                 Price / unit
               </th>
+              <th className="n" style={s('width:90px')}>
+                Yield
+              </th>
               <th style={s('width:120px')}>Available To</th>
               <th style={s('width:140px')}>Sub Category</th>
               <th className="c" style={s('width:80px')}>
@@ -250,6 +273,16 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
                 </td>
                 <td className="n mono">
                   {i.price == null ? <span className="pill p-bad">missing</span> : cur(i.price, 6)}
+                </td>
+                <td
+                  className="n mono"
+                  title={
+                    stagedYield(i) === null
+                      ? undefined
+                      : `Thawing ${stagePct(i.yThaw ?? null) || 100}% · Cutting ${stagePct(i.yCut ?? null) || 100}% · Cooking ${stagePct(i.yCook ?? null) || 100}%`
+                  }
+                >
+                  {stagedYield(i) === null ? '' : `${stagePct(stagedYield(i))}%`}
                 </td>
                 <td>
                   {!i.brandIds.length ? (
@@ -346,6 +379,33 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
           <label className="fl">Sub Category</label>
           <input type="text" value={f.subcategory} onChange={(e) => st.set({ subcategory: e.target.value })} />
         </div>
+      </div>
+      <div className="note" style={s('margin:0 0 6px')}>
+        Default yields: the share of the weight kept after each stage. Leave blank or 0 for 100%. New recipe lines start
+        with these values.
+      </div>
+      <div className="row" style={s('grid-template-columns:1fr 1fr 1fr')}>
+        {(
+          [
+            ['thaw', 'Thawing %'],
+            ['cut', 'Cutting / trimming %'],
+            ['cook', 'Cooking %'],
+          ] as const
+        ).map(([key, label]) => (
+          <div className="field" key={key}>
+            <label className="fl">{label}</label>
+            <input
+              type="number"
+              step="any"
+              min="0"
+              className="cell"
+              style={s('text-align:right')}
+              value={f[key]}
+              placeholder="100"
+              onChange={(e) => st.set({ [key]: e.target.value })}
+            />
+          </div>
+        ))}
       </div>
       <div className="field">
         <label className="fl">Available to</label>

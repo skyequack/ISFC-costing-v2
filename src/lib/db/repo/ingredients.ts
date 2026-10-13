@@ -16,15 +16,19 @@ export interface IngredientDto {
   /** [] = Shared (visible to every brand). */
   brandIds: string[];
   conv: { recipeUnit: string; factor: number } | null;
+  /** Default yield stages (D-93), fractions; null = none = 100%. Only present when asked for (`withYields`): costing and the other screens never need them. */
+  yThaw?: number | null;
+  yCut?: number | null;
+  yCook?: number | null;
 }
 
 /**
  * Ingredients visible to the scope: Shared (no item_brand_scope rows) or scoped to at least one visible brand.
  * Ordered by code for a stable listing.
  */
-export async function listIngredients(db: Queryable, scope: BrandScope): Promise<IngredientDto[]> {
+export async function listIngredients(db: Queryable, scope: BrandScope, withYields = false): Promise<IngredientDto[]> {
   const { rows } = await db.query(
-    `SELECT i.id, i.code, i.name, i.uom, i.price, i.category, i.subcategory, i.flag, i.version,
+    `SELECT i.id, i.code, i.name, i.uom, i.price, i.category, i.subcategory, i.flag, i.version${withYields ? ', i.y_thaw, i.y_cut, i.y_cook' : ''},
             coalesce((SELECT array_agg(s.brand_id ORDER BY s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids,
             CASE WHEN c.ingredient_id IS NULL THEN NULL
                  ELSE jsonb_build_object('recipeUnit', c.recipe_unit, 'factor', c.factor) END AS conv

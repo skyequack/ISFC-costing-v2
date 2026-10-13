@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { cost, lineCost } from '@/domain/costing';
 import { dayTotals, daysIn, pad2, ProdIndex, type ProdCard } from '@/domain/production/day';
 import { sectionOf, SECTIONS } from '@/data';
+import { pctText } from '@/domain/recipes/yield-stages';
 import { RTPL_HEAD } from '../import/recipes';
+import { ITEM_YIELD_HEAD } from '../import/items';
 import { STOCK_TPL_HEAD } from '../import/stock';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
@@ -70,6 +72,9 @@ export interface ExportFile {
 }
 
 const f = (v: number, d: number) => v.toFixed(d);
+/** D-93: a raw material's default yields as percent cells (blank = none = 100%). */
+const itemYieldCells = (i: { yThaw?: number | null; yCut?: number | null; yCook?: number | null }): string[] =>
+  [i.yThaw, i.yCut, i.yCook].map(pctText);
 
 /**
  * The sheet staff fill in for the Stock upload (D-73, D-86): one row per ingredient in the caller's scope, Quantity left empty.
@@ -234,7 +239,7 @@ export async function buildExport(
       return { filename: 'ISFC-recipe-lines.csv', rows: [head, ...rows] };
     }
     case 'ingredients': {
-      const items = await listIngredients(db, ctx.scope);
+      const items = await listIngredients(db, ctx.scope, true);
       const head = [
         'Code',
         'Item Name',
@@ -244,6 +249,7 @@ export async function buildExport(
         'Main Category',
         'Sub Category',
         'Review Flag',
+        ...ITEM_YIELD_HEAD,
       ];
       const rows = items.map((i) => [
         i.code,
@@ -254,15 +260,16 @@ export async function buildExport(
         i.category,
         i.subcategory,
         i.flag,
+        ...itemYieldCells(i),
       ]);
       return { filename: 'ISFC-ingredients.csv', rows: [head, ...rows] };
     }
     case 'price-template': {
-      // legacy dlTemplate('brand' | 'all'): the items to edit and upload back (Code, Item Name, UOM, Price, Main Category, Sub Category)
-      const items = await listIngredients(db, ctx.scope);
+      // legacy dlTemplate('brand' | 'all'): the items to edit and upload back (Code, Item Name, UOM, Price, Main Category, Sub Category, + the three default yields, D-93)
+      const items = await listIngredients(db, ctx.scope, true);
       const mine = q.brand === '*' ? items : items.filter((i) => !i.brandIds.length || i.brandIds.includes(q.brand));
       if (q.brand !== '*' && !ctx.brands.some((b) => b.id === q.brand)) throw new ApiError('not_found', 'Not found');
-      const head = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category'];
+      const head = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category', ...ITEM_YIELD_HEAD];
       const rows = mine.map((i) => [
         i.code,
         i.name,
@@ -270,6 +277,7 @@ export async function buildExport(
         i.price == null ? '' : f(i.price, 6),
         i.category,
         i.subcategory,
+        ...itemYieldCells(i),
       ]);
       return {
         filename:
@@ -294,7 +302,6 @@ export async function buildExport(
          HAVING bool_or(l.y_thaw IS NOT NULL OR l.y_cut IS NOT NULL OR l.y_cook IS NOT NULL)`,
       );
       const stagesOf = new Map(stageRows.rows.map((r) => [r.code as string, r.st as (number | null)[][]]));
-      const stagePct = (v: number | null | undefined) => (v == null ? '' : String(Math.round(v * 10000) / 100));
       const rows: unknown[][] = [];
       for (const r of list) {
         const stg = stagesOf.get(r.code);
@@ -325,9 +332,9 @@ export async function buildExport(
             steps[i] || '',
             l && l.yp != null ? String(l.yp) : '',
             i === 0 && buf != null ? String(+(buf * 100).toFixed(4)) : '',
-            stagePct(st?.[0]),
-            stagePct(st?.[1]),
-            stagePct(st?.[2]),
+            pctText(st?.[0]),
+            pctText(st?.[1]),
+            pctText(st?.[2]),
           ]);
         }
       }

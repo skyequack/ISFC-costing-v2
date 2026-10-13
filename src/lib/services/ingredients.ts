@@ -1,3 +1,4 @@
+import { pctText } from '@/domain/recipes/yield-stages';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
@@ -9,6 +10,27 @@ import type { IngredientIn } from '../validation/common';
 
 /** Fixed lock key shared with recipe code allocation (codes are unique across both namespaces). */
 export const CODE_LOCK = 8_041_001;
+
+export interface ItemStages {
+  yThaw?: number | null;
+  yCut?: number | null;
+  yCook?: number | null;
+}
+
+/** Audit text for the three default stages, e.g. "thaw 90% · cut — · cook 75%" (— = none = 100%). */
+function stageText(s: ItemStages): string {
+  const p = (v: number | null | undefined) => (v == null ? '—' : `${pctText(v)}%`);
+  return `thaw ${p(s.yThaw)} · cut ${p(s.yCut)} · cook ${p(s.yCook)}`;
+}
+
+/** The stages themselves, not their rounded text: a change below 0.01 percentage points is still a change. */
+function sameStages(a: ItemStages, b: ItemStages): boolean {
+  return (
+    (a.yThaw ?? null) === (b.yThaw ?? null) &&
+    (a.yCut ?? null) === (b.yCut ?? null) &&
+    (a.yCook ?? null) === (b.yCook ?? null)
+  );
+}
 
 function needItems(user: SessionUser): void {
   if (!can(user.role, 'items.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
@@ -22,11 +44,14 @@ interface Row {
   price: number | null;
   version: number;
   brandIds: string[];
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
 }
 
 async function lockItem(tx: Queryable, scope: BrandScope, id: string): Promise<Row> {
   const { rows } = await tx.query(
-    `SELECT i.id, i.code, i.name, i.uom, i.price, i.version,
+    `SELECT i.id, i.code, i.name, i.uom, i.price, i.version, i.y_thaw, i.y_cut, i.y_cook,
             coalesce((SELECT array_agg(s.brand_id ORDER BY s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i WHERE i.id = $1 FOR UPDATE OF i`,
     [id],
@@ -37,7 +62,18 @@ async function lockItem(tx: Queryable, scope: BrandScope, id: string): Promise<R
   // shared items are visible to everyone; scoped items only to a user who has one of their brands
   if (brandIds.length && !brandIds.some((b) => scope.brandIds.includes(b)))
     throw new ApiError('not_found', 'Not found');
-  return { id: r.id, code: r.code, name: r.name, uom: r.uom, price: r.price, version: r.version, brandIds };
+  return {
+    id: r.id,
+    code: r.code,
+    name: r.name,
+    uom: r.uom,
+    price: r.price,
+    version: r.version,
+    brandIds,
+    yThaw: r.y_thaw,
+    yCut: r.y_cut,
+    yCook: r.y_cook,
+  };
 }
 
 function checkBrandIds(user: SessionUser, scope: BrandScope, ids: string[]): void {
@@ -92,8 +128,8 @@ export async function createIngredient(
   await tx.query('SELECT pg_advisory_xact_lock($1)', [CODE_LOCK]);
   await assertNewCode(tx, input.code);
   const { rows } = await tx.query(
-    `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag)
-     VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5,$6,$7) RETURNING id`,
+    `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook)
+     VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5,$6,$7,$8,$9,$10) RETURNING id`,
     [
       input.code,
       input.name,
@@ -102,6 +138,9 @@ export async function createIngredient(
       input.category || 'Uncategorised',
       input.subcategory || 'Uncategorised',
       input.flag,
+      input.yThaw ?? null,
+      input.yCut ?? null,
+      input.yCook ?? null,
     ],
   );
   const id = rows[0]!.id as string;
@@ -129,9 +168,17 @@ export async function updateIngredient(
   if (user.role !== 'gm' && cur.brandIds.some((b) => !scope.brandIds.includes(b)))
     throw new ApiError('forbidden', 'This ingredient is shared with brands you cannot see – ask the General Manager');
   const priceChanged = input.price !== cur.price;
+  // absent = keep (an old client or a price-only edit must not wipe the defaults), null = clear, number = set
+  const stages = {
+    yThaw: input.yThaw === undefined ? cur.yThaw : input.yThaw,
+    yCut: input.yCut === undefined ? cur.yCut : input.yCut,
+    yCook: input.yCook === undefined ? cur.yCook : input.yCook,
+  };
+  const stagesChanged = !sameStages(cur, stages);
   await tx.query(
     `UPDATE ingredient SET name=$2, uom=$3, price=$4, category=$5, subcategory=$6, flag=$7, version = version + 1,
-            price_updated_at = CASE WHEN $8 THEN now() ELSE price_updated_at END
+            price_updated_at = CASE WHEN $8 THEN now() ELSE price_updated_at END,
+            y_thaw = $10, y_cut = $11, y_cook = $12
       WHERE id = $1 AND version = $9`,
     [
       id,
@@ -143,6 +190,9 @@ export async function updateIngredient(
       input.flag,
       priceChanged,
       input.version,
+      stages.yThaw,
+      stages.yCut,
+      stages.yCook,
     ],
   );
   await setScope(tx, id, input.brandIds);
@@ -154,7 +204,33 @@ export async function updateIngredient(
       'Changed purchase price',
       `${cur.code} ${input.name}: ${money(cur.price ?? 0, 6)} → ${money(input.price ?? 0, 6)}`,
     );
-  } else await appendAudit(tx, user, 'Edited ingredient', cur.code);
+  } else if (!stagesChanged) await appendAudit(tx, user, 'Edited ingredient', cur.code);
+  if (stagesChanged)
+    await appendAudit(tx, user, 'Changed default yields', `${cur.code}: ${stageText(cur)} → ${stageText(stages)}`);
+}
+
+/** Save only the default yield stages of one raw material, found by code (D-93; the line editor's "Save to raw material"). */
+export async function setIngredientYields(
+  tx: Queryable,
+  user: SessionUser,
+  scope: BrandScope,
+  input: ItemStages & { code: string },
+): Promise<void> {
+  needItems(user);
+  const found = await tx.query('SELECT id FROM ingredient WHERE code = $1', [input.code]);
+  if (!found.rows[0]) throw new ApiError('not_found', 'Not found');
+  const cur = await lockItem(tx, scope, found.rows[0].id as string);
+  if (user.role !== 'gm' && cur.brandIds.some((b) => !scope.brandIds.includes(b)))
+    throw new ApiError('forbidden', 'This ingredient is shared with brands you cannot see – ask the General Manager');
+  const next = { yThaw: input.yThaw ?? null, yCut: input.yCut ?? null, yCook: input.yCook ?? null };
+  if (sameStages(cur, next)) return;
+  await tx.query('UPDATE ingredient SET y_thaw = $2, y_cut = $3, y_cook = $4, version = version + 1 WHERE id = $1', [
+    cur.id,
+    next.yThaw,
+    next.yCut,
+    next.yCook,
+  ]);
+  await appendAudit(tx, user, 'Changed default yields', `${cur.code}: ${stageText(cur)} → ${stageText(next)}`);
 }
 
 export async function deleteIngredient(tx: Queryable, user: SessionUser, scope: BrandScope, id: string): Promise<void> {

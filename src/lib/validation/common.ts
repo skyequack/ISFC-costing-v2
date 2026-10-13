@@ -11,6 +11,12 @@ export const codeStr = trimmed(60).refine((s) => !/[\u0000-\u001f]/.test(s), 'in
 /** One stage of the three-stage yield (D-70): a fraction in (0,10]; null or absent = not set. */
 const stageIn = z.number().finite().gt(0).max(10).nullable().optional();
 
+/**
+ * A raw material's default stage (D-93): a fraction in (0,10]. A typed 0 means "100%" and is stored as null (never 0);
+ * null clears it; absent = leave it as it is (an old client or a price-only edit must not wipe the defaults).
+ */
+export const itemStageIn = z.preprocess((v) => (v === 0 ? null : v), stageIn);
+
 export const lineIn = z
   .object({
     code: codeStr, // '' = blank row
@@ -76,5 +82,8 @@ export const ingredientIn = z.object({
   subcategory: trimmed(100).default(''),
   flag: trimmed(500).default(''),
   brandIds: z.array(idStr).max(40).default([]),
+  yThaw: itemStageIn,
+  yCut: itemStageIn,
+  yCook: itemStageIn,
 });
 export type IngredientIn = z.output<typeof ingredientIn>;

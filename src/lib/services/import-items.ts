@@ -13,6 +13,8 @@ import { addPriceHistory, CODE_LOCK } from './ingredients';
 /** Rows per request (D-37). The browser splits bigger files into parts. */
 export const MAX_ITEM_ROWS = 500;
 
+const stageCell = z.number().finite().gt(0).max(10).nullable().optional();
+
 export const itemImportIn = z.object({
   rows: z
     .array(
@@ -24,6 +26,10 @@ export const itemImportIn = z.object({
         cat: z.string().trim().max(100),
         sub: z.string().trim().max(100),
         line: z.number().int().min(0).max(1e7),
+        /** default yield stages (D-93): absent = leave as is, null = clear (0 = 100%), else a fraction in (0,10] */
+        yThaw: stageCell,
+        yCut: stageCell,
+        yCook: stageCell,
       }),
     )
     .min(1)
@@ -69,6 +75,9 @@ interface Existing {
   subcategory: string;
   flag: string;
   brandIds: string[];
+  yThaw: number | null;
+  yCut: number | null;
+  yCook: number | null;
 }
 
 function hashOf(input: Pick<ItemImportIn, 'rows' | 'brandId' | 'grant'>): string {
@@ -79,7 +88,7 @@ function hashOf(input: Pick<ItemImportIn, 'rows' | 'brandId' | 'grant'>): string
 
 async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string, Existing>> {
   const { rows } = await tx.query(
-    `SELECT i.id, i.code, i.name, i.uom, i.price, i.category, i.subcategory, i.flag,
+    `SELECT i.id, i.code, i.name, i.uom, i.price, i.category, i.subcategory, i.flag, i.y_thaw, i.y_cut, i.y_cook,
             coalesce((SELECT array_agg(s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i WHERE i.code = ANY($1::text[]) FOR UPDATE OF i`,
     [codes],
@@ -97,6 +106,9 @@ async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string,
         subcategory: r.subcategory,
         flag: r.flag,
         brandIds: r.brand_ids as string[],
+        yThaw: r.y_thaw,
+        yCut: r.y_cut,
+        yCook: r.y_cook,
       },
     ]),
   );
@@ -201,7 +213,10 @@ async function plan(
       (p.name && p.name !== ex.name) ||
       p.uom !== ex.uom ||
       (p.cat && p.cat !== ex.category) ||
-      (p.sub && p.sub !== ex.subcategory);
+      (p.sub && p.sub !== ex.subcategory) ||
+      (p.yThaw !== undefined && p.yThaw !== ex.yThaw) ||
+      (p.yCut !== undefined && p.yCut !== ex.yCut) ||
+      (p.yCook !== undefined && p.yCook !== ex.yCook);
     if (!moved && !other) {
       rows.push({
         code: p.code,
@@ -268,9 +283,19 @@ export async function commitItemImport(
     const ex = p.existing.get(row.code);
     if (row.action === 'add') {
       const ins = await tx.query(
-        `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory)
-         VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5, $6) RETURNING id`,
-        [src.code, src.name || src.code, src.uom, src.price, src.cat || 'Uncategorised', src.sub || 'Uncategorised'],
+        `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, y_thaw, y_cut, y_cook)
+         VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5, $6, $7, $8, $9) RETURNING id`,
+        [
+          src.code,
+          src.name || src.code,
+          src.uom,
+          src.price,
+          src.cat || 'Uncategorised',
+          src.sub || 'Uncategorised',
+          src.yThaw ?? null,
+          src.yCut ?? null,
+          src.yCook ?? null,
+        ],
       );
       const id = ins.rows[0]!.id as string;
       if (p.bid) await tx.query('INSERT INTO item_brand_scope (ingredient_id, brand_id) VALUES ($1,$2)', [id, p.bid]);
@@ -288,8 +313,20 @@ export async function commitItemImport(
                 price = CASE WHEN $4 THEN $5::float8 ELSE price END,
                 price_updated_at = CASE WHEN $4 THEN now() ELSE price_updated_at END,
                 category = coalesce(nullif($6,''), category), subcategory = coalesce(nullif($7,''), subcategory),
-                flag = $8, version = version + 1 WHERE id = $1`,
-        [ex.id, src.name, src.uom, moved, src.price, src.cat, src.sub, flag],
+                flag = $8, y_thaw = $9, y_cut = $10, y_cook = $11, version = version + 1 WHERE id = $1`,
+        [
+          ex.id,
+          src.name,
+          src.uom,
+          moved,
+          src.price,
+          src.cat,
+          src.sub,
+          flag,
+          src.yThaw === undefined ? ex.yThaw : src.yThaw, // blank cell = leave the stored default alone
+          src.yCut === undefined ? ex.yCut : src.yCut,
+          src.yCook === undefined ? ex.yCook : src.yCook,
+        ],
       );
       if (moved) await addPriceHistory(tx, user, ex.id, ex.price, src.price, 'IMPORT');
       updated++;
