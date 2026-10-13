@@ -553,6 +553,12 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
 
   // ingredients
   for (const part of chunks(bk.ingredients, B)) {
+    // D-100 (B2): a restore that changes a price leaves a history row (source RESTORE), like every other price write
+    const was = new Map(
+      (
+        await tx.query('SELECT code, price FROM ingredient WHERE code = ANY($1::text[])', [part.map((i) => i.code)])
+      ).rows.map((x) => [x.code as string, x.price as number | null]),
+    );
     const r = await tx.query(
       `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook)
        SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::timestamptz[], $6::text[], $7::text[], $8::text[], $9::float8[], $10::float8[], $11::float8[])
@@ -579,6 +585,20 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
       if (x.inserted) stats.ingredients.added++;
       else stats.ingredients.updated++;
     }
+    const moved = part.filter((i) => (was.get(i.code) ?? null) !== i.price);
+    if (moved.length)
+      await tx.query(
+        `INSERT INTO ingredient_price_history (ingredient_id, old_price, new_price, source, user_id, user_name_snapshot)
+         SELECT * FROM unnest($1::text[], $2::float8[], $3::float8[], $4::text[], $5::text[], $6::text[])`,
+        [
+          moved.map((i) => idOf.get(i.code)!),
+          moved.map((i) => was.get(i.code) ?? null),
+          moved.map((i) => i.price),
+          moved.map(() => 'RESTORE'),
+          moved.map(() => user.id),
+          moved.map(() => user.name),
+        ],
+      );
     const ids = part.map((i) => idOf.get(i.code)!);
     await tx.query('DELETE FROM item_brand_scope WHERE ingredient_id = ANY($1::text[])', [ids]);
     const scopeIng: string[] = [];
