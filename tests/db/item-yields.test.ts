@@ -159,8 +159,8 @@ describe.skipIf(!hasTestDb)('raw material default yields (D-93, D-94)', { timeou
       const out = await buildExport(c, gm, 'ingredients', exportQuery.parse({}));
       const rows = out.rows as string[][];
       const i = rows[0]!.indexOf('Thawing %');
-      expect(rows[0]!.slice(i)).toEqual(['Thawing %', 'Cutting / trimming %', 'Cooking %']);
-      expect(rows.find((x) => x[0] === 'YC-7')!.slice(i)).toEqual(['87.5', '', '50']);
+      expect(rows[0]!.slice(i, i + 3)).toEqual(['Thawing %', 'Cutting / trimming %', 'Cooking %']);
+      expect(rows.find((x) => x[0] === 'YC-7')!.slice(i, i + 3)).toEqual(['87.5', '', '50']);
     }));
 
   it('backup round trip keeps non-null yields exactly; an old backup without the fields clears them on restore', () =>

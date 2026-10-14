@@ -176,8 +176,8 @@ export function StockScreen({ grid }: { grid: StockGrid }) {
       {!canEdit && <div className="rolebar">View only</div>}
       <div className="note">
         {isCount
-          ? 'The quantity on the shelf for each ingredient on this date, in its purchase unit. Leave a row blank if it was not counted; type 0 if it was counted and nothing was left.'
-          : 'What was delivered on this date, in the ingredient’s purchase unit. Deliveries from an uploaded file show in their own column and are not changed here.'}
+          ? 'The quantity on the shelf for each ingredient on this date, in its inventory unit. Leave a row blank if it was not counted; type 0 if it was counted and nothing was left.'
+          : 'What was delivered on this date, in the ingredient’s inventory unit. Deliveries from an uploaded file show in their own column and are not changed here.'}
       </div>
       <div className="tw" style={s('margin-top:12px')}>
         <table>

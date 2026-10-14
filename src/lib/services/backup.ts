@@ -11,7 +11,8 @@ import { pgImageStore, validateImage } from '../images';
 import { IMAGE_CHUNK_BYTES } from '../io-limits';
 import { MAX_STOCK_QTY } from '../stock-limits';
 import { STOCK_CLASSES, UNITS } from '../units';
-import { CODE_LOCK } from './ingredients';
+import { CODE_LOCK, loadUnitDefs, resolveUnitsWith } from './ingredients';
+import { UNIT_CODE } from './units';
 
 /**
  * Full JSON backup (docs/legacy/05 §6, D-37, D-49). The backup carries data in a stable v1 shape keyed by CODES (never database ids),
@@ -54,6 +55,11 @@ const ingB = z.object({
   yThaw: stageB,
   yCut: stageB,
   yCook: stageB,
+  /** purchase / inventory unit and the base units in one of it (D-102, D-105): optional, so files from before restore with the base unit and 1 */
+  purchaseUnit: z.string().max(16).optional(),
+  purchaseFactor: z.number().finite().gt(0).max(1e9).optional(),
+  inventoryUnit: z.string().max(16).optional(),
+  inventoryFactor: z.number().finite().gt(0).max(1e9).optional(),
 });
 const lineB = z
   .object({
@@ -124,6 +130,11 @@ export const backupSchema = z.object({
     priceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   }),
   brands: z.array(brandB).max(500),
+  /** the pack units the General Manager added (D-103); the fixed ones always exist. Optional: older files have none. */
+  units: z
+    .array(z.object({ code: z.string().regex(UNIT_CODE) }))
+    .max(60)
+    .optional(),
   ingredients: z.array(ingB).max(60000),
   recipes: z.array(recB).max(20000),
   menus: z.array(menuB).max(200),
@@ -211,7 +222,7 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
   const codeOf = new Map(brands.map((b) => [b.id as string, b.code as string]));
   const ing = (
     await db.query(
-      `SELECT i.id, i.code, i.name, i.uom, i.price, i.price_updated_at, i.category, i.subcategory, i.flag, i.y_thaw, i.y_cut, i.y_cook, c.recipe_unit, c.factor,
+      `SELECT i.id, i.code, i.name, i.uom, i.price, i.price_updated_at, i.category, i.subcategory, i.flag, i.y_thaw, i.y_cut, i.y_cook, i.purchase_unit, i.purchase_factor, i.inventory_unit, i.inventory_factor, c.recipe_unit, c.factor,
             coalesce((SELECT array_agg(s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i LEFT JOIN unit_conversion c ON c.ingredient_id = i.id ORDER BY i.code`,
     )
@@ -289,6 +300,9 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       vat: set.vat,
       priceDate: set.price_date,
     },
+    units: (await db.query(`SELECT code FROM unit WHERE kind = 'pack' ORDER BY sort, code`)).rows.map((u) => ({
+      code: u.code as string,
+    })),
     brands: brands.map((b) => ({
       legacyId: b.legacy_id,
       code: b.code,
@@ -313,6 +327,10 @@ export async function buildBackupCore(db: Queryable, user: SessionUser): Promise
       yThaw: i.y_thaw ?? null,
       yCut: i.y_cut ?? null,
       yCook: i.y_cook ?? null,
+      purchaseUnit: i.purchase_unit ?? i.uom,
+      purchaseFactor: i.purchase_factor ?? 1,
+      inventoryUnit: i.inventory_unit ?? i.uom,
+      inventoryFactor: i.inventory_factor ?? 1,
     })),
     recipes: recs.map((r) => ({
       code: r.code,
@@ -551,6 +569,16 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
     }
   }
 
+  // units the General Manager had added (D-103): a missing one is created so the items below can use it
+  for (const u of bk.units ?? [])
+    await tx.query(
+      `INSERT INTO unit (code, kind, to_base, sort) VALUES ($1, 'pack', NULL, 200) ON CONFLICT DO NOTHING`,
+      [u.code],
+    );
+  // an older file has no units: every item gets its base unit and 1. A unit the list does not know or that does not fit fails the whole restore.
+  const unitDefs = await loadUnitDefs(tx);
+  const unitsOf = new Map(bk.ingredients.map((i) => [i.code, resolveUnitsWith(unitDefs, i.uom, i, null)]));
+
   // ingredients
   for (const part of chunks(bk.ingredients, B)) {
     // D-100 (B2): a restore that changes a price leaves a history row (source RESTORE), like every other price write
@@ -560,11 +588,14 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
       ).rows.map((x) => [x.code as string, x.price as number | null]),
     );
     const r = await tx.query(
-      `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::timestamptz[], $6::text[], $7::text[], $8::text[], $9::float8[], $10::float8[], $11::float8[])
+      `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook,
+                               purchase_unit, purchase_factor, inventory_unit, inventory_factor)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::float8[], $5::timestamptz[], $6::text[], $7::text[], $8::text[], $9::float8[], $10::float8[], $11::float8[], $12::text[], $13::float8[], $14::text[], $15::float8[])
        ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, uom = EXCLUDED.uom, price = EXCLUDED.price, price_updated_at = EXCLUDED.price_updated_at,
          category = EXCLUDED.category, subcategory = EXCLUDED.subcategory, flag = EXCLUDED.flag,
-         y_thaw = EXCLUDED.y_thaw, y_cut = EXCLUDED.y_cut, y_cook = EXCLUDED.y_cook, version = ingredient.version + 1
+         y_thaw = EXCLUDED.y_thaw, y_cut = EXCLUDED.y_cut, y_cook = EXCLUDED.y_cook,
+         purchase_unit = EXCLUDED.purchase_unit, purchase_factor = EXCLUDED.purchase_factor,
+         inventory_unit = EXCLUDED.inventory_unit, inventory_factor = EXCLUDED.inventory_factor, version = ingredient.version + 1
        RETURNING id, code, (xmax = 0) AS inserted`,
       [
         part.map((i) => i.code),
@@ -578,6 +609,10 @@ export async function applyRestore(tx: Queryable, user: SessionUser, bk: Backup,
         part.map((i) => i.yThaw ?? null),
         part.map((i) => i.yCut ?? null),
         part.map((i) => i.yCook ?? null),
+        part.map((i) => unitsOf.get(i.code)!.purchaseUnit),
+        part.map((i) => unitsOf.get(i.code)!.purchaseFactor),
+        part.map((i) => unitsOf.get(i.code)!.inventoryUnit),
+        part.map((i) => unitsOf.get(i.code)!.inventoryFactor),
       ],
     );
     const idOf = new Map(r.rows.map((x) => [x.code as string, x.id as string]));

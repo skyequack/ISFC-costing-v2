@@ -13,7 +13,9 @@ import { useToast } from '@/components/shared/Toast';
 import { s } from '@/components/ui';
 import { cur } from '@/lib/format';
 import type { IngredientDto } from '@/lib/db/repo/ingredients';
-import { UNITS } from '@/lib/units';
+import { fitUnit, UNITS, type Unit } from '@/lib/units';
+import type { UnitRow } from '@/lib/services/units';
+import { UnitsDialog } from '@/components/screens/UnitsDialog';
 import { stagedYield, validYield } from '@/domain/recipes/yield-stages';
 import { BAD, parsePct, stagePct } from '@/components/recipes/StagesDialog';
 
@@ -23,6 +25,8 @@ export interface ItemsProps {
   items: IngredientDto[];
   brands: { id: string; name: string; code: string }[];
   priceDate: string;
+  /** the unit list (D-103) for the purchase and inventory unit selects */
+  units: UnitRow[];
 }
 
 interface ItemForm {
@@ -41,11 +45,26 @@ interface ItemForm {
   thaw: string;
   cut: string;
   cook: string;
+  /** purchase / inventory unit and the base units in one of it (D-102); the factor is typed only for a pack unit */
+  pUnit: string;
+  pFactor: string;
+  iUnit: string;
+  iFactor: string;
+  /** D-106: the price of one purchase unit as typed; '' = show it derived from the price per base unit */
+  pack: string;
   busy: boolean;
 }
 
+/** What a unit means for an item priced in `uom`: its factor, or why it does not fit. null = nothing to show. */
+function unitFit(units: UnitRow[], code: string, uom: string, typed: string) {
+  const def = units.find((u) => u.code === code);
+  if (!def) return null;
+  const n = typed.trim() === '' ? null : Number(typed);
+  return { def, fit: fitUnit(def, uom as Unit, n) };
+}
+
 /** Legacy vItems (3730): search, brand and category filters, 60 per page, create/edit/delete modal. */
-export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
+export function ItemsScreen({ items, brands, priceDate, units }: ItemsProps) {
   const router = useRouter();
   const toast = useToast();
   const modal = useModal();
@@ -90,6 +109,11 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
       thaw: stagePct(it?.yThaw ?? null),
       cut: stagePct(it?.yCut ?? null),
       cook: stagePct(it?.yCook ?? null),
+      pUnit: it?.purchaseUnit ?? it?.uom ?? 'Gram',
+      pFactor: it && it.purchaseUnit !== it.uom ? String(it.purchaseFactor ?? '') : '',
+      iUnit: it?.inventoryUnit ?? it?.uom ?? 'Gram',
+      iFactor: it && it.inventoryUnit !== it.uom ? String(it.inventoryFactor ?? '') : '',
+      pack: '',
       busy: false,
     });
     const body = () => {
@@ -105,10 +129,17 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
       const prod = stagedYield({ yThaw, yCut, yCook });
       if (prod !== null && !validYield(prod))
         return (toast('Each stage must be above 0%, and the three together up to 1000%'), null);
+      const pf = unitFit(units, f.pUnit, f.uom, f.pFactor);
+      const inf = unitFit(units, f.iUnit, f.uom, f.iFactor);
+      for (const x of [pf, inf]) if (x && !x.fit.ok) return (toast(x.fit.message), null);
       return {
         code: f.code.trim(),
         name: f.name.trim(),
         uom: f.uom,
+        purchaseUnit: f.pUnit,
+        purchaseFactor: pf?.fit.ok ? pf.fit.factor : undefined,
+        inventoryUnit: f.iUnit,
+        inventoryFactor: inf?.fit.ok ? inf.fit.factor : undefined,
         price: p === '' ? null : Number(p),
         category: f.category.trim(),
         subcategory: f.subcategory.trim(),
@@ -151,7 +182,7 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
     }
     modal.open({
       title: it ? 'Edit ingredient' : 'New ingredient',
-      body: <ItemBody st={st} nw={!it} brands={brands} />,
+      body: <ItemBody st={st} nw={!it} brands={brands} units={units} conv={it?.conv ?? null} />,
       foot: (
         <>
           <button className="btn o" onClick={modal.close}>
@@ -176,6 +207,24 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
         <button className="btn o" onClick={io.template}>
           {'⤓'} Template
         </button>
+        <Perm perm="units.edit">
+          <button
+            className="btn o"
+            onClick={() =>
+              modal.open({
+                title: 'Units',
+                body: <UnitsDialog initial={units} onChange={() => router.refresh()} />,
+                foot: (
+                  <button className="btn o" onClick={modal.close}>
+                    Close
+                  </button>
+                ),
+              })
+            }
+          >
+            Units
+          </button>
+        </Perm>
         <Perm perm="items.edit">
           <button className="btn o" onClick={io.upload}>
             Upload price list
@@ -247,6 +296,9 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
               <th className="n" style={s('width:110px')}>
                 Price / unit
               </th>
+              <th className="n" style={s('width:110px')}>
+                Buy as
+              </th>
               <th className="n" style={s('width:90px')}>
                 Yield
               </th>
@@ -273,6 +325,12 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
                 </td>
                 <td className="n mono">
                   {i.price == null ? <span className="pill p-bad">missing</span> : cur(i.price, 6)}
+                </td>
+                <td
+                  className="n mono"
+                  title={`Purchase ${i.purchaseUnit ?? i.uom} · Cooking ${i.conv?.recipeUnit ?? i.uom} · Inventory ${i.inventoryUnit ?? i.uom}`}
+                >
+                  {i.purchaseUnit && i.purchaseUnit !== i.uom ? `${i.purchaseUnit} · ${i.purchaseFactor}` : ''}
                 </td>
                 <td
                   className="n mono"
@@ -332,8 +390,80 @@ export function ItemsScreen({ items, brands, priceDate }: ItemsProps) {
   );
 }
 
-function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands: ItemsProps['brands'] }) {
+/** The price of one purchase unit: what was typed, else the price per base unit times the factor (10 digits, for display only). */
+function packText(f: ItemForm, factor: number): string {
+  if (f.pack !== '') return f.pack;
+  const n = Number(f.price);
+  return f.price.trim() === '' || !isFinite(n) ? '' : String(Number((n * factor).toPrecision(10)));
+}
+
+function UnitPick({
+  label,
+  st,
+  unitKey,
+  factorKey,
+  units,
+  uom,
+}: {
+  label: string;
+  st: Store<ItemForm>;
+  unitKey: 'pUnit' | 'iUnit';
+  factorKey: 'pFactor' | 'iFactor';
+  units: UnitRow[];
+  uom: string;
+}) {
   const f = useStore(st);
+  const x = unitFit(units, f[unitKey], uom, f[factorKey]);
+  const isBase = f[unitKey] === uom;
+  return (
+    <div className="field">
+      <label className="fl">{label}</label>
+      <select
+        aria-label={label}
+        value={f[unitKey]}
+        onChange={(e) => st.set({ [unitKey]: e.target.value, [factorKey]: '', pack: '' })}
+      >
+        {units.map((u) => (
+          <option key={u.code}>{u.code}</option>
+        ))}
+      </select>
+      {x?.def.kind === 'pack' && !isBase ? (
+        <input
+          type="number"
+          step="any"
+          min="0"
+          className="cell"
+          style={s('margin-top:5px;text-align:right')}
+          aria-label={`1 ${f[unitKey]} = ? ${uom}`}
+          placeholder={`1 ${f[unitKey]} = ? ${uom}`}
+          value={f[factorKey]}
+          onChange={(e) => st.set({ [factorKey]: e.target.value, pack: '' })}
+        />
+      ) : (
+        <div className="note" style={s('margin:5px 0 0')}>
+          {isBase ? 'same as base' : !x ? '' : x.fit.ok ? `1 ${f[unitKey]} = ${x.fit.factor} ${uom}` : x.fit.message}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ItemBody({
+  st,
+  nw,
+  brands,
+  units,
+  conv,
+}: {
+  st: Store<ItemForm>;
+  nw: boolean;
+  brands: ItemsProps['brands'];
+  units: UnitRow[];
+  conv: IngredientDto['conv'];
+}) {
+  const f = useStore(st);
+  const pf = unitFit(units, f.pUnit, f.uom, f.pFactor);
+  const packFactor = pf?.fit.ok ? pf.fit.factor : null;
   return (
     <>
       <div className="field">
@@ -366,7 +496,7 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
             step="any"
             className="cell"
             value={f.price}
-            onChange={(e) => st.set({ price: e.target.value })}
+            onChange={(e) => st.set({ price: e.target.value, pack: '' })}
           />
         </div>
       </div>
@@ -406,6 +536,40 @@ function ItemBody({ st, nw, brands }: { st: Store<ItemForm>; nw: boolean; brands
             />
           </div>
         ))}
+      </div>
+      <div className="note" style={s('margin:0 0 6px')}>
+        Units: the base unit above is what prices and recipes are costed in. A purchase or inventory unit is how you buy
+        or count it; the number says how many base units it holds.
+      </div>
+      <div className="row r2">
+        <UnitPick label="Purchase unit" st={st} unitKey="pUnit" factorKey="pFactor" units={units} uom={f.uom} />
+        <UnitPick label="Inventory unit" st={st} unitKey="iUnit" factorKey="iFactor" units={units} uom={f.uom} />
+      </div>
+      {packFactor !== null && f.pUnit !== f.uom && (
+        <div className="field">
+          <label className="fl">Price per {f.pUnit}</label>
+          <input
+            type="number"
+            step="any"
+            min="0"
+            className="cell"
+            aria-label={`Price per ${f.pUnit}`}
+            value={packText(f, packFactor)}
+            onChange={(e) => {
+              const t = e.target.value;
+              const n = Number(t);
+              // the price per base unit is the exact quotient, never rounded; blank clears it
+              st.set({ pack: t, price: t.trim() === '' ? '' : isFinite(n) ? String(n / packFactor) : f.price });
+            }}
+          />
+          <div className="note" style={s('margin:5px 0 0')}>
+            Typing it fills the price per {f.uom} above ({f.pUnit} price divided by {packFactor}).
+          </div>
+        </div>
+      )}
+      <div className="note" style={s('margin:0 0 8px')}>
+        Cooking unit:{' '}
+        {conv ? `${conv.recipeUnit} (1 ${f.uom} = ${conv.factor} ${conv.recipeUnit}), set on Conv` : 'same as base'}
       </div>
       <div className="field">
         <label className="fl">Available to</label>

@@ -17,6 +17,7 @@ vi.mock('@clerk/nextjs', () => ({ useClerk: () => ({ signOut: vi.fn() }) }));
 
 import { EditScreen } from '@/components/recipes/EditScreen';
 import { ItemsScreen } from '@/components/screens/ItemsScreen';
+import { unitList } from './units-fixture';
 import { RecipesScreen } from '@/components/screens/RecipesScreen';
 import { ConvScreen } from '@/components/screens/ConvScreen';
 import { SettingsScreen } from '@/components/screens/SettingsScreen';
@@ -605,7 +606,7 @@ describe('ingredients and conversions', () => {
   ];
   it('item modal saves with the version; an empty price becomes null (never 0); negatives are refused client-side', async () => {
     const user = userEvent.setup();
-    renderInShell(<ItemsScreen items={items} brands={brandList} priceDate="2026-10-09" />);
+    renderInShell(<ItemsScreen items={items} brands={brandList} priceDate="2026-10-09" units={unitList} />);
     const rowEl = screen.getByText('ING-2').closest('tr')!;
     await user.click(within(rowEl).getByRole('button', { name: 'Edit' }));
     const dlg = screen.getByRole('dialog');
@@ -629,7 +630,7 @@ describe('ingredients and conversions', () => {
 
   it('read-only role cannot see the edit buttons; the library filters by brand and category', async () => {
     const user = userEvent.setup();
-    renderInShell(<ItemsScreen items={items} brands={brandList} priceDate="2026-10-09" />, 'viewer');
+    renderInShell(<ItemsScreen items={items} brands={brandList} priceDate="2026-10-09" units={unitList} />, 'viewer');
     expect(screen.getByText(/Read only\./)).toBeTruthy();
     for (const b of screen.getAllByText('Edit')) expect(b.style.display).toBe('none');
     await user.selectOptions(screen.getAllByRole('combobox')[0]!, 'b1');

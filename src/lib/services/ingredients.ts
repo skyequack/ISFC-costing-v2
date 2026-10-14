@@ -6,6 +6,7 @@ import type { BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { money } from '../format';
 import { can } from '../permissions';
+import { fitUnit, UNITS, type Unit, type UnitDef, type UnitKind } from '../units';
 import type { IngredientIn } from '../validation/common';
 
 /** Fixed lock key shared with recipe code allocation (codes are unique across both namespaces). */
@@ -32,6 +33,83 @@ function sameStages(a: ItemStages, b: ItemStages): boolean {
   );
 }
 
+/** An item's purchase and inventory unit with their factors (base units per one unit); the base unit and 1 when never set. */
+export interface ItemUnits {
+  purchaseUnit: string;
+  purchaseFactor: number;
+  inventoryUnit: string;
+  inventoryFactor: number;
+}
+
+const unitText = (u: string, f: number, uom: string) => (u === uom ? `${u} (base)` : `1 ${u} = ${f} ${uom}`);
+const unitsText = (u: ItemUnits, uom: string) =>
+  `purchase ${unitText(u.purchaseUnit, u.purchaseFactor, uom)} · inventory ${unitText(u.inventoryUnit, u.inventoryFactor, uom)}`;
+const sameUnits = (a: ItemUnits, b: ItemUnits) =>
+  a.purchaseUnit === b.purchaseUnit &&
+  a.purchaseFactor === b.purchaseFactor &&
+  a.inventoryUnit === b.inventoryUnit &&
+  a.inventoryFactor === b.inventoryFactor;
+
+/** The unit list by lower-case code (about a dozen rows), for the pure resolver below. */
+export async function loadUnitDefs(tx: Queryable): Promise<Map<string, UnitDef>> {
+  const { rows } = await tx.query(`SELECT code, kind, to_base FROM unit`);
+  return new Map(
+    rows.map((r) => [String(r.code).toLowerCase(), { code: r.code, kind: r.kind as UnitKind, toBase: r.to_base }]),
+  );
+}
+
+/** One side (purchase or inventory) of the units: validate the unit against the list and the item's base unit. */
+function fitSide(
+  defs: Map<string, UnitDef>,
+  uom: Unit,
+  unit: string,
+  factor: number | undefined,
+): { unit: string; factor: number } {
+  const def = defs.get(unit.toLowerCase());
+  if (!def) throw new ApiError('bad_request', `${unit} is not in the unit list`);
+  const fit = fitUnit(def, uom, factor);
+  if (!fit.ok) throw new ApiError('unprocessable', fit.message);
+  return { unit: def.code, factor: fit.factor };
+}
+
+/**
+ * The units to store (D-102). Absent in `input` = keep the current ones; a kept unit must still fit when the base unit changed,
+ * and a kept pack unit never survives a base-unit change (its factor was in the old base unit).
+ */
+export function resolveUnitsWith(
+  defs: Map<string, UnitDef>,
+  uom: string,
+  input: Partial<Pick<IngredientIn, 'purchaseUnit' | 'purchaseFactor' | 'inventoryUnit' | 'inventoryFactor'>>,
+  cur: (ItemUnits & { uom: string }) | null,
+): ItemUnits {
+  if (!(UNITS as readonly string[]).includes(uom)) throw new ApiError('bad_request', 'Unknown base unit');
+  const base = uom as Unit;
+  const side = (unit: string | undefined, factor: number | undefined, curUnit: string, curFactor: number) => {
+    if (unit !== undefined) return fitSide(defs, base, unit, factor);
+    if (!cur) return { unit: uom, factor: 1 };
+    if (cur.uom === uom) return { unit: curUnit, factor: curFactor };
+    if (curUnit === cur.uom) return { unit: uom, factor: 1 }; // it was the base unit: it follows the base unit
+    throw new ApiError(
+      'unprocessable',
+      `The units no longer fit ${uom} – choose the purchase and inventory unit again`,
+    );
+  };
+  const p = side(input.purchaseUnit, input.purchaseFactor, cur?.purchaseUnit ?? uom, cur?.purchaseFactor ?? 1);
+  const i = side(input.inventoryUnit, input.inventoryFactor, cur?.inventoryUnit ?? uom, cur?.inventoryFactor ?? 1);
+  return { purchaseUnit: p.unit, purchaseFactor: p.factor, inventoryUnit: i.unit, inventoryFactor: i.factor };
+}
+
+export async function resolveUnits(
+  tx: Queryable,
+  uom: string,
+  input: Partial<Pick<IngredientIn, 'purchaseUnit' | 'purchaseFactor' | 'inventoryUnit' | 'inventoryFactor'>>,
+  cur: (ItemUnits & { uom: string }) | null,
+): Promise<ItemUnits> {
+  return resolveUnitsWith(await loadUnitDefs(tx), uom, input, cur);
+}
+
+export { sameUnits };
+
 function needItems(user: SessionUser): void {
   if (!can(user.role, 'items.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
 }
@@ -47,11 +125,14 @@ interface Row {
   yThaw: number | null;
   yCut: number | null;
   yCook: number | null;
+  units: ItemUnits;
 }
 
 async function lockItem(tx: Queryable, scope: BrandScope, id: string): Promise<Row> {
   const { rows } = await tx.query(
     `SELECT i.id, i.code, i.name, i.uom, i.price, i.version, i.y_thaw, i.y_cut, i.y_cook,
+            coalesce(i.purchase_unit, i.uom) AS purchase_unit, coalesce(i.purchase_factor, 1) AS purchase_factor,
+            coalesce(i.inventory_unit, i.uom) AS inventory_unit, coalesce(i.inventory_factor, 1) AS inventory_factor,
             coalesce((SELECT array_agg(s.brand_id ORDER BY s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i WHERE i.id = $1 FOR UPDATE OF i`,
     [id],
@@ -73,6 +154,12 @@ async function lockItem(tx: Queryable, scope: BrandScope, id: string): Promise<R
     yThaw: r.y_thaw,
     yCut: r.y_cut,
     yCook: r.y_cook,
+    units: {
+      purchaseUnit: r.purchase_unit,
+      purchaseFactor: r.purchase_factor,
+      inventoryUnit: r.inventory_unit,
+      inventoryFactor: r.inventory_factor,
+    },
   };
 }
 
@@ -127,9 +214,11 @@ export async function createIngredient(
   checkBrandIds(user, scope, input.brandIds);
   await tx.query('SELECT pg_advisory_xact_lock($1)', [CODE_LOCK]);
   await assertNewCode(tx, input.code);
+  const units = await resolveUnits(tx, input.uom, input, null);
   const { rows } = await tx.query(
-    `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook)
-     VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5,$6,$7,$8,$9,$10) RETURNING id`,
+    `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, flag, y_thaw, y_cut, y_cook,
+                             purchase_unit, purchase_factor, inventory_unit, inventory_factor)
+     VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
     [
       input.code,
       input.name,
@@ -141,6 +230,10 @@ export async function createIngredient(
       input.yThaw ?? null,
       input.yCut ?? null,
       input.yCook ?? null,
+      units.purchaseUnit,
+      units.purchaseFactor,
+      units.inventoryUnit,
+      units.inventoryFactor,
     ],
   );
   const id = rows[0]!.id as string;
@@ -175,10 +268,13 @@ export async function updateIngredient(
     yCook: input.yCook === undefined ? cur.yCook : input.yCook,
   };
   const stagesChanged = !sameStages(cur, stages);
+  const units = await resolveUnits(tx, input.uom, input, { ...cur.units, uom: cur.uom });
+  const unitsChanged = !sameUnits(cur.units, units);
   await tx.query(
     `UPDATE ingredient SET name=$2, uom=$3, price=$4, category=$5, subcategory=$6, flag=$7, version = version + 1,
             price_updated_at = CASE WHEN $8 THEN now() ELSE price_updated_at END,
-            y_thaw = $10, y_cut = $11, y_cook = $12
+            y_thaw = $10, y_cut = $11, y_cook = $12,
+            purchase_unit = $13, purchase_factor = $14, inventory_unit = $15, inventory_factor = $16
       WHERE id = $1 AND version = $9`,
     [
       id,
@@ -193,6 +289,10 @@ export async function updateIngredient(
       stages.yThaw,
       stages.yCut,
       stages.yCook,
+      units.purchaseUnit,
+      units.purchaseFactor,
+      units.inventoryUnit,
+      units.inventoryFactor,
     ],
   );
   await setScope(tx, id, input.brandIds);
@@ -204,9 +304,16 @@ export async function updateIngredient(
       'Changed purchase price',
       `${cur.code} ${input.name}: ${money(cur.price ?? 0, 6)} → ${money(input.price ?? 0, 6)}`,
     );
-  } else if (!stagesChanged) await appendAudit(tx, user, 'Edited ingredient', cur.code);
+  } else if (!stagesChanged && !unitsChanged) await appendAudit(tx, user, 'Edited ingredient', cur.code);
   if (stagesChanged)
     await appendAudit(tx, user, 'Changed default yields', `${cur.code}: ${stageText(cur)} → ${stageText(stages)}`);
+  if (unitsChanged)
+    await appendAudit(
+      tx,
+      user,
+      'Changed item units',
+      `${cur.code}: ${unitsText(cur.units, cur.uom)} → ${unitsText(units, input.uom)}`,
+    );
 }
 
 /** Save only the default yield stages of one raw material, found by code (D-93; the line editor's "Save to raw material"). */

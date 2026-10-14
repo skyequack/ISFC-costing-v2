@@ -8,7 +8,7 @@ import type { BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
 import { can } from '../permissions';
 import { UNITS } from '../units';
-import { addPriceHistory, CODE_LOCK } from './ingredients';
+import { addPriceHistory, CODE_LOCK, loadUnitDefs, resolveUnitsWith, sameUnits, type ItemUnits } from './ingredients';
 
 /** Rows per request (D-37). The browser splits bigger files into parts. */
 export const MAX_ITEM_ROWS = 500;
@@ -30,6 +30,11 @@ export const itemImportIn = z.object({
         yThaw: stageCell,
         yCut: stageCell,
         yCook: stageCell,
+        /** purchase / inventory unit and base units in one of it (D-102): absent = leave as is; checked against the unit list */
+        purchaseUnit: z.string().trim().min(1).max(40).optional(),
+        purchaseFactor: z.number().finite().gt(0).max(1e9).optional(),
+        inventoryUnit: z.string().trim().min(1).max(40).optional(),
+        inventoryFactor: z.number().finite().gt(0).max(1e9).optional(),
       }),
     )
     .min(1)
@@ -78,6 +83,7 @@ interface Existing {
   yThaw: number | null;
   yCut: number | null;
   yCook: number | null;
+  units: ItemUnits;
 }
 
 function hashOf(input: Pick<ItemImportIn, 'rows' | 'brandId' | 'grant'>): string {
@@ -89,6 +95,8 @@ function hashOf(input: Pick<ItemImportIn, 'rows' | 'brandId' | 'grant'>): string
 async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string, Existing>> {
   const { rows } = await tx.query(
     `SELECT i.id, i.code, i.name, i.uom, i.price, i.category, i.subcategory, i.flag, i.y_thaw, i.y_cut, i.y_cook,
+            coalesce(i.purchase_unit, i.uom) AS purchase_unit, coalesce(i.purchase_factor, 1) AS purchase_factor,
+            coalesce(i.inventory_unit, i.uom) AS inventory_unit, coalesce(i.inventory_factor, 1) AS inventory_factor,
             coalesce((SELECT array_agg(s.brand_id) FROM item_brand_scope s WHERE s.ingredient_id = i.id), '{}') AS brand_ids
        FROM ingredient i WHERE i.code = ANY($1::text[]) FOR UPDATE OF i`,
     [codes],
@@ -109,6 +117,12 @@ async function loadExisting(tx: Queryable, codes: string[]): Promise<Map<string,
         yThaw: r.y_thaw,
         yCut: r.y_cut,
         yCook: r.y_cook,
+        units: {
+          purchaseUnit: r.purchase_unit,
+          purchaseFactor: r.purchase_factor,
+          inventoryUnit: r.inventory_unit,
+          inventoryFactor: r.inventory_factor,
+        },
       },
     ]),
   );
@@ -134,7 +148,7 @@ async function plan(
   user: SessionUser,
   scope: BrandScope,
   input: ItemImportIn,
-): Promise<ItemImportPlan & { existing: Map<string, Existing>; bid: string }> {
+): Promise<ItemImportPlan & { existing: Map<string, Existing>; bid: string; units: Map<string, ItemUnits> }> {
   if (!can(user.role, 'items.edit')) throw new ApiError('forbidden', 'Your role cannot do that');
   const seen = new Set<string>();
   for (const r of input.rows) {
@@ -159,9 +173,31 @@ async function plan(
 
   const rows: ItemPlanRow[] = [];
   const counts = { add: 0, update: 0, same: 0, keepPrice: 0, blocked: 0, priceCheck: 0 };
+  // D-102: the units each row ends up with; a unit the list does not know or that does not fit the base unit blocks the row
+  // (an import never creates a unit: only the General Manager does)
+  const defs = await loadUnitDefs(tx);
+  const units = new Map<string, ItemUnits>();
   for (const p of input.rows) {
     const ex = existing.get(p.code);
     const hasPrice = p.price !== null;
+    try {
+      units.set(p.code, resolveUnitsWith(defs, p.uom, p, ex ? { ...ex.units, uom: ex.uom } : null));
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      rows.push({
+        code: p.code,
+        name: p.name,
+        action: 'blocked',
+        old: ex?.price ?? null,
+        price: p.price,
+        hasPrice,
+        pct: null,
+        check: false,
+        reason: e.message,
+      });
+      counts.blocked++;
+      continue;
+    }
     if (!ex) {
       if (recipeCodes.has(p.code.toUpperCase()) || caseClash.has(p.code.toUpperCase())) {
         rows.push({
@@ -216,7 +252,8 @@ async function plan(
       (p.sub && p.sub !== ex.subcategory) ||
       (p.yThaw !== undefined && p.yThaw !== ex.yThaw) ||
       (p.yCut !== undefined && p.yCut !== ex.yCut) ||
-      (p.yCook !== undefined && p.yCook !== ex.yCook);
+      (p.yCook !== undefined && p.yCook !== ex.yCook) ||
+      !sameUnits(ex.units, units.get(p.code)!);
     if (!moved && !other) {
       rows.push({
         code: p.code,
@@ -245,7 +282,15 @@ async function plan(
     counts.update++;
     if (mv.check) counts.priceCheck++;
   }
-  return { rows, counts, hash: hashOf(input), brandName: brand?.name ?? 'Shared', existing, bid: brand?.id ?? '' };
+  return {
+    rows,
+    counts,
+    hash: hashOf(input),
+    brandName: brand?.name ?? 'Shared',
+    existing,
+    bid: brand?.id ?? '',
+    units,
+  };
 }
 
 export async function previewItemImport(
@@ -283,8 +328,9 @@ export async function commitItemImport(
     const ex = p.existing.get(row.code);
     if (row.action === 'add') {
       const ins = await tx.query(
-        `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, y_thaw, y_cut, y_cook)
-         VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5, $6, $7, $8, $9) RETURNING id`,
+        `INSERT INTO ingredient (code, name, uom, price, price_updated_at, category, subcategory, y_thaw, y_cut, y_cook,
+                                 purchase_unit, purchase_factor, inventory_unit, inventory_factor)
+         VALUES ($1,$2,$3,$4, CASE WHEN $4::float8 IS NULL THEN NULL ELSE now() END, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id`,
         [
           src.code,
           src.name || src.code,
@@ -295,6 +341,10 @@ export async function commitItemImport(
           src.yThaw ?? null,
           src.yCut ?? null,
           src.yCook ?? null,
+          p.units.get(src.code)!.purchaseUnit,
+          p.units.get(src.code)!.purchaseFactor,
+          p.units.get(src.code)!.inventoryUnit,
+          p.units.get(src.code)!.inventoryFactor,
         ],
       );
       const id = ins.rows[0]!.id as string;
@@ -313,7 +363,8 @@ export async function commitItemImport(
                 price = CASE WHEN $4 THEN $5::float8 ELSE price END,
                 price_updated_at = CASE WHEN $4 THEN now() ELSE price_updated_at END,
                 category = coalesce(nullif($6,''), category), subcategory = coalesce(nullif($7,''), subcategory),
-                flag = $8, y_thaw = $9, y_cut = $10, y_cook = $11, version = version + 1 WHERE id = $1`,
+                flag = $8, y_thaw = $9, y_cut = $10, y_cook = $11,
+                purchase_unit = $12, purchase_factor = $13, inventory_unit = $14, inventory_factor = $15, version = version + 1 WHERE id = $1`,
         [
           ex.id,
           src.name,
@@ -326,6 +377,10 @@ export async function commitItemImport(
           src.yThaw === undefined ? ex.yThaw : src.yThaw, // blank cell = leave the stored default alone
           src.yCut === undefined ? ex.yCut : src.yCut,
           src.yCook === undefined ? ex.yCook : src.yCook,
+          p.units.get(src.code)!.purchaseUnit,
+          p.units.get(src.code)!.purchaseFactor,
+          p.units.get(src.code)!.inventoryUnit,
+          p.units.get(src.code)!.inventoryFactor,
         ],
       );
       if (moved) await addPriceHistory(tx, user, ex.id, ex.price, src.price, 'IMPORT');

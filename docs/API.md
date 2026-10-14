@@ -32,10 +32,13 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 |---|---|---|
 | GET /api/ingredients | any (scope filter via ItemBrandScope; Shared visible to all) | – |
 | POST /api/ingredients | items.edit | Added ingredient |
-| PATCH /api/ingredients/:id | items.edit (price changes also write IngredientPriceHistory); `yThaw`/`yCut`/`yCook` are optional: absent = keep, null or 0 = clear, number in (0,10] = set (D-93) | Changed purchase price / Edited ingredient / Changed default yields |
+| PATCH /api/ingredients/:id | items.edit (price changes also write IngredientPriceHistory); `yThaw`/`yCut`/`yCook` are optional: absent = keep, null or 0 = clear, number in (0,10] = set (D-93); `purchaseUnit`/`purchaseFactor`/`inventoryUnit`/`inventoryFactor` are optional (D-102): absent = keep, a unit must be in the unit list, a fixed unit (Kg, L, Gram, Ml, Each, Slice) takes its own factor and fits only a base unit of the same kind (else 422), a pack unit needs a factor in [1e-6, 1e6] (else 422), an unknown unit 400; a change of base unit keeps units that were the base unit and 422s the rest | Changed purchase price / Edited ingredient / Changed default yields / Changed item units |
+| GET /api/units | any signed-in role; the unit list with `kind`, `toBase` and `used` (items using it) (D-103) | – |
+| POST /api/units | units.edit (GM only), rate class `admin_write`; body `{code}`: adds a pack unit (letters, digits, space . / % -, up to 16, unique ignoring case, list capped at 60) | Added unit |
+| DELETE /api/units/:code | units.edit (GM only), `admin_write`; only an added pack unit that no item uses (409 with the count otherwise, 422 for a fixed unit) | Deleted unit |
 | DELETE /api/ingredients/:id | items.edit; blocked if referenced | Deleted ingredient |
 | PUT /api/ingredients/yields | items.edit; body `{code, yThaw, yCut, yCook, from?}` (fractions in (0,10] or null/0 = none); writes only the three default yields, brand-scoped (D-93, D-94) | Changed default yields |
-| POST /api/ingredients/import?mode=… | items.edit | Uploaded price list |
+| POST /api/ingredients/import?mode=… | items.edit; rows may carry optional `purchaseUnit`/`purchaseFactor`/`inventoryUnit`/`inventoryFactor` (D-105): absent = leave, an unknown or non-fitting unit blocks that row, an upload never creates a unit | Uploaded price list |
 | GET /api/conversions; PUT/DELETE /api/conversions/:ingredientId | conv.edit | Set/Removed unit conversion |
 | GET /api/ingredients/:id/price-history | items.edit or audit.view | – |
 
@@ -62,13 +65,13 @@ Conventions: all handlers wrapped in `withAuth`; JSON; Zod-validated; errors per
 ## Stock (D-72, D-73)
 | Endpoint | Permission | Audit |
 |---|---|---|
-| PUT /api/stock | stock.edit (gm, cc, fin, chef, cook) | Stock counts saved / Receipts saved (site, date, counts only) |
+| PUT /api/stock | stock.edit (gm, cc, fin, chef, cook); cell quantities are in the item's **inventory unit** and the server stores qty x inventory factor in base units; the stock page and grid return them divided back (D-104) | Stock counts saved / Receipts saved (site, date, counts only) |
 
 Body `{site, date: YYYY-MM-DD, kind: 'count'|'receipt', cells: [{code, qty: number >= 0 | null}]}` (1-1500 cells, no code twice). The site must be one of the caller's sites (union of `brand.locations` of their brands, else 404); every code an ingredient in their scope (else 422, nothing written); a date later than tomorrow UTC is 400. `qty` null clears; for counts 0 is stored (counted empty); for receipts 0 or null clears the grid row (`ref ''`), uploaded deliveries are never touched. Returns `{saved, cleared}`. Reads go through the `/stock` page (any signed-in role, so the Viewer sees it read-only).
 
 | Endpoint | Permission | Audit |
 |---|---|---|
-| POST /api/stock/import?mode=dry-run\|commit | stock.edit | Uploaded stock counts / Uploaded receipts (file, hash prefix, counts, sites, dates) |
+| POST /api/stock/import?mode=dry-run\|commit | stock.edit; file quantities are in the inventory unit (D-104) | Uploaded stock counts / Uploaded receipts (file, hash prefix, counts, sites, dates) |
 
 Body `{kind, rows: [{site, date, code, qty, line}], file, hash?}` (1-5000 rows, 2 MB, the whole file in one call). `dry-run` writes nothing and returns `{counts: {add, update, same, blocked}, blocked[], sample[], sites, dates, hash, alreadyImported}`. `commit` needs that `hash` (409 when the content changed), refuses a file with any blocked row (422) and, for receipts, a content already loaded (409). Counts are upserted (only changed rows written); receipts are inserted with `ref = 'file:<hash16>'`. `?mode=undo` with `{hash}` (the dry-run's hash) deletes that upload's deliveries at the caller's sites (404 when none are left), never the grid's own rows: audit `Undid a receipts upload`.
 

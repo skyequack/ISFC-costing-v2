@@ -12,6 +12,7 @@ vi.mock('@clerk/nextjs', () => ({ useClerk: () => ({ signOut: vi.fn() }) }));
 
 import { EditScreen } from '@/components/recipes/EditScreen';
 import { ItemsScreen } from '@/components/screens/ItemsScreen';
+import { unitList } from './units-fixture';
 
 beforeAll(() => {
   installFetch();
@@ -45,6 +46,7 @@ describe('raw material default yields on the Items screen (D-93)', () => {
         items={[item({ yThaw: 0.9, yCut: 0.8 }), item({ id: 'i2', code: 'ING-2', name: 'Salt', yThaw: null })]}
         brands={brandList}
         priceDate="2026-10-09"
+        units={unitList}
       />,
     );
     expect(screen.getByRole('columnheader', { name: 'Yield' })).toBeTruthy();
@@ -56,7 +58,9 @@ describe('raw material default yields on the Items screen (D-93)', () => {
 
   it('the edit form saves the three stages as fractions; blank and 0 become null (100%)', async () => {
     const user = userEvent.setup();
-    renderInShell(<ItemsScreen items={[item({ yCut: 0.5 })]} brands={brandList} priceDate="2026-10-09" />);
+    renderInShell(
+      <ItemsScreen items={[item({ yCut: 0.5 })]} brands={brandList} priceDate="2026-10-09" units={unitList} />,
+    );
     await user.click(within(screen.getByText('ING-1').closest('tr')!).getByRole('button', { name: 'Edit' }));
     const dlg = screen.getByRole('dialog');
     expect(within(dlg).getByDisplayValue('50')).toBeTruthy(); // cutting, shown as percent
@@ -78,7 +82,7 @@ describe('raw material default yields on the Items screen (D-93)', () => {
 
   it('refuses a combination costing could not use, without sending anything', async () => {
     const user = userEvent.setup();
-    renderInShell(<ItemsScreen items={[item()]} brands={brandList} priceDate="2026-10-09" />);
+    renderInShell(<ItemsScreen items={[item()]} brands={brandList} priceDate="2026-10-09" units={unitList} />);
     await user.click(screen.getByRole('button', { name: 'Edit' }));
     const dlg = screen.getByRole('dialog');
     const [thaw, cut] = within(dlg).getAllByPlaceholderText('100');

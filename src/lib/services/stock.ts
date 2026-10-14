@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
-import { ingredientCodesInScope, listIngredients } from '../db/repo/ingredients';
+import { inventoryFactorsInScope, listIngredients } from '../db/repo/ingredients';
 import type { BrandScope } from '../db/scope';
 import { loadCounts, loadReceipts, visibleSites, type StockCell } from '../db/repo/stock';
 import { ApiError } from '../errors';
@@ -41,6 +41,7 @@ export type StockSaveIn = z.output<typeof stockSaveIn>;
 export interface StockRow {
   code: string;
   name: string;
+  /** the item's inventory unit (D-104): `qty` and `other` are in it; the database keeps base units */
   uom: string;
   qty: number | null;
   /** receipts of the day that came from uploaded files (receipt view only) */
@@ -78,11 +79,18 @@ export async function loadStockGrid(
   if (site !== '') needSite(sites, site);
   if (site === '') return { sites, site, date: want.date, kind: want.kind, rows: [] };
   // one after the other: a Queryable may be a single pg Client (a transaction)
-  const items = await listIngredients(db, scope);
+  const items = await listIngredients(db, scope, true);
   const stored = await (want.kind === 'count' ? loadCounts : loadReceipts)(db, site, want.date);
   const rows = items.map((i): StockRow => {
     const cell: StockCell | undefined = stored.get(i.code);
-    return { code: i.code, name: i.name, uom: i.uom, qty: cell?.qty ?? null, other: cell?.other ?? 0 };
+    const f = i.inventoryFactor ?? 1;
+    return {
+      code: i.code,
+      name: i.name,
+      uom: i.inventoryUnit ?? i.uom,
+      qty: cell?.qty == null ? null : cell.qty / f,
+      other: cell ? cell.other / f : 0,
+    };
   });
   return { sites, site, date: want.date, kind: want.kind, rows };
 }
@@ -90,7 +98,7 @@ export async function loadStockGrid(
 /**
  * Save the changed cells of one site and day (D-72/D-73): needs stock.edit; the site must be one of the caller's sites and
  * every code an ingredient in their scope (404 / 422 otherwise, nothing written). A count of 0 is stored (counted empty);
- * null clears. A receipt typed in the grid is the one '' row of the day: null or 0 clears it, uploaded deliveries are not
+ * null clears. Quantities arrive in the item's inventory unit and are stored in base units (D-104). A receipt typed in the grid is the one '' row of the day: null or 0 clears it, uploaded deliveries are not
  * touched. One audit row per save with the numbers, never the values.
  */
 export async function saveStock(
@@ -108,12 +116,12 @@ export async function saveStock(
     if (seen.has(c.code)) throw new ApiError('bad_request', `${c.code} appears twice`);
     seen.add(c.code);
   }
-  const inScope = await ingredientCodesInScope(
+  const factors = await inventoryFactorsInScope(
     tx,
     scope,
     input.cells.map((c) => c.code),
   );
-  const unknown = input.cells.filter((c) => !inScope.has(c.code)).map((c) => c.code);
+  const unknown = input.cells.filter((c) => !factors.has(c.code)).map((c) => c.code);
   if (unknown.length)
     throw new ApiError('unprocessable', `Not an ingredient you can use: ${unknown.slice(0, 5).join(', ')}`, {
       codes: unknown.slice(0, 50),
@@ -132,7 +140,7 @@ export async function saveStock(
        SELECT $1, $2::date, t.c, t.q, ${isCount ? '' : "'', "}$5 FROM unnest($3::text[], $4::float8[]) AS t(c, q)
        ON CONFLICT (site, ${dateCol}, code${isCount ? '' : ', ref'}) DO UPDATE
          SET qty = EXCLUDED.qty, updated_by = EXCLUDED.updated_by, updated_at = now()`,
-      [input.site, input.date, keep.map((c) => c.code), keep.map((c) => c.qty), who],
+      [input.site, input.date, keep.map((c) => c.code), keep.map((c) => c.qty! * factors.get(c.code)!), who], // inventory unit -> base
     );
   }
   let cleared = 0;

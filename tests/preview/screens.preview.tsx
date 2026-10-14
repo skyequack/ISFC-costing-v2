@@ -36,6 +36,7 @@ import { loadPlan, loadPrep } from '@/lib/screens/plan';
 import { loadProd } from '@/lib/screens/prod';
 import { recipeRows } from '@/lib/screens/rows';
 import { listAudit, auditQuery } from '@/lib/services/audit';
+import { listUnits } from '@/lib/services/units';
 import { recipeDetail } from '@/lib/services/recipe-detail';
 import { menusVisible } from '@/lib/services/planning';
 import { connect } from '../db/helpers';
@@ -187,7 +188,12 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('render every screen to public/_
       '/items',
       'gm',
       ws,
-      <ItemsScreen items={items.slice(0, 400)} brands={bl} priceDate={catalog.settings.priceDate} />,
+      <ItemsScreen
+        items={items.slice(0, 400)}
+        brands={bl}
+        priceDate={catalog.settings.priceDate}
+        units={await listUnits(c)}
+      />,
     );
     write(
       'conv',

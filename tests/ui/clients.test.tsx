@@ -135,6 +135,7 @@ const prodData = (over: Partial<ProdData['params']> = {}, locked = false, choice
     req: { rows: [], total: 0, dishes: 0, nSections: 0, sections: [], flags: [], reconciliation: [] },
     monthRows: [],
     monthTotals: { sec: {}, portions: 0, total: 0 },
+    unapproved: [],
     secLabels: [],
   }) as unknown as ProdData;
 
@@ -184,5 +185,21 @@ describe('Production screen Client field (D-71)', () => {
     fireEvent.blur(cell);
     await waitFor(() => expect(calls.some((c) => c.method === 'PUT')).toBe(true));
     expect(calls.find((c) => c.method === 'PUT')!.body).toMatchObject({ clientId: '', portions: 4 });
+  });
+});
+
+describe('Production screen: dishes without an approved revision (D-100)', () => {
+  it('names them in a note and says they are costed as the card is today; no note when every dish has one', () => {
+    const d = prodData();
+    d.unapproved = [
+      { code: 'GRM-1', name: 'Beef' },
+      { code: 'GRM-2', name: 'Soup' },
+    ];
+    renderInShell(<ProdScreen data={d} />, 'gm', 'b1');
+    expect(screen.getByText(/2 dishes have no approved revision/)).toBeTruthy();
+    expect(screen.getByText(/costed as the card is today: Beef, Soup/)).toBeTruthy();
+    cleanup();
+    renderInShell(<ProdScreen data={prodData()} />, 'gm', 'b1');
+    expect(screen.queryByText(/no approved revision/)).toBeNull();
   });
 });

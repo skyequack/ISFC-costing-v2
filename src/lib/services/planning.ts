@@ -374,6 +374,38 @@ export async function loadProductionRange(
   return rows as unknown as ProdTotalRow[];
 }
 
+export interface ProdDailyRow {
+  /** ISO day of the production row, null when its month or day is not a calendar value */
+  day: string | null;
+  code: string;
+  portions: number;
+}
+
+/** Portions per day and card over the same range, scope and filters as loadProductionRange (costing by date, D-100 B3). */
+export async function loadProductionDaily(
+  db: Queryable,
+  scope: BrandScope,
+  brandId: string | null,
+  from: string | null,
+  to: string | null,
+  loc: string | null,
+  client: string | null = null,
+): Promise<ProdDailyRow[]> {
+  const ids = brandId === null ? scope.brandIds : scope.brandIds.filter((b) => b === brandId);
+  const { rows } = await db.query(
+    `SELECT ${PROD_DATE} AS day, p.recipe_code AS code, SUM(p.portions)::double precision AS portions
+       FROM production_entry p JOIN recipe r ON r.code = p.recipe_code AND r.deleted_at IS NULL
+      WHERE r.brand_id = ANY($1::text[])
+        AND ($2::text IS NULL OR ${PROD_DATE} >= $2)
+        AND ($3::text IS NULL OR ${PROD_DATE} <= $3)
+        AND ($4::text IS NULL OR p.location = $4)
+        AND ($5::text IS NULL OR p.client_id = $5)
+      GROUP BY 1, 2`,
+    [[...ids], from, to, loc, client],
+  );
+  return rows as unknown as ProdDailyRow[];
+}
+
 export interface SiteProdRow {
   /** the production row's location, verbatim ('' / '*' = no site) */
   site: string;

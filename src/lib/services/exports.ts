@@ -4,7 +4,7 @@ import { dayTotals, daysIn, pad2, ProdIndex, type ProdCard } from '@/domain/prod
 import { sectionOf, SECTIONS } from '@/data';
 import { pctText } from '@/domain/recipes/yield-stages';
 import { RTPL_HEAD } from '../import/recipes';
-import { ITEM_YIELD_HEAD } from '../import/items';
+import { ITEM_UNIT_HEAD, ITEM_YIELD_HEAD } from '../import/items';
 import { STOCK_TPL_HEAD } from '../import/stock';
 import type { SessionUser } from '../auth/types';
 import type { Queryable } from '../db/client';
@@ -22,6 +22,7 @@ import { loadProd } from '../screens/prod';
 import { auditExport } from './audit';
 import { resolveClientChoice } from './clients';
 import { loadMenus, loadProduction } from './planning';
+import { loadAsOf } from './asof';
 import { dashExportRows } from './dash-export';
 import { stockDate } from './stock';
 
@@ -75,6 +76,19 @@ export interface ExportFile {
 
 const f = (v: number, d: number) => v.toFixed(d);
 /** D-93: a raw material's default yields as percent cells (blank = none = 100%). */
+/** D-102: purchase and inventory unit with the base units in one of each (the base unit and 1 when never set). */
+const itemUnitCells = (i: {
+  uom: string;
+  purchaseUnit?: string;
+  purchaseFactor?: number;
+  inventoryUnit?: string;
+  inventoryFactor?: number;
+}): string[] => [
+  i.purchaseUnit ?? i.uom,
+  String(i.purchaseFactor ?? 1),
+  i.inventoryUnit ?? i.uom,
+  String(i.inventoryFactor ?? 1),
+];
 const itemYieldCells = (i: { yThaw?: number | null; yCut?: number | null; yCook?: number | null }): string[] =>
   [i.yThaw, i.yCut, i.yCook].map(pctText);
 
@@ -93,11 +107,11 @@ async function stockTemplate(
   const date = stockDate.safeParse(q.date);
   if (!date.success) throw new ApiError('bad_request', 'date must be YYYY-MM-DD');
   if (!(await visibleSites(db, ctx.scope)).includes(q.loc)) throw new ApiError('not_found', 'Not found');
-  const items = await listIngredients(db, ctx.scope);
+  const items = await listIngredients(db, ctx.scope, true); // D-104: the Unit column is the inventory unit
   const noun = kind === 'stock-counts-template' ? 'counts' : 'receipts';
   return {
     filename: `ISFC-stock-${noun}-${q.loc.replace(/[^\w.-]+/g, '-')}-${date.data}.csv`,
-    rows: [STOCK_TPL_HEAD, ...items.map((i) => [q.loc, date.data, i.code, i.name, i.uom, ''])],
+    rows: [STOCK_TPL_HEAD, ...items.map((i) => [q.loc, date.data, i.code, i.name, i.inventoryUnit ?? i.uom, ''])],
   };
 }
 
@@ -252,6 +266,7 @@ export async function buildExport(
         'Sub Category',
         'Review Flag',
         ...ITEM_YIELD_HEAD,
+        ...ITEM_UNIT_HEAD,
       ];
       const rows = items.map((i) => [
         i.code,
@@ -263,6 +278,7 @@ export async function buildExport(
         i.subcategory,
         i.flag,
         ...itemYieldCells(i),
+        ...itemUnitCells(i),
       ]);
       return { filename: 'ISFC-ingredients.csv', rows: [head, ...rows] };
     }
@@ -271,7 +287,16 @@ export async function buildExport(
       const items = await listIngredients(db, ctx.scope, true);
       const mine = q.brand === '*' ? items : items.filter((i) => !i.brandIds.length || i.brandIds.includes(q.brand));
       if (q.brand !== '*' && !ctx.brands.some((b) => b.id === q.brand)) throw new ApiError('not_found', 'Not found');
-      const head = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category', ...ITEM_YIELD_HEAD];
+      const head = [
+        'Code',
+        'Item Name',
+        'UOM',
+        'Price',
+        'Main Category',
+        'Sub Category',
+        ...ITEM_YIELD_HEAD,
+        ...ITEM_UNIT_HEAD,
+      ];
       const rows = mine.map((i) => [
         i.code,
         i.name,
@@ -280,6 +305,7 @@ export async function buildExport(
         i.category,
         i.subcategory,
         ...itemYieldCells(i),
+        ...itemUnitCells(i),
       ]);
       return {
         filename:
@@ -399,19 +425,35 @@ export async function buildExport(
       const idx = new ProdIndex(
         entries.map((e) => ({ day: e.day, location: e.location, code: e.code, portions: e.portions })),
       );
-      const cards: ProdCard[] = live
-        .filter((r) => r.type !== 'sub' && (q.brand === '*' || catalog.cards[r.code]!.brandId === q.brand))
-        .map((r) => ({
-          recipe: r,
-          food: cost(r, catalog.context).food || 0,
-          section: sectionOf(catalog.cards[r.code]!.category),
-          brandId: catalog.cards[r.code]!.brandId,
-        }));
+      // D-100 (B3): every day is costed with the revision and prices in force that day; days that cost alike share one catalog
+      const asof = await loadAsOf(db, catalog, `${q.month}-01`);
+      const cardsMemo = new Map<unknown, ProdCard[]>();
+      const cardsOf = (date: string): ProdCard[] => {
+        const cat = asof.catalogFor(date);
+        let cs = cardsMemo.get(cat);
+        if (!cs) {
+          cs = [...cat.context.recipes.values()]
+            .filter((r) => {
+              const m = catalog.cards[r.code];
+              return m && m.id === r.id && canSeeBrand(ctx.scope, m.brandId);
+            })
+            .filter((r) => r.type !== 'sub' && (q.brand === '*' || catalog.cards[r.code]!.brandId === q.brand))
+            .map((r) => ({
+              recipe: r,
+              food: cost(r, cat.context).food || 0,
+              section: sectionOf(catalog.cards[r.code]!.category),
+              brandId: catalog.cards[r.code]!.brandId,
+            }));
+          cardsMemo.set(cat, cs);
+        }
+        return cs;
+      };
       const out: unknown[][] = [
         ['Month', 'Day', 'Site', 'Brand', 'Section', 'Dish', 'Code', 'Portions', 'Cost/portion', 'Cost'],
       ];
       for (let i = 1; i <= daysIn(q.month); i++) {
         const day = pad2(i);
+        const cards = cardsOf(`${q.month}-${day}`);
         for (const c of cards)
           for (const [site, qty] of idx.bySite(day, c.recipe.code)) {
             if (q.loc !== '*' && site !== q.loc) continue;

@@ -247,6 +247,19 @@ export function ProdScreen({ data }: { data: ProdData }) {
         </button>
       </Acts>
       {head}
+      {data.unapproved.length > 0 && (
+        <div className="note" style={s('margin:0 0 12px')}>
+          <b>
+            {data.unapproved.length} dish{data.unapproved.length === 1 ? ' has' : 'es have'} no approved revision.
+          </b>{' '}
+          {data.unapproved.length === 1 ? 'It is' : 'They are'} costed as the card is today:{' '}
+          {data.unapproved
+            .slice(0, 8)
+            .map((u) => u.name || u.code)
+            .join(', ')}
+          {data.unapproved.length > 8 ? ', ...' : ''}.
+        </div>
+      )}
       {p.view === 'month' && <MonthView data={data} cu={cu} />}
       {p.view === 'req' && <ReqView data={data} cu={cu} />}
       {p.view === 'day' && <DayView data={data} cu={cu} setProd={setProd} />}

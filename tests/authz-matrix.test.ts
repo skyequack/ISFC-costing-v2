@@ -124,6 +124,7 @@ describe('every non-gated handler is still wrapped (deny by default)', () => {
       'GET recipes/[id]/revisions/[n]',
       'POST recipes/bulk',
       'GET ingredients',
+      'GET units',
       'GET brands',
       'GET settings',
       'GET me',

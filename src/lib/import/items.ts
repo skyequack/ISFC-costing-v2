@@ -34,6 +34,12 @@ export const ICOLS: Record<string, string[]> = {
   thaw: ['thawing', 'thaw', 'thawingyield', 'thawyield'],
   cut: ['cuttingtrimming', 'cutting', 'cut', 'trimming', 'cuttingyield', 'cutyield', 'trimmingyield'],
   cook: ['cooking', 'cook', 'cookingyield', 'cookyield'],
+  // purchase / inventory unit and base units in one of it (D-102, D-105). Named "Buying" and "Counting" because 'Purchase Unit'
+  // is already an alias of the base unit column above.
+  bu: ['buyingunit', 'buyunit'],
+  bq: ['buyingqty', 'buyqty', 'buyingfactor', 'buyfactor'],
+  cu: ['countingunit', 'countunit', 'inventoryunit'],
+  cq: ['countingqty', 'countqty', 'inventoryqty', 'inventoryfactor'],
 };
 
 /** Packaging is bought by the metre and the roll: a price per metre is the same arithmetic as Each (legacy IUOM). */
@@ -118,6 +124,11 @@ export interface ImportItem {
   yThaw?: number | null;
   yCut?: number | null;
   yCook?: number | null;
+  /** purchase / inventory unit and base units in one of it (D-102): undefined = the cells were blank (leave as is); the server checks them against the unit list */
+  purchaseUnit?: string;
+  purchaseFactor?: number;
+  inventoryUnit?: string;
+  inventoryFactor?: number;
 }
 
 export interface ParsedItems {
@@ -190,6 +201,23 @@ export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItem
       } else st[k] = y;
     }
     if (bad) continue;
+    const un: { purchaseUnit?: string; purchaseFactor?: number; inventoryUnit?: string; inventoryFactor?: number } = {};
+    for (const [uk, fk, uf, ff, label] of [
+      ['bu', 'bq', 'purchaseUnit', 'purchaseFactor', 'buying'],
+      ['cu', 'cq', 'inventoryUnit', 'inventoryFactor', 'counting'],
+    ] as const) {
+      const u = G(r, uk);
+      const fTxt = G(r, fk);
+      if (u) un[uf] = u.slice(0, 40);
+      if (fTxt !== '') {
+        const n = parseFloat(fTxt.replace(/,/g, ''));
+        if (!isFinite(n) || n <= 0) {
+          rejected.push(`Row ${ln} ${code}: ${label} qty "${fTxt}" must be a number above 0`);
+          bad = true;
+        } else un[ff] = n;
+      }
+    }
+    if (bad) continue;
     let cat = G(r, 'cat');
     let sub = G(r, 'sub');
     if (cat && iJunk(cat)) {
@@ -207,6 +235,7 @@ export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItem
       if (st.thaw !== undefined) row.yThaw = st.thaw;
       if (st.cut !== undefined) row.yCut = st.cut;
       if (st.cook !== undefined) row.yCook = st.cook;
+      Object.assign(row, un);
     }
     plan.set(code, row); // last row for a code wins
   }
@@ -214,9 +243,48 @@ export function parseItemRows(rows: readonly (readonly unknown[])[]): ParsedItem
 }
 
 export const ITEM_YIELD_HEAD = ['Thawing %', 'Cutting / trimming %', 'Cooking %'];
-export const TPL_HEAD = ['Code', 'Item Name', 'UOM', 'Price', 'Main Category', 'Sub Category', ...ITEM_YIELD_HEAD];
+/** D-102: how the item is bought and counted; Qty = base units in one (a fixed unit such as Kg ignores it). Blank = leave as is. */
+export const ITEM_UNIT_HEAD = ['Buying Unit', 'Buying Qty', 'Counting Unit', 'Counting Qty'];
+export const TPL_HEAD = [
+  'Code',
+  'Item Name',
+  'UOM',
+  'Price',
+  'Main Category',
+  'Sub Category',
+  ...ITEM_YIELD_HEAD,
+  ...ITEM_UNIT_HEAD,
+];
 export const tplRows = (): string[][] => [
-  ['EXAMPLE-001', 'Delete this row - Fresh Tomato', 'Gram', '0.004535', 'Fresh', 'Produce', '', '90', ''],
-  ['EXAMPLE-002', 'Delete this row - Olive Oil', 'Ml', '0.012000', 'Dry', 'Oils', '', '', ''],
-  ['EXAMPLE-003', 'Delete this row - Burger Box', 'Each', '0.350000', 'Non Food', 'Packaging', '', '', ''],
+  [
+    'EXAMPLE-001',
+    'Delete this row - Fresh Tomato',
+    'Gram',
+    '0.004535',
+    'Fresh',
+    'Produce',
+    '',
+    '90',
+    '',
+    'Carton',
+    '12000',
+    'Kg',
+    '',
+  ],
+  ['EXAMPLE-002', 'Delete this row - Olive Oil', 'Ml', '0.012000', 'Dry', 'Oils', '', '', '', 'L', '', 'L', ''],
+  [
+    'EXAMPLE-003',
+    'Delete this row - Burger Box',
+    'Each',
+    '0.350000',
+    'Non Food',
+    'Packaging',
+    '',
+    '',
+    '',
+    'Box',
+    '500',
+    'Box',
+    '500',
+  ],
 ];

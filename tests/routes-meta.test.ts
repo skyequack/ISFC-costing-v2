@@ -62,6 +62,8 @@ describe('rate limits are declared on exactly the intended handlers (D-87, D-88)
     'PATCH brands/[id]': 'admin_write',
     'DELETE brands/[id]': 'admin_write',
     'POST audit/archive': 'admin_write',
+    'POST units': 'admin_write',
+    'DELETE units/[code]': 'admin_write',
   };
 
   function declared(): Record<string, string> {

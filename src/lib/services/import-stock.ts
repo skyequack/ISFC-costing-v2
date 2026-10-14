@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { SessionUser } from '../auth/types';
 import { pgErrorCode, type Queryable } from '../db/client';
 import { appendAudit } from '../db/repo/audit';
-import { ingredientCodesInScope } from '../db/repo/ingredients';
+import { inventoryFactorsInScope } from '../db/repo/ingredients';
 import { visibleSites } from '../db/repo/stock';
 import type { BrandScope } from '../db/scope';
 import { ApiError } from '../errors';
@@ -79,7 +79,9 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
   const isCount = input.kind === 'count';
   const latest = latestStockDate();
   const sites = new Set(await visibleSites(tx, scope));
-  const inScope = await ingredientCodesInScope(tx, scope, [...new Set(input.rows.map((r) => r.code))]);
+  // D-104: file quantities are in the item's inventory unit; the database keeps base units
+  const factors = await inventoryFactorsInScope(tx, scope, [...new Set(input.rows.map((r) => r.code))]);
+  const inScope = new Set(factors.keys());
   const hash = hashOf(input);
 
   // what is stored now, for the counts being replaced
@@ -105,7 +107,7 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
       code: r.code,
       name: '',
       qty: r.qty,
-      old: old.get(key) ?? null,
+      old: old.has(key) ? old.get(key)! / (factors.get(r.code) ?? 1) : null,
     };
     const block = (reason: string): StockPlanRow => ({ ...base, action: 'blocked', reason });
     if (!sites.has(r.site)) return block('not one of your sites');
@@ -115,7 +117,12 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
     if (seen.has(key)) return block('appears twice in the file for the same site and date');
     seen.add(key);
     if (!isCount) return { ...base, action: 'add' };
-    return { ...base, action: base.old === null ? 'add' : Math.abs(base.old - r.qty) > 1e-12 ? 'update' : 'same' };
+    const oldBase = old.get(key);
+    return {
+      ...base,
+      action:
+        oldBase === undefined ? 'add' : Math.abs(oldBase - r.qty * factors.get(r.code)!) > 1e-12 ? 'update' : 'same',
+    };
   });
 
   const counts = { add: 0, update: 0, same: 0, blocked: 0 };
@@ -144,7 +151,7 @@ async function plan(tx: Queryable, user: SessionUser, scope: BrandScope, input: 
     hash,
     alreadyImported: already,
   };
-  return { out, planned };
+  return { out, planned, factors };
 }
 
 /** Check a stock file without writing anything (D-73). */
@@ -170,7 +177,7 @@ export async function commitStockImport(
 ): Promise<{ added: number; updated: number; same: number }> {
   // one commit of a given content at a time, so a double click cannot slip past the 'already loaded' check
   await tx.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['stock-import:' + hashOf(input)]);
-  const { out, planned } = await plan(tx, user, scope, input);
+  const { out, planned, factors } = await plan(tx, user, scope, input);
   if (!input.hash || input.hash !== out.hash)
     throw new ApiError('conflict', 'The file changed since it was checked - check it again');
   if (out.counts.blocked)
@@ -184,7 +191,7 @@ export async function commitStockImport(
     write.map((p) => p.site),
     write.map((p) => p.date),
     write.map((p) => p.code),
-    write.map((p) => p.qty),
+    write.map((p) => p.qty * (factors.get(p.code) ?? 1)),
     user.name,
   ];
   if (write.length) {

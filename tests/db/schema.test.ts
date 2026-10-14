@@ -30,6 +30,7 @@ const EXPECTED_TABLES = [
   'restore_chunk',
   'seed_run',
   'stock_count',
+  'unit',
   'unit_conversion',
   'user_brand_access',
 ];

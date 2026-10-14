@@ -87,5 +87,10 @@ export const ingredientIn = z.object({
   yThaw: itemStageIn,
   yCut: itemStageIn,
   yCook: itemStageIn,
+  /** D-102: purchase / inventory unit and base units in one of it. Absent = keep; a fixed unit (Kg, L) ignores the factor. */
+  purchaseUnit: trimmed(16).min(1).optional(),
+  purchaseFactor: z.number().finite().max(1e9).optional(),
+  inventoryUnit: trimmed(16).min(1).optional(),
+  inventoryFactor: z.number().finite().max(1e9).optional(),
 });
 export type IngredientIn = z.output<typeof ingredientIn>;

@@ -17,6 +17,7 @@ import { listClients } from '../db/repo/clients';
 import { canSeeBrand } from '../db/scope';
 import type { PageCtx } from './ctx';
 import { loadMenus, loadPax, loadProduction, type MenuRecord } from '../services/planning';
+import { loadAsOf } from '../services/asof';
 import type { Queryable } from '../db/client';
 
 export type ProdView = 'day' | 'req' | 'month';
@@ -128,6 +129,8 @@ export interface ProdData {
     flags: ReqFlag[];
     reconciliation: Reconciliation[];
   };
+  /** dishes with portions in this view that have no approved revision at all: costed as the card is today (D-100) */
+  unapproved: { code: string; name: string }[];
   /** month view */
   monthRows: { day: string; portions: number; sec: Record<string, number>; total: number }[];
   monthTotals: { sec: Record<string, number>; portions: number; total: number };
@@ -154,15 +157,33 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
   const locs =
     p.brand !== '*' ? (brandById.get(p.brand)?.locations ?? []) : [...new Set(ctx.brands.flatMap((b) => b.locations))];
 
-  // pCards(): non-sub cards of the chosen brand(s)
-  const cards: ProdCard[] = visibleRecipes
-    .filter((r) => r.type !== 'sub' && (p.brand === '*' || catalog.cards[r.code]!.brandId === p.brand))
-    .map((r) => ({
-      recipe: r,
-      food: cost(r, catalog.context).food || 0,
-      section: sectionOf(catalog.cards[r.code]!.category),
-      brandId: catalog.cards[r.code]!.brandId,
-    }));
+  // pCards(): non-sub cards of the chosen brand(s), costed with the catalog of the day (D-100, B3: the revision and the prices in
+  // force that day; days that cost alike share one catalog). Menus and plans (the builder below) use the current card.
+  const dayStart = p.view === 'month' ? `${p.month}-01` : `${p.month}-${p.day}`;
+  const asof = await loadAsOf(db, catalog, dayStart);
+  const viewMemo = new Map<Catalog, { cards: ProdCard[]; reqCtx: ReqContext }>();
+  const viewOf = (cat: Catalog) => {
+    let v = viewMemo.get(cat);
+    if (!v) {
+      const vis: CostRecipe[] = [...cat.context.recipes.values()].filter((r) => inScope(r.code));
+      v = {
+        cards: vis
+          .filter((r) => r.type !== 'sub' && (p.brand === '*' || catalog.cards[r.code]!.brandId === p.brand))
+          .map((r) => ({
+            recipe: r,
+            food: cost(r, cat.context).food || 0,
+            section: sectionOf(catalog.cards[r.code]!.category),
+            brandId: catalog.cards[r.code]!.brandId,
+          })),
+        reqCtx: { items: cat.context.items, recipes: vis, conv: cat.context.conv },
+      };
+      viewMemo.set(cat, v);
+    }
+    return v;
+  };
+  const current = viewOf(catalog);
+  const dv = viewOf(asof.catalogFor(`${p.month}-${p.day}`));
+  const cards = dv.cards;
   const brandCode = (c: ProdCard) => brandById.get(c.brandId)?.code ?? '';
 
   const brandsWithClients = new Set(clients.filter((c) => c.active).map((c) => c.brandId));
@@ -178,7 +199,7 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
     entries.map((e) => ({ day: e.day, location: e.location, code: e.code, portions: e.portions })),
   );
   const nd = daysIn(p.month);
-  const reqCtx: ReqContext = { items: catalog.context.items, recipes: visibleRecipes, conv: catalog.context.conv };
+  const reqCtx = dv.reqCtx;
   const secLabels = SECTIONS.map((s) => ({ key: s[0], en: s[1], ar: s[2] }));
   const currency = catalog.settings.currency;
   const weekday = weekdayOf(p.month, p.day, MENU_DAYS);
@@ -246,6 +267,13 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
         }))
       : [];
 
+  // dishes costed without any approved revision (D-100): flagged, never dropped
+  const unapproved = new Map<string, string>();
+  if (p.view !== 'month')
+    for (const c of cards)
+      if (idx.qty(p.day, c.recipe.code, p.loc) > 0 && !asof.isApproved(c.recipe.code))
+        unapproved.set(c.recipe.code, c.recipe.name);
+
   // monthly
   const monthRows: ProdData['monthRows'] = [];
   const monthSec: Record<string, number> = {};
@@ -254,7 +282,11 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
   if (p.view === 'month') {
     for (let i = 1; i <= nd; i++) {
       const day = pad2(i);
-      const dt = dayTotals(cards, idx, day, p.loc);
+      const dayCards = viewOf(asof.catalogFor(`${p.month}-${day}`)).cards;
+      const dt = dayTotals(dayCards, idx, day, p.loc);
+      for (const c of dayCards)
+        if (idx.qty(day, c.recipe.code, p.loc) > 0 && !asof.isApproved(c.recipe.code))
+          unapproved.set(c.recipe.code, c.recipe.name);
       monthTotal += dt.total;
       monthPortions += dt.portions;
       for (const s of SECTIONS) monthSec[s[0]] = (monthSec[s[0]] || 0) + (dt.sec[s[0]] || 0);
@@ -293,7 +325,8 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
       people: menus.reduce((a, m) => a + (totalMap.get(m.id) ?? 0), 0),
       dishes: dishes.map((d) => ({ name: d.r.name, q: d.q, from: d.from })),
       estimate: dishes.reduce(
-        (a, d) => a + d.q * (cards.find((c) => c.recipe.code === d.r.code)?.food ?? cost(d.r, catalog.context).food),
+        (a, d) =>
+          a + d.q * (current.cards.find((c) => c.recipe.code === d.r.code)?.food ?? cost(d.r, catalog.context).food),
         0,
       ),
       missing: Object.keys(dem.miss),
@@ -323,6 +356,7 @@ export async function loadProd(db: Queryable, ctx: PageCtx, catalog: Catalog, pI
       flags: dayReq.flags,
       reconciliation,
     },
+    unapproved: [...unapproved].map(([code, name]) => ({ code, name })).sort((a, b) => a.code.localeCompare(b.code)),
     monthRows,
     monthTotals: { sec: monthSec, portions: monthPortions, total: monthTotal },
     secLabels,

@@ -19,6 +19,7 @@ export const PERMISSIONS = [
   'users.manage',
   'data.admin',
   'brands.edit',
+  'units.edit',
   'clients.edit',
   'stock.edit',
   'stock.view',
