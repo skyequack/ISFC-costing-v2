@@ -57,10 +57,11 @@ describe.skipIf(!hasTestDb)('three units per raw material (D-102, D-103)', { tim
       .query(`SELECT detail FROM audit_log WHERE action = $1 ORDER BY created_at DESC LIMIT 1`, [action])
       .then((r) => r.rows[0]?.detail as string | undefined);
 
-  it('migration 0013 backfilled every item with its base unit and factor 1, and left price and flag alone', async () => {
+  it('every item means its base unit and factor 1 (backfilled by 0013, or NULL when seeded after it; the code reads NULL as that)', async () => {
     const r = await c.query(
       `SELECT count(*)::int AS n,
-              count(*) FILTER (WHERE purchase_unit = uom AND purchase_factor = 1 AND inventory_unit = uom AND inventory_factor = 1)::int AS ok
+              count(*) FILTER (WHERE coalesce(purchase_unit, uom) = uom AND coalesce(purchase_factor, 1) = 1
+                                AND coalesce(inventory_unit, uom) = uom AND coalesce(inventory_factor, 1) = 1)::int AS ok
          FROM ingredient`,
     );
     expect(r.rows[0].n).toBeGreaterThan(0);
